@@ -1,50 +1,38 @@
-using System.Numerics;
-using Raylib_CsLo;
+using NeuroBdayJam.Game.WorldGeneration;
 
 namespace NeuroBdayJam.WorldGen;
 /// <summary>
 /// Class for one set of game resources. Doesn't cache anything.
 /// </summary>
 
-internal class World{
-    Tile[,] Tiles;
-    Vector2 TileSize;
+internal class World {
+    private const float TILE_SIZE = 32;
 
-    internal World(int width, int height){
-        Tiles = new Tile[width, height];
-        int minDim = Math.Min(Application.BASE_WIDTH, Application.BASE_HEIGHT);
-        int maxTileDim = Math.Max(width, height);
-        TileSize = new Vector2(minDim/maxTileDim);
+    public int TileWidth => Tiles.GetLength(0);
+    public int TileHeight => Tiles.GetLength(1);
 
-        int i=0;
-        for (int x=0; x<width; x++){
-            for (int y=0; y<height; y++){
-                Tiles[x, y] = new Tile(){
-                    DEBUG_color = new Color((byte)(Random.Shared.NextSingle()*255), (byte)(Random.Shared.NextSingle()*255), (byte)(Random.Shared.NextSingle()*255), (byte)255),
-                    Pos = new Vector2(x, y),
-                    Id = i++,
-                    Size = TileSize
-                };
-            }
+    private ulong[,] Tiles { get; }
+
+    internal World(Tileset tileset, ulong[,] tiles) {
+        Tiles = tiles;
+    }
+
+    internal void DEBUG_Draw() {
+        foreach (ulong tileId in Tiles) {
+            //tile.DEBUG_Draw();
         }
     }
 
-    internal void DEBUG_Draw(){
-        foreach (Tile tile in Tiles){
-            tile.DEBUG_Draw();
-        }
-    }
-    
-    internal struct Tile{
+    /*internal struct Tile {
         public int Id;
         public Vector2 Size;
         public Vector2 Pos;
 
         public Color DEBUG_color;
 
-        internal void DEBUG_Draw(){
+        internal void DEBUG_Draw() {
             Raylib.DrawRectangleV(Pos * Size, Size, DEBUG_color);
         }
-        
-    }
+
+    }*/
 }
