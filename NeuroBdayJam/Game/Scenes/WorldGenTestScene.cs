@@ -9,13 +9,13 @@ namespace NeuroBdayJam.Game.Scenes;
 /// </summary>
 internal class WorldGenTestScene : Scene{
 
-    World world;
+    World MyWorld;
 
     /// <summary>
     /// Called when the scene is loaded. Override this method to provide custom scene initialization logic and to load resources.
     /// </summary>
     internal override void Load() {
-        world = new World(2, 2);
+        MyWorld = new World(100, 100);
     }
 
     /// <summary>
@@ -23,13 +23,22 @@ internal class WorldGenTestScene : Scene{
     /// </summary>
     /// <param name="dT">The delta time since the last frame, typically used for frame-rate independent updates.</param>
     internal override void Update(float dT) {
+        var watch = new System.Diagnostics.Stopwatch();
+        watch.Start();
+        
+        while (MyWorld.Step());
+
+        watch.Stop();
+
+        Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
+
     }
 
     /// <summary>
     /// Called every frame to draw the scene. Override this method to provide custom scene rendering logic.
     /// </summary>
     internal override void Draw(float dT) {
-        world.DEBUG_Draw();
+        MyWorld.DEBUG_Draw();
     }
 
     /// <summary>
