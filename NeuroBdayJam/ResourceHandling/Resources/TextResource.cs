@@ -25,7 +25,7 @@ internal sealed class TextResourceLoader : ResourceLoader<IReadOnlyDictionary<st
     }
 
     protected override IReadOnlyDictionary<string, string> LoadResourceInternal(string key) {
-        IReadOnlyDictionary<string, string>? res = ResourceManager.MainTheme.LoadText(key) ?? ResourceManager.DefaultTheme.LoadText(key);
+        IReadOnlyDictionary<string, string>? res = ResourceManager.MainTheme.LoadText(key) ?? ResourceManager.MainResourceFile.LoadText(key);
         return res ?? Fallback.Resource;
     }
 
