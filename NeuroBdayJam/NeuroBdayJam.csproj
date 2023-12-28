@@ -9,23 +9,31 @@
 
     <IsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">true</IsWindows>
     <IsLinux Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">true</IsLinux>
-    <ApplicationIcon>Resources\icon.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\icon_0.ico</ApplicationIcon>
     <AssemblyName>Toasted</AssemblyName>
     <TrimMode>partial</TrimMode>
     <PublishTrimmed>true</PublishTrimmed>
   </PropertyGroup>
 
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\icon.ico" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Resources\icon.png" />
-  </ItemGroup>
-
   <PropertyGroup Condition="'$(OS)' == 'Windows_NT'">
     <DefineConstants>$(DefineConstants);WINDOWS</DefineConstants>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\icon_0.ico" />
+    <None Remove="Resources\icon_0.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Resources\icon_0.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\icon_0.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\icon_0.png" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Raylib-CsLo" Version="4.2.0.9" />
@@ -35,6 +43,12 @@
     <Folder Include="Resources\ResourceFiles\Main\Music\" />
     <Folder Include="Resources\ResourceFiles\Main\Sounds\" />
     <Folder Include="Resources\ResourceFiles\Main\Texts\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Resources\Main.dat">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

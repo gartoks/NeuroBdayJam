@@ -48,7 +48,7 @@ internal sealed class FontResourceLoader : ResourceLoader<Font, FontResource> {
     }
 
     protected override Font LoadResourceInternal(string key) {
-        Font? res = ResourceManager.MainTheme.LoadFont(key) ?? ResourceManager.DefaultTheme.LoadFont(key);
+        Font? res = ResourceManager.MainTheme.LoadFont(key) ?? ResourceManager.MainResourceFile.LoadFont(key);
         return res ?? Fallback.Resource;
     }
 

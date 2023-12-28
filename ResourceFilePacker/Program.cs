@@ -21,7 +21,7 @@ internal class Program {
 
             foreach (string dirPath in Directory.EnumerateDirectories(args[0])) {
                 string dirName = Path.GetFileName(dirPath);
-                string zipPath = Path.Combine(args[1], dirName + ".theme");
+                string zipPath = Path.Combine(args[1], dirName + ".dat");
 
                 if (File.Exists(zipPath))
                     File.Delete(zipPath);

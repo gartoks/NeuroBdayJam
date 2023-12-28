@@ -28,7 +28,7 @@ internal sealed class SoundResourceLoader : ResourceLoader<Sound, SoundResource>
     }
 
     protected override Sound LoadResourceInternal(string key) {
-        Sound? res = ResourceManager.MainTheme.LoadSound(key) ?? ResourceManager.DefaultTheme.LoadSound(key);
+        Sound? res = ResourceManager.MainTheme.LoadSound(key) ?? ResourceManager.MainResourceFile.LoadSound(key);
         return res ?? Fallback.Resource;
     }
 

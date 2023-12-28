@@ -68,7 +68,7 @@ internal sealed class TextureResourceLoader : ResourceLoader<Texture, TextureRes
     }
 
     protected override Texture LoadResourceInternal(string key) {
-        Texture? res = ResourceManager.MainTheme.LoadTexture(key) ?? ResourceManager.DefaultTheme.LoadTexture(key);
+        Texture? res = ResourceManager.MainTheme.LoadTexture(key) ?? ResourceManager.MainResourceFile.LoadTexture(key);
         return res ?? Fallback.Resource;
     }
 

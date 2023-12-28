@@ -5,6 +5,11 @@
 
 Config/
 
+NeuroBdayJam/Resources/References/
+NeuroBdayJam/Resources/ResourceFiles/Main/
+/NeuroBdayJam/Resources/References/
+/NeuroBdayJam/Resources/ResourceFiles/Main/
+
 # User-specific files
 *.rsuser
 *.suo
@@ -398,3 +403,6 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+*.pdn
+NeuroBdayJam/Resources/ResourceFiles/Main/
+/NeuroBdayJam/Resources/NOTES.txt

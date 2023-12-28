@@ -28,7 +28,7 @@ internal sealed class MusicResourceLoader : ResourceLoader<Music, MusicResource>
     }
 
     protected override Music LoadResourceInternal(string key) {
-        Music? res = ResourceManager.MainTheme.LoadMusic(key) ?? ResourceManager.DefaultTheme.LoadMusic(key);
+        Music? res = ResourceManager.MainTheme.LoadMusic(key) ?? ResourceManager.MainResourceFile.LoadMusic(key);
         return res ?? Fallback.Resource;
     }
 

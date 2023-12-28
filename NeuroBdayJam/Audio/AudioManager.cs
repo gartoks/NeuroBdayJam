@@ -1,6 +1,6 @@
-﻿using NeuroBdayJam.Util;
-using NeuroBdayJam.ResourceHandling;
+﻿using NeuroBdayJam.ResourceHandling;
 using NeuroBdayJam.ResourceHandling.Resources;
+using NeuroBdayJam.Util;
 using Raylib_CsLo;
 using System.Collections.Concurrent;
 

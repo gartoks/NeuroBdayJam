@@ -27,7 +27,7 @@ internal sealed class ColorResourceLoader : ResourceLoader<Color, ColorResource>
     }
 
     protected override Color LoadResourceInternal(string key) {
-        Color? res = ResourceManager.MainTheme.GetColor(key) ?? ResourceManager.DefaultTheme.GetColor(key);
+        Color? res = ResourceManager.MainTheme.GetColor(key) ?? ResourceManager.MainResourceFile.GetColor(key);
         return res ?? Fallback.Resource;
     }
 
