@@ -1,14 +1,12 @@
-using System.Numerics;
-using Raylib_CsLo;
+using NeuroBdayJam.Game.WorldGeneration;
 
 namespace NeuroBdayJam.WorldGen;
 /// <summary>
 /// Class for one set of game resources. Doesn't cache anything.
 /// </summary>
 
-internal class World{
-    Tile[,] Tiles;
-    Vector2 TileSize;
+internal class World {
+    private const float TILE_SIZE = 32;
 
     int Width, Height;
 
@@ -91,13 +89,7 @@ internal class World{
         return false;
     }
 
-    internal void DEBUG_Draw(){
-        foreach (Tile tile in Tiles){
-            tile.DEBUG_Draw();
-        }
-    }
-    
-    internal struct Tile{
+    /*internal struct Tile {
         public int Id;
         public Vector2 Size;
         public Vector2 Pos;

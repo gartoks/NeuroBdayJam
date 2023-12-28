@@ -52,7 +52,7 @@ internal sealed class MainMenuScene : Scene {
         QuitButton.Draw();
 
         if (StartButton.IsClicked)
-            GameManager.SetScene(new GameScene());
+            GameManager.SetScene(new WorldGenTestScene());
         if (LoadButton.IsClicked)
             GameManager.SetScene(new LoadSaveScene());
         if (SettingsButton.IsClicked)
