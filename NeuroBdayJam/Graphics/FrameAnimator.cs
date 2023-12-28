@@ -1,9 +1,9 @@
-﻿using NeuroBDayJam.ResourceHandling.Resources;
-using NeuroBDayJam.Util;
+﻿using NeuroBdayJam.ResourceHandling.Resources;
+using NeuroBdayJam.Util;
 using Raylib_CsLo;
 using System.Numerics;
 
-namespace NeuroBDayJam.Graphics;
+namespace NeuroBdayJam.Graphics;
 internal sealed class FrameAnimator {
     private float FrameDuration { get; }
 

@@ -1,8 +1,8 @@
-﻿using NeuroBDayJam.App;
-using NeuroBDayJam.Audio;
+﻿using NeuroBdayJam.App;
+using NeuroBdayJam.Audio;
 using Raylib_CsLo;
 
-namespace NeuroBDayJam.Game.Gui;
+namespace NeuroBdayJam.Game.Gui;
 /// <summary>
 /// Class to keep track of gui elements and focus.
 /// </summary>

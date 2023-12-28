@@ -1,12 +1,12 @@
-﻿using NeuroBDayJam.App;
-using NeuroBDayJam.Audio;
-using NeuroBDayJam.Graphics;
-using NeuroBDayJam.ResourceHandling;
+﻿using NeuroBdayJam.App;
+using NeuroBdayJam.Audio;
+using NeuroBdayJam.Graphics;
+using NeuroBdayJam.ResourceHandling;
 using Raylib_CsLo;
 using System.Diagnostics;
 using System.Reflection;
 
-namespace NeuroBDayJam;
+namespace NeuroBdayJam;
 /// <summary>
 /// The main application class. Initializes the window, drawing engine and controllers. Manages the game loop and threads.
 /// </summary>

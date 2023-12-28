@@ -1,10 +1,10 @@
-﻿using NeuroBDayJam.Util;
-using NeuroBDayJam.ResourceHandling;
-using NeuroBDayJam.ResourceHandling.Resources;
+﻿using NeuroBdayJam.Util;
+using NeuroBdayJam.ResourceHandling;
+using NeuroBdayJam.ResourceHandling.Resources;
 using Raylib_CsLo;
 using System.Numerics;
 
-namespace NeuroBDayJam.Game.Gui;
+namespace NeuroBdayJam.Game.Gui;
 internal sealed class GuiPanel : GuiElement {
 
     private string _TextureKey { get; set; }

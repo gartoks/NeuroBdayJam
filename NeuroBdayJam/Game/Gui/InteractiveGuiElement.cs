@@ -1,9 +1,9 @@
-﻿using NeuroBDayJam.Util;
-using NeuroBDayJam.App;
+﻿using NeuroBdayJam.Util;
+using NeuroBdayJam.App;
 using Raylib_CsLo;
 using System.Numerics;
 
-namespace NeuroBDayJam.Game.Gui;
+namespace NeuroBdayJam.Game.Gui;
 internal abstract class InteractiveGuiElement : GuiElement {
 
     internal bool IsHovered => Bounds.Contains(Input.ScreenToWorld(Raylib.GetMousePosition()));

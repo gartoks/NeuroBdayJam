@@ -1,7 +1,7 @@
 ﻿using Raylib_CsLo;
 using System.Numerics;
 
-namespace NeuroBDayJam.Util;
+namespace NeuroBdayJam.Util;
 internal static class Extensions {
 
     public static bool Contains(this Rectangle rect, Vector2 pos) {

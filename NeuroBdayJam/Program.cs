@@ -1,7 +1,7 @@
-﻿using NeuroBDayJam.Util;
+﻿using NeuroBdayJam.Util;
 using System.Diagnostics;
 using System.Text;
-namespace NeuroBDayJam;
+namespace NeuroBdayJam;
 
 internal class Program {
     static void Main(string[] args) {

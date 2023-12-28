@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Numerics;
 
-namespace NeuroBDayJam.ResourceHandling.Resources;
+namespace NeuroBdayJam.ResourceHandling.Resources;
 
 public interface IDrawableResource {
     //void Draw(Vector2 position, Vector2? pivot = null, Vector2? scale = null, float rotation = 0, Color? tint = null);

@@ -1,4 +1,4 @@
-﻿namespace NeuroBDayJam.App;
+﻿namespace NeuroBdayJam.App;
 /// <summary>
 /// Provides utility methods for working with files, particularly for retrieving paths for saves and resources.
 /// </summary>

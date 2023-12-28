@@ -1,7 +1,7 @@
-﻿using NeuroBDayJam.Game.Gui;
+﻿using NeuroBdayJam.Game.Gui;
 using System.Reflection;
 
-namespace NeuroBDayJam.Game.Scenes;
+namespace NeuroBdayJam.Game.Scenes;
 /// <summary>
 /// Represents a base class for game scenes. Provides methods for scene lifecycle including loading, updating, drawing, and unloading.
 /// </summary>

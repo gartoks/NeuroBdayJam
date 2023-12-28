@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Numerics;
 
-namespace NeuroBDayJam.ResourceHandling.Resources;
+namespace NeuroBdayJam.ResourceHandling.Resources;
 
 internal record TextureAtlas(Texture Texture, IReadOnlyDictionary<string, (int x, int y, int w, int h)> SubTextures);
 

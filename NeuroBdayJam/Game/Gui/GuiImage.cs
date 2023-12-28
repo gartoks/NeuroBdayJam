@@ -1,7 +1,7 @@
-﻿using NeuroBDayJam.ResourceHandling.Resources;
+﻿using NeuroBdayJam.ResourceHandling.Resources;
 using System.Numerics;
 
-namespace NeuroBDayJam.Game.Gui;
+namespace NeuroBdayJam.Game.Gui;
 internal sealed class GUIImage : GuiElement {
     public TextureResource Texture { get; set; }
     public ColorResource Tint { get; set; }

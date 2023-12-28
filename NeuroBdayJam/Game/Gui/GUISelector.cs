@@ -1,11 +1,11 @@
-﻿using NeuroBDayJam.Util;
-using NeuroBDayJam.App;
-using NeuroBDayJam.Audio;
-using NeuroBDayJam.Graphics;
+﻿using NeuroBdayJam.Util;
+using NeuroBdayJam.App;
+using NeuroBdayJam.Audio;
+using NeuroBdayJam.Graphics;
 using Raylib_CsLo;
 using System.Numerics;
 
-namespace NeuroBDayJam.Game.Gui;
+namespace NeuroBdayJam.Game.Gui;
 internal class GuiSelector : InteractiveGuiElement {
     private const float BUTTON_SPACING = 10;
 

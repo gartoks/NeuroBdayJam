@@ -1,11 +1,11 @@
-﻿using NeuroBDayJam.Util;
-using NeuroBDayJam.App;
-using NeuroBDayJam.ResourceHandling.Resources;
+﻿using NeuroBdayJam.Util;
+using NeuroBdayJam.App;
+using NeuroBdayJam.ResourceHandling.Resources;
 using Raylib_CsLo;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 
-namespace NeuroBDayJam.ResourceHandling;
+namespace NeuroBdayJam.ResourceHandling;
 /// <summary>
 /// Class for managing the game's resources. Handles loading and caching of resources.
 /// </summary>

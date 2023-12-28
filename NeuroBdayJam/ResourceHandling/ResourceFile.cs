@@ -1,12 +1,12 @@
-using NeuroBDayJam.Util;
-using NeuroBDayJam.ResourceHandling.Resources;
+using NeuroBdayJam.Util;
+using NeuroBdayJam.ResourceHandling.Resources;
 using Raylib_CsLo;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO.Compression;
 using System.Text.Json;
 
-namespace NeuroBDayJam.ResourceHandling;
+namespace NeuroBdayJam.ResourceHandling;
 /// <summary>
 /// Class for one set of game resources. Doesn't cache anything.
 /// </summary>

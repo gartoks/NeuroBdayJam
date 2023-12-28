@@ -1,9 +1,9 @@
-﻿using NeuroBDayJam.App;
-using NeuroBDayJam.Util;
+﻿using NeuroBdayJam.App;
+using NeuroBdayJam.Util;
 using Raylib_CsLo;
 using System.Numerics;
 
-namespace NeuroBDayJam.Game.Gui;
+namespace NeuroBdayJam.Game.Gui;
 internal sealed class GuiTextButton : InteractiveGuiElement {
     public GuiPanel Panel { get; }
     public GuiLabel Label { get; }

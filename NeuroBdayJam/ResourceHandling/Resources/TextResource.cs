@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 
-namespace NeuroBDayJam.ResourceHandling.Resources;
+namespace NeuroBdayJam.ResourceHandling.Resources;
 /// <summary>
 /// Game resource for text.
 /// </summary>

@@ -1,9 +1,9 @@
-﻿using NeuroBDayJam.Audio;
-using NeuroBDayJam.ResourceHandling;
+﻿using NeuroBdayJam.Audio;
+using NeuroBdayJam.ResourceHandling;
 using Raylib_CsLo;
 using System.Text.Json;
 
-namespace NeuroBDayJam.App;
+namespace NeuroBdayJam.App;
 /// <summary>
 /// Class for managing the game settings
 /// </summary>

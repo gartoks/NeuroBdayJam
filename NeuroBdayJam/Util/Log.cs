@@ -1,4 +1,4 @@
-﻿namespace NeuroBDayJam.Util;
+﻿namespace NeuroBdayJam.Util;
 public enum eLogType { Message, Warning, Error }
 
 public delegate void LogEventHandler(string text, eLogType logType);

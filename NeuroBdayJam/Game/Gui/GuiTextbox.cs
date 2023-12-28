@@ -1,10 +1,10 @@
-﻿using NeuroBDayJam.App;
-using NeuroBDayJam.ResourceHandling.Resources;
-using NeuroBDayJam.Util;
+﻿using NeuroBdayJam.App;
+using NeuroBdayJam.ResourceHandling.Resources;
+using NeuroBdayJam.Util;
 using Raylib_CsLo;
 using System.Numerics;
 
-namespace NeuroBDayJam.Game.Gui;
+namespace NeuroBdayJam.Game.Gui;
 internal class GuiTextbox : InteractiveGuiElement {
     private const float TEXT_SPACING = 20;
     private const string ALLOWED_CHARS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!\"§$%&/()=?*+~#'-_.:,;<>|^°@€ ";

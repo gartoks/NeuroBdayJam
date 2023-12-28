@@ -1,11 +1,11 @@
-﻿using NeuroBDayJam.Graphics;
-using NeuroBDayJam.ResourceHandling;
-using NeuroBDayJam.ResourceHandling.Resources;
-using NeuroBDayJam.Util;
+﻿using NeuroBdayJam.Graphics;
+using NeuroBdayJam.ResourceHandling;
+using NeuroBdayJam.ResourceHandling.Resources;
+using NeuroBdayJam.Util;
 using Raylib_CsLo;
 using System.Numerics;
 
-namespace NeuroBDayJam.Game.Gui;
+namespace NeuroBdayJam.Game.Gui;
 
 internal enum eTextAlignment { Left, Center, Right }
 

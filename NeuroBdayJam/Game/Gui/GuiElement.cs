@@ -1,7 +1,7 @@
 ﻿using Raylib_CsLo;
 using System.Numerics;
 
-namespace NeuroBDayJam.Game.Gui;
+namespace NeuroBdayJam.Game.Gui;
 internal abstract class GuiElement : IEquatable<GuiElement?> {
     private Guid Id { get; }
 

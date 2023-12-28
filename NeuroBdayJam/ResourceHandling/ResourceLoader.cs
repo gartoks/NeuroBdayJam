@@ -1,9 +1,9 @@
-﻿using NeuroBDayJam.Util;
+﻿using NeuroBdayJam.Util;
 using System.Collections.Concurrent;
 using System.Globalization;
 using System.Reflection;
 
-namespace NeuroBDayJam.ResourceHandling;
+namespace NeuroBdayJam.ResourceHandling;
 /// <summary>
 /// Class for loading resources.
 /// </summary>

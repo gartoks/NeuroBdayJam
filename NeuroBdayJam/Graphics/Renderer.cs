@@ -1,9 +1,9 @@
-﻿using NeuroBDayJam.ResourceHandling;
-using NeuroBDayJam.ResourceHandling.Resources;
+﻿using NeuroBdayJam.ResourceHandling;
+using NeuroBdayJam.ResourceHandling.Resources;
 using Raylib_CsLo;
 using System.Diagnostics;
 
-namespace NeuroBDayJam.Graphics;
+namespace NeuroBdayJam.Graphics;
 /// <summary>
 /// Class for settup up and controlling the drawing of the game.
 /// </summary>

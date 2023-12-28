@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Numerics;
 
-namespace NeuroBDayJam.ResourceHandling.Resources;
+namespace NeuroBdayJam.ResourceHandling.Resources;
 /// <summary>
 /// Game resource for fonts.
 /// </summary>

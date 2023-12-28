@@ -1,8 +1,8 @@
-﻿using NeuroBDayJam.ResourceHandling.Resources;
+﻿using NeuroBdayJam.ResourceHandling.Resources;
 using Raylib_CsLo;
 using System.Numerics;
 
-namespace NeuroBDayJam.Graphics;
+namespace NeuroBdayJam.Graphics;
 /// <summary>
 /// Class to handle animated textures.
 /// </summary>

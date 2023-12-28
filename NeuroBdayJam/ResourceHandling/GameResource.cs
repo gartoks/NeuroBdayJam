@@ -1,4 +1,4 @@
-﻿namespace NeuroBDayJam.ResourceHandling;
+﻿namespace NeuroBdayJam.ResourceHandling;
 
 internal delegate object? ResourceRetrieverDelegate(string key);    // sadly this has to be object? and cannot be T? because delegates dont work properly when T is a struct
 

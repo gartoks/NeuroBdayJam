@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Numerics;
 
-namespace NeuroBDayJam.ResourceHandling.Resources;
+namespace NeuroBdayJam.ResourceHandling.Resources;
 
 internal record NPatchTexture(Texture Texture, int left, int right, int top, int bottom);
 

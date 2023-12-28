@@ -1,9 +1,9 @@
-﻿using NeuroBDayJam.Graphics;
-using NeuroBDayJam.ResourceHandling.Resources;
+﻿using NeuroBdayJam.Graphics;
+using NeuroBdayJam.ResourceHandling.Resources;
 using Raylib_CsLo;
 using System.Numerics;
 
-namespace NeuroBDayJam.Game.Gui;
+namespace NeuroBdayJam.Game.Gui;
 internal sealed class GuiDynamicLabel : GuiElement {
     public string Text { get; set; }
 

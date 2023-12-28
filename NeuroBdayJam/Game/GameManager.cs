@@ -1,9 +1,9 @@
-﻿using NeuroBDayJam.Audio;
-using NeuroBDayJam.Game.Gui;
-using NeuroBDayJam.Game.Scenes;
-using NeuroBDayJam.ResourceHandling.Resources;
+﻿using NeuroBdayJam.Audio;
+using NeuroBdayJam.Game.Gui;
+using NeuroBdayJam.Game.Scenes;
+using NeuroBdayJam.ResourceHandling.Resources;
 
-namespace NeuroBDayJam.Game;
+namespace NeuroBdayJam.Game;
 /// <summary>
 /// Static class to control the main game. Handles the game's scenes.
 /// </summary>

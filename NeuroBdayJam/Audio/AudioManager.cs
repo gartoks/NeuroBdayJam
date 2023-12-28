@@ -1,10 +1,10 @@
-﻿using NeuroBDayJam.Util;
-using NeuroBDayJam.ResourceHandling;
-using NeuroBDayJam.ResourceHandling.Resources;
+﻿using NeuroBdayJam.Util;
+using NeuroBdayJam.ResourceHandling;
+using NeuroBdayJam.ResourceHandling.Resources;
 using Raylib_CsLo;
 using System.Collections.Concurrent;
 
-namespace NeuroBDayJam.Audio;
+namespace NeuroBdayJam.Audio;
 /// <summary>
 /// Class for managing sounds and music.
 /// </summary>

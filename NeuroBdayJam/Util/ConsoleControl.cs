@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace NeuroBDayJam.Util;
+namespace NeuroBdayJam.Util;
 static class ConsoleControl {
     const int SW_HIDE = 0;
     const int SW_SHOW = 5;

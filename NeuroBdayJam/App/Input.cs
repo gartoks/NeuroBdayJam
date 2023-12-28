@@ -1,8 +1,8 @@
 ﻿using Raylib_CsLo;
 using System.Numerics;
-using static NeuroBDayJam.App.Input;
+using static NeuroBdayJam.App.Input;
 
-namespace NeuroBDayJam.App;
+namespace NeuroBdayJam.App;
 /// <summary>
 /// Static class to control the game's input and convert them to hotkey and mouse states.
 /// </summary>

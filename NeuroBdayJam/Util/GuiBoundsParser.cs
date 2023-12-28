@@ -1,8 +1,8 @@
-﻿using NeuroBDayJam;
+﻿using NeuroBdayJam;
 using Raylib_CsLo;
 using System.Globalization;
 
-namespace NeuroBDayJam.Util;
+namespace NeuroBdayJam.Util;
 internal static class GuiBoundsParser {
 
     public static Rectangle Parse(string bounds) {
