@@ -52,7 +52,7 @@ internal static class ResourceManager {
         NPatchTextureLoader = new(ResourceLoadingQueue);
         TextureAtlasLoader = new(ResourceLoadingQueue);
 
-        DefaultTheme = new ResourceFile(Files.GetResourceFilePath("MelbaToast.theme"));
+        DefaultTheme = new ResourceFile(Files.GetResourceFilePath("Main.theme"));
         MainTheme = DefaultTheme;
     }
 
