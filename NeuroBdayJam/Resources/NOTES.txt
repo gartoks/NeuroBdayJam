@@ -1,3 +1,0 @@
-﻿<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="&quot;$(SolutionDir)ThemePacker/bin/Debug/net7.0/ThemePacker&quot; $(ProjectDir)Resources/ResourceFiles/ $(ProjectDir)Resources/" />
-  </Target>

@@ -80,7 +80,6 @@ internal static class Application {
         AudioManager.Initialize();
         Input.Initialize();
         Renderer.Initialize();
-        //GUIHandler.Initialize();
         Game.GameManager.Initialize();
     }
 
@@ -156,7 +155,7 @@ internal static class Application {
 
     private static Image LoadIcon() {
         Assembly assembly = Assembly.GetExecutingAssembly();
-        string resourceName = "NeuroBdayJam.Resources.icon.png";
+        string resourceName = "NeuroBdayJam.Resources.icon_0.png";
 
         using Stream stream = assembly.GetManifestResourceStream(resourceName)!;
         byte[] imageData;

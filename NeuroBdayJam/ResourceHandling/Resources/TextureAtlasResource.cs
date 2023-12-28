@@ -77,7 +77,7 @@ internal sealed class TextureAtlasResourceLoader : ResourceLoader<TextureAtlas, 
     }
 
     protected override TextureAtlas LoadResourceInternal(string key) {
-        TextureAtlas? res = ResourceManager.MainTheme.LoadTextureAtlas(key) ?? ResourceManager.DefaultTheme.LoadTextureAtlas(key);
+        TextureAtlas? res = ResourceManager.MainTheme.LoadTextureAtlas(key) ?? ResourceManager.MainResourceFile.LoadTextureAtlas(key);
         return res ?? Fallback.Resource;
     }
 

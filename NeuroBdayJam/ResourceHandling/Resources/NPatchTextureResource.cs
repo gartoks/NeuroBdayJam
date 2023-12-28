@@ -129,7 +129,7 @@ internal sealed class NPatchTextureResourceLoader : ResourceLoader<NPatchTexture
     }
 
     protected override NPatchTexture LoadResourceInternal(string key) {
-        NPatchTexture? res = ResourceManager.MainTheme.LoadNPatchTexture(key) ?? ResourceManager.DefaultTheme.LoadNPatchTexture(key);
+        NPatchTexture? res = ResourceManager.MainTheme.LoadNPatchTexture(key) ?? ResourceManager.MainResourceFile.LoadNPatchTexture(key);
         return res ?? Fallback.Resource;
     }
 

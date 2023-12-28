@@ -1,6 +1,6 @@
-﻿using NeuroBdayJam.Util;
-using NeuroBdayJam.App;
+﻿using NeuroBdayJam.App;
 using NeuroBdayJam.ResourceHandling.Resources;
+using NeuroBdayJam.Util;
 using Raylib_CsLo;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -31,7 +31,7 @@ internal static class ResourceManager {
     /// <summary>
     /// Base theme.
     /// </summary>
-    public static ResourceFile DefaultTheme { get; }
+    public static ResourceFile MainResourceFile { get; }
     /// <summary>
     /// Additional theme.
     /// </summary>
@@ -52,8 +52,8 @@ internal static class ResourceManager {
         NPatchTextureLoader = new(ResourceLoadingQueue);
         TextureAtlasLoader = new(ResourceLoadingQueue);
 
-        DefaultTheme = new ResourceFile(Files.GetResourceFilePath("MelbaToast.theme"));
-        MainTheme = DefaultTheme;
+        MainResourceFile = new ResourceFile(Files.GetResourceFilePath("Main.dat"));
+        MainTheme = MainResourceFile;
     }
 
     /// <summary>
@@ -66,7 +66,7 @@ internal static class ResourceManager {
     /// Loads default resources.
     /// </summary>
     internal static void Load() {
-        DefaultTheme.Load();
+        MainResourceFile.Load();
 
         ColorLoader.Load(Raylib.WHITE);
         FontLoader.Load(Raylib.GetFontDefault());
@@ -83,8 +83,8 @@ internal static class ResourceManager {
     /// Unloads all resources.
     /// </summary>
     internal static void Unload() {
-        DefaultTheme?.Unload();
-        DefaultTheme?.Dispose();
+        MainResourceFile?.Unload();
+        MainResourceFile?.Dispose();
 
         MainTheme?.Unload();
         MainTheme?.Dispose();
@@ -157,14 +157,14 @@ internal static class ResourceManager {
         if (MainTheme?.Name == name)
             return;
 
-        string filename = Files.GetResourceFilePath(name + ".theme");
+        string filename = Files.GetResourceFilePath(name + ".dat");
 
         if (!File.Exists(filename)) {
             Debug.WriteLine($"ERROR: Theme named '{name}' doesn't exist. Using Fallback.");
             return;
         }
 
-        if (MainTheme != DefaultTheme) {
+        if (MainTheme != MainResourceFile) {
             MainTheme.Unload();
             MainTheme.Dispose();
         }

@@ -31,8 +31,6 @@ public static class GameManager {
     /// Initializes the game. Creates the initially loaded scene.
     /// </summary>
     internal static void Initialize() {
-        //InputHandler.RegisterHotkey("w", KeyboardKey.KEY_W);
-
         WasSceneLoaded = false;
         WasMusicQueued = false;
 
@@ -45,7 +43,9 @@ public static class GameManager {
     internal static void Load() {
         GuiManager.Load();
 
-        //Scene = ; TODO set initial scene
+        Music = new MusicResource[0];
+
+        Scene = new MainMenuScene();
     }
 
     /// <summary>
@@ -53,7 +53,7 @@ public static class GameManager {
     /// </summary>
     /// <param name="dT"></param>
     internal static void Update(float dT) {
-        if (Music.All(m => !AudioManager.IsMusicPlaying(m.Key))) {
+        if (Music.Count > 0 && Music.All(m => !AudioManager.IsMusicPlaying(m.Key))) {
             if (WasMusicQueued)
                 return;
 
