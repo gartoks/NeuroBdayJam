@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34202.233
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeuroBdayJam", "NeuroBdayJam\NeuroBdayJam.csproj", "{6666F1AC-C690-4B56-A478-7DAFC959BA54}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResourceFilePacker", "ResourceFilePacker\ResourceFilePacker.csproj", "{A93860BF-5329-4A15-9C6A-67330B3B8728}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6666F1AC-C690-4B56-A478-7DAFC959BA54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6666F1AC-C690-4B56-A478-7DAFC959BA54}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6666F1AC-C690-4B56-A478-7DAFC959BA54}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6666F1AC-C690-4B56-A478-7DAFC959BA54}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A93860BF-5329-4A15-9C6A-67330B3B8728}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A93860BF-5329-4A15-9C6A-67330B3B8728}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A93860BF-5329-4A15-9C6A-67330B3B8728}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A93860BF-5329-4A15-9C6A-67330B3B8728}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {EA45108D-1B47-4435-8BCD-7CB56482F545}
+	EndGlobalSection
+EndGlobal
