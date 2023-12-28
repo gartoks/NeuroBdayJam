@@ -3,6 +3,8 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
+Config/
+
 NeuroBdayJam/Resources/References/
 NeuroBdayJam/Resources/ResourceFiles/Main/
 /NeuroBdayJam/Resources/References/
@@ -401,8 +403,6 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+*.pdn
+NeuroBdayJam/Resources/ResourceFiles/Main/
 /NeuroBdayJam/Resources/NOTES.txt
-/NeuroBdayJam/Resources/ResourceFiles/Main/colors.json
-/NeuroBdayJam/Resources/ResourceFiles/Main/Textures/TextureAtlasData/example.json
-/NeuroBdayJam/Resources/icon.png
-/NeuroBdayJam/Resources/icon_0.png
