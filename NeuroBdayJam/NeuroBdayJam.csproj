@@ -43,11 +43,15 @@
     <Folder Include="Resources\ResourceFiles\Main\Music\" />
     <Folder Include="Resources\ResourceFiles\Main\Sounds\" />
     <Folder Include="Resources\ResourceFiles\Main\Texts\" />
+    <Folder Include="WorldGen\" />
   </ItemGroup>
 
   <ItemGroup>
     <None Update="Resources\Main.dat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\TestStuff\Maps\Map_Test_0.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

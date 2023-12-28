@@ -1,27 +1,29 @@
-using NeuroBdayJam.Game.WorldGeneration;
+using Raylib_CsLo;
+using System.Numerics;
 
-namespace NeuroBdayJam.WorldGen;
+namespace NeuroBdayJam.Game.World.Generation;
 /// <summary>
 /// Class for one set of game resources. Doesn't cache anything.
 /// </summary>
 
-internal class World {
-    private const float TILE_SIZE = 32;
+internal class WorldGenerator {
+    Tile[,] Tiles;
+    Vector2 TileSize;
 
     int Width, Height;
 
-    internal World(int width, int height){
+    internal WorldGenerator(int width, int height) {
         Width = width;
         Height = height;
 
         Tiles = new Tile[width, height];
         int minDim = Math.Min(Application.BASE_WIDTH, Application.BASE_HEIGHT);
         int maxTileDim = Math.Max(width, height);
-        TileSize = new Vector2(minDim/maxTileDim);
+        TileSize = new Vector2(minDim / maxTileDim);
 
-        for (int x=0; x<width; x++){
-            for (int y=0; y<height; y++){
-                Tiles[x, y] = new Tile(){
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                Tiles[x, y] = new Tile() {
                     Pos = new Vector2(x, y),
                     Id = 0,
                     Size = TileSize,
@@ -33,70 +35,76 @@ internal class World {
         CollapseCell(0, 0, 1);
     }
 
-    internal void CollapseCell(int x, int y, int id){
-        Tiles[x, y].PossibleValues = (ulong)1 << (id-1);
+    internal void CollapseCell(int x, int y, int id) {
+        Tiles[x, y].PossibleValues = (ulong)1 << id - 1;
         Tiles[x, y].Id = id;
 
         ulong possibleNeighbours = IdToPossibleNeighbours[id];
 
         if (y != 0)
-            Tiles[x, y-1].PossibleValues &= possibleNeighbours;
+            Tiles[x, y - 1].PossibleValues &= possibleNeighbours;
 
         if (x != 0)
-            Tiles[x-1, y].PossibleValues &= possibleNeighbours;
+            Tiles[x - 1, y].PossibleValues &= possibleNeighbours;
 
-        if (y != Height-1)
-            Tiles[x, y+1].PossibleValues &= possibleNeighbours;
+        if (y != Height - 1)
+            Tiles[x, y + 1].PossibleValues &= possibleNeighbours;
 
-        if (x != Width-1)
-            Tiles[x+1, y].PossibleValues &= possibleNeighbours;
+        if (x != Width - 1)
+            Tiles[x + 1, y].PossibleValues &= possibleNeighbours;
     }
 
-    internal bool Step(){
+    internal bool Step() {
 
         int minEntropy = int.MaxValue;
         List<(int, int)> minEntropyIndices = new();
 
-        for (int y=0; y<Height; y++){
-            for (int x=0; x<Width; x++){
-                if (Tiles[x, y].Id == 0){
+        for (int y = 0; y < Height; y++) {
+            for (int x = 0; x < Width; x++) {
+                if (Tiles[x, y].Id == 0) {
                     int thisEntropy = BitOperations.PopCount(Tiles[x, y].PossibleValues);
-                    if (thisEntropy < minEntropy){
+                    if (thisEntropy < minEntropy) {
                         minEntropy = thisEntropy;
                         minEntropyIndices.Clear();
                     }
-                    if (thisEntropy == minEntropy){
+                    if (thisEntropy == minEntropy) {
                         minEntropyIndices.Add((x, y));
                     }
                 }
             }
         }
 
-        if (minEntropyIndices.Count != 0 && minEntropy != 0){
+        if (minEntropyIndices.Count != 0 && minEntropy != 0) {
             (int x, int y) = minEntropyIndices[(int)((uint)Random.Shared.NextInt64() % minEntropyIndices.Count)];
             List<int> indices = new();
             ulong possibleValuesBitmap = Tiles[x, y].PossibleValues;
-            for (int i=63; i>=0; i--){
-                if ((possibleValuesBitmap & ((ulong)1 << i)) != 0){
+            for (int i = 63; i >= 0; i--) {
+                if ((possibleValuesBitmap & (ulong)1 << i) != 0) {
                     indices.Add(i);
                 }
             }
 
-            CollapseCell(x, y, indices[(int)((uint)Random.Shared.NextInt64() % indices.Count)]+1);
+            CollapseCell(x, y, indices[(int)((uint)Random.Shared.NextInt64() % indices.Count)] + 1);
             return true;
         }
 
         return false;
     }
 
-    /*internal struct Tile {
+    internal void DEBUG_Draw() {
+        foreach (Tile tile in Tiles) {
+            tile.DEBUG_Draw();
+        }
+    }
+
+    internal struct Tile {
         public int Id;
         public Vector2 Size;
         public Vector2 Pos;
 
         public ulong PossibleValues;
 
-        internal void DEBUG_Draw(){
+        internal void DEBUG_Draw() {
             Color color;
             if (Id == 0)
                 color = new Color(255, 0, 0, 255);

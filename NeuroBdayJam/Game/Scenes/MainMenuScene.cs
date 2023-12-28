@@ -6,7 +6,8 @@ using System.Numerics;
 namespace NeuroBdayJam.Game.Scenes;
 internal sealed class MainMenuScene : Scene {
     private GUIImage TitleImage { get; }
-    private GuiTextButton StartButton { get; }
+    private GuiTextButton WorldGenTestButton { get; }
+    private GuiTextButton WorldTestButton { get; }
     private GuiTextButton LoadButton { get; }
     private GuiTextButton SettingsButton { get; }
     private GuiTextButton QuitButton { get; }
@@ -15,7 +16,9 @@ internal sealed class MainMenuScene : Scene {
     public MainMenuScene() {
 
         float yOffset = 0.4f;
-        StartButton = new GuiTextButton($"0.5 {yOffset} 0.25 0.1", "Start", new Vector2(0.5f, 0.5f));
+        WorldGenTestButton = new GuiTextButton($"0.5 {yOffset} 0.25 0.1", "World Gen Test", new Vector2(0.5f, 0.5f));
+        yOffset += 0.125f;
+        WorldTestButton = new GuiTextButton($"0.5 {yOffset} 0.25 0.1", "World Test", new Vector2(0.5f, 0.5f));
         yOffset += 0.125f;
         LoadButton = new GuiTextButton($"0.5 {yOffset} 0.25 0.1", "Load", new Vector2(0.5f, 0.5f));
         yOffset += 0.125f;
@@ -47,12 +50,15 @@ internal sealed class MainMenuScene : Scene {
     }
 
     internal override void Draw(float dT) {
-        StartButton.Draw();
+        WorldGenTestButton.Draw();
+        WorldTestButton.Draw();
         SettingsButton.Draw();
         QuitButton.Draw();
 
-        if (StartButton.IsClicked)
+        if (WorldGenTestButton.IsClicked)
             GameManager.SetScene(new WorldGenTestScene());
+        if (WorldTestButton.IsClicked)
+            GameManager.SetScene(new WorldTestScene());
         if (LoadButton.IsClicked)
             GameManager.SetScene(new LoadSaveScene());
         if (SettingsButton.IsClicked)
