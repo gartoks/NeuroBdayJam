@@ -44,11 +44,15 @@ internal sealed class FontResourceLoader : ResourceLoader<Font, FontResource> {
     }
 
     protected override bool ResourceExistsInternal(string key) {
-        return ResourceManager.MainTheme.DoesFontExist(key);
+        return ResourceManager.MainResourceFile.DoesFontExist(key);
+    }
+
+    public override IReadOnlyList<string> GetResources() {
+        return ResourceManager.MainResourceFile.GetFontResources();
     }
 
     protected override Font LoadResourceInternal(string key) {
-        Font? res = ResourceManager.MainTheme.LoadFont(key) ?? ResourceManager.MainResourceFile.LoadFont(key);
+        Font? res = ResourceManager.MainResourceFile.LoadFont(key);
         return res ?? Fallback.Resource;
     }
 

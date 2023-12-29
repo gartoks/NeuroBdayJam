@@ -1,4 +1,5 @@
 ﻿using NeuroBdayJam.Game.World;
+using NeuroBdayJam.ResourceHandling;
 
 namespace NeuroBdayJam.Game.Scenes;
 /// <summary>
@@ -12,6 +13,11 @@ internal class WorldTestScene : Scene {
     /// Called when the scene is loaded. Override this method to provide custom scene initialization logic and to load resources.
     /// </summary>
     internal override void Load() {
+        IEnumerable<string> tileTextures = ResourceManager.TextureLoader.GetResources().Where(r => r.StartsWith("tile_"));
+        foreach (string tileTexture in tileTextures) {
+            ResourceManager.TextureLoader.Load(tileTexture);
+        }
+
         World = LoadTestWorld("Map_Test_0");
     }
 

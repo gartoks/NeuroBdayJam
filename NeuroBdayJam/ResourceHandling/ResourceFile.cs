@@ -1,5 +1,5 @@
-using NeuroBdayJam.Util;
 using NeuroBdayJam.ResourceHandling.Resources;
+using NeuroBdayJam.Util;
 using Raylib_CsLo;
 using System.Diagnostics;
 using System.Globalization;
@@ -16,7 +16,7 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
     /// <summary>
     /// The file path to the asset file.
     /// </summary>
-    private string ThemeFilePath { get; }
+    private string ResourceFileFilePath { get; }
 
     /// <summary>
     /// A mapping of color name to colors.
@@ -26,7 +26,7 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
     /// <summary>
     /// The zip archive containing all assets.
     /// </summary>
-    private ZipArchive? ThemeArchive { get; set; }
+    private ZipArchive? ResourceFileArchive { get; set; }
 
     /// <summary>
     /// A collection of all music data from this theme.
@@ -46,10 +46,10 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
     /// <summary>
     /// Constructor to load a theme from disk.
     /// </summary>
-    internal ResourceFile(string themefilePath) {
-        Name = Path.GetFileNameWithoutExtension(themefilePath);
+    internal ResourceFile(string resourceFileFilePath) {
+        Name = Path.GetFileNameWithoutExtension(resourceFileFilePath);
 
-        ThemeFilePath = themefilePath;
+        ResourceFileFilePath = resourceFileFilePath;
         Colors = new Dictionary<string, Color>();
         _MusicBuffers = new();
 
@@ -58,27 +58,27 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
 
     internal void Load() {
         if (WasLoaded)
-            throw new InvalidOperationException("Theme was already loaded.");
+            throw new InvalidOperationException("Resource file was already loaded.");
 
-        Debug.WriteLine($"Loading theme {Name}");
+        Debug.WriteLine($"Loading resource file {Name}");
         MemoryStream ms = new MemoryStream();
-        using FileStream fs = new FileStream(ThemeFilePath, FileMode.Open);
+        using FileStream fs = new FileStream(ResourceFileFilePath, FileMode.Open);
 
         fs.CopyTo(ms);
         ms.Position = 0;
 
-        ThemeArchive = new ZipArchive(ms, ZipArchiveMode.Read);
+        ResourceFileArchive = new ZipArchive(ms, ZipArchiveMode.Read);
 
-        ZipArchiveEntry? colorEntry = ThemeArchive.GetEntry("colors.json");
+        ZipArchiveEntry? colorEntry = ResourceFileArchive.GetEntry("colors.json");
         if (colorEntry == null) {
-            Debug.WriteLine($"Theme {ThemeFilePath} doesn't contain colors.");
+            Debug.WriteLine($"Resource file {ResourceFileFilePath} doesn't contain colors.");
             return;
         }
 
         StreamReader colorStreamReader = new StreamReader(colorEntry.Open());
         Dictionary<string, int[]>? colors = JsonSerializer.Deserialize<Dictionary<string, int[]>>(colorStreamReader.ReadToEnd());
         if (colors == null) {
-            Debug.WriteLine($"colors.json in theme {ThemeFilePath} has a wrong format.");
+            Debug.WriteLine($"colors.json in theme {ResourceFileFilePath} has a wrong format.");
             return;
         }
 
@@ -97,6 +97,10 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
         return Colors.ContainsKey(key);
     }
 
+    internal IReadOnlyList<string> GetColorResources() {
+        return Colors.Keys.ToList();
+    }
+
     /// <summary>
     /// Tries to get a color to the given key.
     /// </summary>
@@ -104,7 +108,7 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
     /// <exception cref="InvalidOperationException">Thrown if the theme was not loaded.</exception>
     internal Color? GetColor(string key) {
         if (!WasLoaded)
-            throw new InvalidOperationException("Theme was not loaded.");
+            throw new InvalidOperationException("Resource file was not loaded.");
 
         if (!Colors.ContainsKey(key)) {
             return null;
@@ -114,7 +118,16 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
     }
 
     internal bool DoesFontExist(string key) {
-        throw new NotImplementedException();
+        string path = $"Fonts/{key}.ttf";
+        if (ResourceFileArchive!.GetEntry(path) != null)
+            return true;
+
+        path = $"Fonts/{key}.otf";
+        return ResourceFileArchive!.GetEntry(path) != null;
+    }
+
+    internal IReadOnlyList<string> GetFontResources() {
+        return ResourceFileArchive!.Entries.Where(e => e.FullName.StartsWith("Fonts/")).Select(e => Path.GetFileNameWithoutExtension(e.FullName)).ToList();
     }
 
     /// <summary>
@@ -124,14 +137,14 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
     /// <exception cref="InvalidOperationException">Thrown if the theme was not loaded.</exception>
     public Font? LoadFont(string key) {
         if (!WasLoaded)
-            throw new InvalidOperationException("Theme was not loaded.");
+            throw new InvalidOperationException("Resource file was not loaded.");
 
         string path = $"Fonts/{key}.ttf";
-        ZipArchiveEntry? zippedFont = ThemeArchive!.GetEntry(path);
+        ZipArchiveEntry? zippedFont = ResourceFileArchive!.GetEntry(path);
 
         if (zippedFont == null) {
             path = $"Fonts/{key}.otf";
-            zippedFont = ThemeArchive!.GetEntry(path);
+            zippedFont = ResourceFileArchive!.GetEntry(path);
         }
 
         if (zippedFont == null) {
@@ -162,7 +175,11 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
 
     internal bool DoesTextureExist(string key) {
         string path = $"Textures/{key}.png";
-        return ThemeArchive!.GetEntry(path) != null;
+        return ResourceFileArchive!.GetEntry(path) != null;
+    }
+
+    internal IReadOnlyList<string> GetTextureResources() {
+        return ResourceFileArchive!.Entries.Where(e => e.FullName.StartsWith("Textures/")).Select(e => Path.GetFileNameWithoutExtension(e.FullName)).ToList();
     }
 
     /// <summary>
@@ -172,10 +189,10 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
     /// <exception cref="InvalidOperationException">Thrown if the theme was not loaded.</exception>
     public Texture? LoadTexture(string key) {
         if (!WasLoaded)
-            throw new InvalidOperationException("Theme was not loaded.");
+            throw new InvalidOperationException("Resource file was not loaded.");
 
         string path = $"Textures/{key}.png";
-        ZipArchiveEntry? zippedTexture = ThemeArchive!.GetEntry(path);
+        ZipArchiveEntry? zippedTexture = ResourceFileArchive!.GetEntry(path);
 
         if (zippedTexture == null) {
             Debug.WriteLine($"Texture {key} doesn't exist in this theme");
@@ -206,7 +223,11 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
 
     internal bool DoesSoundExist(string key) {
         string path = $"Sounds/{key}.wav";
-        return ThemeArchive!.GetEntry(path) != null;
+        return ResourceFileArchive!.GetEntry(path) != null;
+    }
+
+    internal IReadOnlyList<string> GetSoundResources() {
+        return ResourceFileArchive!.Entries.Where(e => e.FullName.StartsWith("Sounds/")).Select(e => Path.GetFileNameWithoutExtension(e.FullName)).ToList();
     }
 
     /// <summary>
@@ -216,10 +237,10 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
     /// <exception cref="InvalidOperationException">Thrown if the theme was not loaded.</exception>
     public Sound? LoadSound(string key) {
         if (!WasLoaded)
-            throw new InvalidOperationException("Theme was not loaded.");
+            throw new InvalidOperationException("Resource file was not loaded.");
 
         string path = $"Sounds/{key}.wav";
-        ZipArchiveEntry? zippedSound = ThemeArchive!.GetEntry(path);
+        ZipArchiveEntry? zippedSound = ResourceFileArchive!.GetEntry(path);
 
         if (zippedSound == null) {
             Debug.WriteLine($"Sound {key} doesn't exist in this theme");
@@ -246,7 +267,11 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
 
     internal bool DoesMusicExist(string key) {
         string path = $"Music/{key}.mp3";
-        return ThemeArchive!.GetEntry(path) != null;
+        return ResourceFileArchive!.GetEntry(path) != null;
+    }
+
+    internal IReadOnlyList<string> GetMusicResources() {
+        return ResourceFileArchive!.Entries.Where(e => e.FullName.StartsWith("Music/")).Select(e => Path.GetFileNameWithoutExtension(e.FullName)).ToList();
     }
 
     /// <summary>
@@ -256,10 +281,10 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
     /// <exception cref="InvalidOperationException">Thrown if the theme was not loaded.</exception>
     public Music? LoadMusic(string key) {
         if (!WasLoaded)
-            throw new InvalidOperationException("Theme was not loaded.");
+            throw new InvalidOperationException("Resource file was not loaded.");
 
         string path = $"Music/{key}.mp3";
-        ZipArchiveEntry? zippedSound = ThemeArchive!.GetEntry(path);
+        ZipArchiveEntry? zippedSound = ResourceFileArchive!.GetEntry(path);
 
         if (zippedSound == null) {
             Debug.WriteLine($"Music {key} doesn't exist in this theme");
@@ -290,7 +315,11 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
 
     internal bool DoesTextExist(string key) {
         string path = $"Texts/{key}.json";
-        return ThemeArchive!.GetEntry(path) != null;
+        return ResourceFileArchive!.GetEntry(path) != null;
+    }
+
+    internal IReadOnlyList<string> GetTextResources() {
+        return ResourceFileArchive!.Entries.Where(e => e.FullName.StartsWith("Texts/")).Select(e => Path.GetFileNameWithoutExtension(e.FullName)).ToList();
     }
 
     /// <summary>
@@ -301,10 +330,10 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
     /// <exception cref="InvalidOperationException">Thrown if the theme was not loaded.</exception>
     internal IReadOnlyDictionary<string, string>? LoadText(string key) {
         if (!WasLoaded)
-            throw new InvalidOperationException("Theme was not loaded.");
+            throw new InvalidOperationException("Resource file was not loaded.");
 
         string path = $"Texts/{key}.json";
-        ZipArchiveEntry? zippedText = ThemeArchive!.GetEntry(path);
+        ZipArchiveEntry? zippedText = ResourceFileArchive!.GetEntry(path);
 
         if (zippedText == null) {
             Debug.WriteLine($"Text {key} doesn't exist in this theme");
@@ -319,7 +348,14 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
 
     internal bool DoesNPatchTextureExist(string key) {
         string path = $"Textures/NPatchData/{key}.json";
-        return DoesTextureExist(key) && ThemeArchive!.GetEntry(path) != null;
+        return DoesTextureExist(key) && ResourceFileArchive!.GetEntry(path) != null;
+    }
+
+    internal IReadOnlyList<string> GetNPatchTextureResources() {
+        List<string> atlasData = ResourceFileArchive!.Entries.Where(e => e.FullName.StartsWith("Textures/NPatchData/")).Select(e => Path.GetFileNameWithoutExtension(e.FullName)).ToList();
+        List<string> textureData = ResourceFileArchive!.Entries.Where(e => e.FullName.StartsWith("Textures/")).Select(e => Path.GetFileNameWithoutExtension(e.FullName)).ToList();
+
+        return atlasData.Intersect(textureData).ToList();
     }
 
     /// <summary>
@@ -329,12 +365,12 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
     /// <exception cref="InvalidOperationException">Thrown if the theme was not loaded.</exception>
     public NPatchTexture? LoadNPatchTexture(string key) {
         if (!WasLoaded)
-            throw new InvalidOperationException("Theme was not loaded.");
+            throw new InvalidOperationException("Resource file was not loaded.");
 
         Texture texture = (Texture)LoadTexture(key);
 
         string path = $"Textures/NPatchData/{key}.json";
-        ZipArchiveEntry? zippedText = ThemeArchive!.GetEntry(path);
+        ZipArchiveEntry? zippedText = ResourceFileArchive!.GetEntry(path);
 
         if (zippedText == null) {
             Debug.WriteLine($"NPatchData {key} doesn't exist in this theme");
@@ -352,7 +388,14 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
 
     internal bool DoesTextureAtlasExist(string key) {
         string path = $"Textures/TextureAtlasData/{key}.json";
-        return DoesTextureExist(key) && ThemeArchive!.GetEntry(path) != null;
+        return DoesTextureExist(key) && ResourceFileArchive!.GetEntry(path) != null;
+    }
+
+    internal IReadOnlyList<string> GetTextureAtlasResources() {
+        List<string> atlasData = ResourceFileArchive!.Entries.Where(e => e.FullName.StartsWith("Textures/TextureAtlasData/")).Select(e => Path.GetFileNameWithoutExtension(e.FullName)).ToList();
+        List<string> textureData = ResourceFileArchive!.Entries.Where(e => e.FullName.StartsWith("Textures/")).Select(e => Path.GetFileNameWithoutExtension(e.FullName)).ToList();
+
+        return atlasData.Intersect(textureData).ToList();
     }
 
     /// <summary>
@@ -362,12 +405,12 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
     /// <exception cref="InvalidOperationException">Thrown if the theme was not loaded.</exception>
     public TextureAtlas? LoadTextureAtlas(string key) {
         if (!WasLoaded)
-            throw new InvalidOperationException("Theme was not loaded.");
+            throw new InvalidOperationException("Resource file was not loaded.");
 
         Texture texture = (Texture)LoadTexture(key);
 
         string path = $"Textures/TextureAtlasData/{key}.json";
-        ZipArchiveEntry? zippedText = ThemeArchive!.GetEntry(path);
+        ZipArchiveEntry? zippedText = ResourceFileArchive!.GetEntry(path);
 
         if (zippedText == null) {
             Debug.WriteLine($"TextureAtlasData {key} doesn't exist in this theme");
@@ -407,7 +450,7 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
     private void Dispose(bool disposing) {
         if (!disposedValue) {
             if (disposing) {
-                ThemeArchive?.Dispose();
+                ResourceFileArchive?.Dispose();
             }
 
             // TODO: free unmanaged resources (unmanaged objects) and override finalizer
@@ -417,7 +460,7 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
     }
 
     // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-    // ~Theme()
+    // ~Resource file()
     // {
     //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
     //     Dispose(disposing: false);

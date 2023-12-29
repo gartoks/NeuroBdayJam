@@ -64,6 +64,12 @@ internal abstract class ResourceLoader<TResource, TGameResource> where TGameReso
     }
 
     /// <summary>
+    /// Returns a list of all resources in the current resource file.
+    /// </summary>
+    /// <returns></returns>
+    public abstract IReadOnlyList<string> GetResources();
+
+    /// <summary>
     /// Returns whether the resource is loaded.
     /// </summary>
     /// <param name="key"></param>

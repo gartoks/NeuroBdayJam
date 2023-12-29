@@ -3,9 +3,12 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34202.233
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeuroBdayJam", "NeuroBdayJam\NeuroBdayJam.csproj", "{6666F1AC-C690-4B56-A478-7DAFC959BA54}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeuroBdayJam", "NeuroBdayJam\NeuroBdayJam.csproj", "{6666F1AC-C690-4B56-A478-7DAFC959BA54}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A93860BF-5329-4A15-9C6A-67330B3B8728} = {A93860BF-5329-4A15-9C6A-67330B3B8728}
+	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResourceFilePacker", "ResourceFilePacker\ResourceFilePacker.csproj", "{A93860BF-5329-4A15-9C6A-67330B3B8728}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ResourceFilePacker", "ResourceFilePacker\ResourceFilePacker.csproj", "{A93860BF-5329-4A15-9C6A-67330B3B8728}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

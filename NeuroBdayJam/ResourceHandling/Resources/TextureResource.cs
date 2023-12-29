@@ -63,11 +63,15 @@ internal sealed class TextureResourceLoader : ResourceLoader<Texture, TextureRes
     }
 
     protected override bool ResourceExistsInternal(string key) {
-        return ResourceManager.MainTheme.DoesTextureExist(key);
+        return ResourceManager.MainResourceFile.DoesTextureExist(key);
+    }
+
+    public override IReadOnlyList<string> GetResources() {
+        return ResourceManager.MainResourceFile.GetSoundResources();
     }
 
     protected override Texture LoadResourceInternal(string key) {
-        Texture? res = ResourceManager.MainTheme.LoadTexture(key) ?? ResourceManager.MainResourceFile.LoadTexture(key);
+        Texture? res = ResourceManager.MainResourceFile.LoadTexture(key);
         return res ?? Fallback.Resource;
     }
 

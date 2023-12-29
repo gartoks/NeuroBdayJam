@@ -32,10 +32,6 @@ internal static class ResourceManager {
     /// Base theme.
     /// </summary>
     public static ResourceFile MainResourceFile { get; }
-    /// <summary>
-    /// Additional theme.
-    /// </summary>
-    public static ResourceFile MainTheme { get; private set; }
 
     /// <summary>
     /// Static constructor to initialize the resource loading queue and other required properties.
@@ -53,7 +49,6 @@ internal static class ResourceManager {
         TextureAtlasLoader = new(ResourceLoadingQueue);
 
         MainResourceFile = new ResourceFile(Files.GetResourceFilePath("Main.dat"));
-        MainTheme = MainResourceFile;
     }
 
     /// <summary>
@@ -85,9 +80,6 @@ internal static class ResourceManager {
     internal static void Unload() {
         MainResourceFile?.Unload();
         MainResourceFile?.Dispose();
-
-        MainTheme?.Unload();
-        MainTheme?.Dispose();
     }
 
     /// <summary>
@@ -147,32 +139,5 @@ internal static class ResourceManager {
     public static void WaitForLoading() {
         while (ResourceLoadingQueue.Count != 0)
             Thread.Sleep(5);
-    }
-
-    /// <summary>
-    /// Sets the main theme to the one named
-    /// </summary>
-    /// <param name="name"></param>
-    public static void SetTheme(string name) {
-        if (MainTheme?.Name == name)
-            return;
-
-        string filename = Files.GetResourceFilePath(name + ".dat");
-
-        if (!File.Exists(filename)) {
-            Debug.WriteLine($"ERROR: Theme named '{name}' doesn't exist. Using Fallback.");
-            return;
-        }
-
-        if (MainTheme != MainResourceFile) {
-            MainTheme.Unload();
-            MainTheme.Dispose();
-        }
-
-        MainTheme = new ResourceFile(filename);
-        MainTheme.Load();
-
-        // force everything to reload
-        ReloadResources();
     }
 }

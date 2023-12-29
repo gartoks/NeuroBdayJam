@@ -406,3 +406,5 @@ FodyWeavers.xsd
 *.pdn
 NeuroBdayJam/Resources/ResourceFiles/Main/
 /NeuroBdayJam/Resources/NOTES.txt
+/NeuroBdayJam/log.txt
+/NeuroBdayJam/ResourceFilePacker_log.txt

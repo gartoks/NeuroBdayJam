@@ -23,11 +23,15 @@ internal sealed class ColorResourceLoader : ResourceLoader<Color, ColorResource>
     }
 
     protected override bool ResourceExistsInternal(string key) {
-        return ResourceManager.MainTheme.DoesColorExist(key);
+        return ResourceManager.MainResourceFile.DoesColorExist(key);
+    }
+
+    public override IReadOnlyList<string> GetResources() {
+        return ResourceManager.MainResourceFile.GetColorResources();
     }
 
     protected override Color LoadResourceInternal(string key) {
-        Color? res = ResourceManager.MainTheme.GetColor(key) ?? ResourceManager.MainResourceFile.GetColor(key);
+        Color? res = ResourceManager.MainResourceFile.GetColor(key);
         return res ?? Fallback.Resource;
     }
 

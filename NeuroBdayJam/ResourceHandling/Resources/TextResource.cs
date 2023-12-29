@@ -21,11 +21,15 @@ internal sealed class TextResourceLoader : ResourceLoader<IReadOnlyDictionary<st
     }
 
     protected override bool ResourceExistsInternal(string key) {
-        return ResourceManager.MainTheme.DoesTextExist(key);
+        return ResourceManager.MainResourceFile.DoesTextExist(key);
+    }
+
+    public override IReadOnlyList<string> GetResources() {
+        return ResourceManager.MainResourceFile.GetTextResources();
     }
 
     protected override IReadOnlyDictionary<string, string> LoadResourceInternal(string key) {
-        IReadOnlyDictionary<string, string>? res = ResourceManager.MainTheme.LoadText(key) ?? ResourceManager.MainResourceFile.LoadText(key);
+        IReadOnlyDictionary<string, string>? res = ResourceManager.MainResourceFile.LoadText(key);
         return res ?? Fallback.Resource;
     }
 

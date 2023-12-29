@@ -1,5 +1,4 @@
 ﻿using NeuroBdayJam.Audio;
-using NeuroBdayJam.ResourceHandling;
 using Raylib_CsLo;
 using System.Text.Json;
 
@@ -68,17 +67,6 @@ internal sealed class Settings {
     /// </summary>
     public Settings() {
         IsTutorialEnabled = new Dictionary<string, bool>();
-    }
-
-    /// <summary>
-    /// Sets and loads a new theme.
-    /// </summary>
-    /// <param name="name"></param>
-    public void SetTheme(string name) {
-        AudioManager.ClearSounds();
-        AudioManager.ClearMusic();
-        ResourceManager.SetTheme(name);
-        Save();
     }
 
     public void SetTutorialEnabled(string gameMode, bool enabled) {

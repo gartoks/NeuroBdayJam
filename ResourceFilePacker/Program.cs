@@ -1,21 +1,23 @@
-﻿using System.Diagnostics;
-using System.IO.Compression;
+﻿using System.IO.Compression;
+using System.Text;
 
 namespace ResourceFilePacker;
 
 internal class Program {
     static void Main(string[] args) {
-        if (args.Length != 2) {
-            Console.WriteLine("Invalid number of arguments");
-            return;
-        }
-
-        if (!Directory.Exists(args[0])) {
-            Console.WriteLine("Source directory does not exist");
-            return;
-        }
+        StringBuilder log = new StringBuilder();
 
         try {
+            if (args.Length != 2) {
+                log.AppendLine("Invalid number of arguments");
+                return;
+            }
+
+            if (!Directory.Exists(args[0])) {
+                log.AppendLine("Source directory does not exist");
+                return;
+            }
+
             if (!Directory.Exists(args[1]))
                 Directory.CreateDirectory(args[1]);
 
@@ -29,10 +31,10 @@ internal class Program {
                 ZipFile.CreateFromDirectory(dirPath, zipPath);
             }
 
-            Console.WriteLine("Done Packing");
-            Debug.WriteLine("Done Packing");
+            log.AppendLine("Done Packing");
         } catch (Exception e) {
-            Console.WriteLine(e);
+        } finally {
+            File.WriteAllText("ResourceFilePacker_log.txt", log.ToString());
         }
     }
 }

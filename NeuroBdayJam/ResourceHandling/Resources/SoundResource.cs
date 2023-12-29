@@ -24,11 +24,15 @@ internal sealed class SoundResourceLoader : ResourceLoader<Sound, SoundResource>
     }
 
     protected override bool ResourceExistsInternal(string key) {
-        return ResourceManager.MainTheme.DoesSoundExist(key);
+        return ResourceManager.MainResourceFile.DoesSoundExist(key);
+    }
+
+    public override IReadOnlyList<string> GetResources() {
+        return ResourceManager.MainResourceFile.GetSoundResources();
     }
 
     protected override Sound LoadResourceInternal(string key) {
-        Sound? res = ResourceManager.MainTheme.LoadSound(key) ?? ResourceManager.MainResourceFile.LoadSound(key);
+        Sound? res = ResourceManager.MainResourceFile.LoadSound(key);
         return res ?? Fallback.Resource;
     }
 
