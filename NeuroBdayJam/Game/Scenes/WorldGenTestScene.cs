@@ -13,23 +13,44 @@ internal class WorldGenTestScene : Scene {
     /// Called when the scene is loaded. Override this method to provide custom scene initialization logic and to load resources.
     /// </summary>
     internal override void Load() {
-        WorldGenerator = new WorldGenerator(10, 10);
+        WorldGenerator = new WorldGenerator(20, 20);
         RuleParser parser = new RuleParser();
         parser.Parse(
 @"
-1 -> 0 1 0 1
+1 -> 0 0 0 0
 R 1
-
-2 -> 1 0 0 1
+2 -> 1 1 1 1
 R 2
+3 -> 1 2 1 1
+R 3
+4 -> 1 3 1 3
+R 4
+
+5 -> 9 9 9 9
+R 5
+6 -> 9 9 9 9
+R 6
+
+7 -> 1 2 1 2
+R 7
+8 -> 3 2 3 2
+R 8
+9 -> 3 1 2 1
+R 9
+10 -> 2 2 1 2
+R 10
+11 -> 2 2 2 2
+R 11
+12 -> 2 2 1 1
+R 12
+13 -> 1 2 1 2
+R 13
+
 ");
 
-    WorldGenerator.SetRules(parser.Export());
+        WorldGenerator.SetRules(parser.Export());
 
-    WorldGenerator.CollapseCell(1, 1, 5);
-    WorldGenerator.CollapseCell(0, 1, 6);
-    WorldGenerator.CollapseCell(0, 0, 7);
-    WorldGenerator.CollapseCell(1, 0, 8);
+        WorldGenerator.CollapseCell(0, 0, 5);
     }
 
     /// <summary>

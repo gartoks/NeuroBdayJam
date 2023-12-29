@@ -80,6 +80,7 @@ internal class RuleParser {
     public void Parse(string ruleset){
         foreach (string line in ruleset.Split("\n")){
             if (line.Length == 0) continue;
+            if (line[0] == '#') continue;
             string[] lineParts = line.Split(" ");
 
             if(lineParts[0] == "R"){

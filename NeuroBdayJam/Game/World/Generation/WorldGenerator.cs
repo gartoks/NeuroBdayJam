@@ -1,6 +1,7 @@
+using NeuroBdayJam.ResourceHandling.Resources;
 using Raylib_CsLo;
-using Raylib_CsLo.InternalHelpers;
 using System.Numerics;
+using System.Resources;
 
 namespace NeuroBdayJam.Game.World.Generation;
 
@@ -9,6 +10,8 @@ internal class WorldGenerator {
     Vector2 TileSize;
 
     int Width, Height;
+
+    TextureResource[] textures;
 
     internal WorldGenerator(int width, int height) {
         Width = width;
@@ -28,6 +31,26 @@ internal class WorldGenerator {
                     PossibleValues = ulong.MaxValue
                 };
             }
+        }
+
+        textures = new TextureResource[13]{
+            ResourceHandling.ResourceManager.TextureLoader.Get("0"),
+            ResourceHandling.ResourceManager.TextureLoader.Get("1"),
+            ResourceHandling.ResourceManager.TextureLoader.Get("2"),
+            ResourceHandling.ResourceManager.TextureLoader.Get("3"),
+            ResourceHandling.ResourceManager.TextureLoader.Get("4"),
+            ResourceHandling.ResourceManager.TextureLoader.Get("5"),
+            ResourceHandling.ResourceManager.TextureLoader.Get("6"),
+            ResourceHandling.ResourceManager.TextureLoader.Get("7"),
+            ResourceHandling.ResourceManager.TextureLoader.Get("8"),
+            ResourceHandling.ResourceManager.TextureLoader.Get("9"),
+            ResourceHandling.ResourceManager.TextureLoader.Get("10"),
+            ResourceHandling.ResourceManager.TextureLoader.Get("11"),
+            ResourceHandling.ResourceManager.TextureLoader.Get("12"),
+        };
+
+        for (int i=0; i<textures.Length; i++){
+            textures[i].WaitForLoad();
         }
     }
 
@@ -86,7 +109,7 @@ internal class WorldGenerator {
 
     internal void DEBUG_Draw() {
         foreach (Tile tile in Tiles) {
-            tile.DEBUG_Draw();
+            tile.DEBUG_Draw(textures);
         }
     }
 
@@ -97,43 +120,26 @@ internal class WorldGenerator {
 
         public ulong PossibleValues;
 
-        internal void DEBUG_Draw() {
+        internal void DEBUG_Draw(TextureResource[] Textures) {
             if (Id == 0){
                 Raylib.DrawRectangleV(Pos * Size, Size, new Color(255, 0, 0, 255));
             }
-            else if (Id == 1 || Id == 3){
-                Raylib.DrawRectangleV(Pos * Size, Size, new Color(0, 0, 255, 255));
-                Raylib.DrawRectangleV(Pos * Size + Size * new Vector2(0, 0.25f), Size / new Vector2(1, 2), new Color(100, 100, 100, 255));
-            }
-            else if (Id == 2 || Id == 4){
-                Raylib.DrawRectangleV(Pos * Size, Size, new Color(0, 0, 255, 255));
-                Raylib.DrawRectangleV(Pos * Size + Size * new Vector2(0.25f, 0), Size / new Vector2(2, 1), new Color(100, 100, 100, 255));
-            }
-            else if (Id == 5){
-                Raylib.DrawRectangleV(Pos * Size, Size, new Color(0, 0, 255, 255));
-                Raylib.DrawRectangleV(Pos * Size + Size * new Vector2(0f, 0.25f), Size * new Vector2(0.75f, 0.5f), new Color(100, 100, 100, 255));
-                Raylib.DrawRectangleV(Pos * Size + Size * new Vector2(0.25f, 0f), Size * new Vector2(0.5f, 0.75f), new Color(100, 100, 100, 255));
-            }
-            else if (Id == 6){
-                Raylib.DrawRectangleV(Pos * Size, Size, new Color(0, 0, 255, 255));
-                Raylib.DrawRectangleV(Pos * Size + Size * new Vector2(0.25f, 0.25f), Size * new Vector2(0.75f, 0.5f), new Color(100, 100, 100, 255));
-                Raylib.DrawRectangleV(Pos * Size + Size * new Vector2(0.25f, 0f), Size * new Vector2(0.5f, 0.75f), new Color(100, 100, 100, 255));
-            }
-            else if (Id == 7){
-                Raylib.DrawRectangleV(Pos * Size, Size, new Color(0, 0, 255, 255));
-                Raylib.DrawRectangleV(Pos * Size + Size * new Vector2(0.25f, 0.25f), Size * new Vector2(0.5f, 0.75f), new Color(100, 100, 100, 255));
-                Raylib.DrawRectangleV(Pos * Size + Size * new Vector2(0.25f, 0.25f), Size * new Vector2(0.75f, 0.5f), new Color(100, 100, 100, 255));
-            }
-            else if (Id == 8){
-                Raylib.DrawRectangleV(Pos * Size, Size, new Color(0, 0, 255, 255));
-                Raylib.DrawRectangleV(Pos * Size + Size * new Vector2(0f, 0.25f), Size * new Vector2(0.75f, 0.5f), new Color(100, 100, 100, 255));
-                Raylib.DrawRectangleV(Pos * Size + Size * new Vector2(0.25f, 0.25f), Size * new Vector2(0.5f, 0.75f), new Color(100, 100, 100, 255));
-            }
-            else
-                return;
+
+            else{
+                int imageID = (Id-1) / 4;
+                int rotation = (Id-1) % 4;
+
+                Vector2 offset = Vector2.Zero;
+                if (rotation == 0) offset = new Vector2(0);
+                else if (rotation == 1) offset = new Vector2(Size.X, 0);
+                else if (rotation == 2) offset = Size;
+                else if (rotation == 3) offset = new Vector2(0, Size.X);
 
 
-            // Raylib.DrawTextEx(Renderer.GuiFont.Resource, "N: " + PossibleValues.Count.ToString(), Pos * Size, 40, 10, new Color(255, 255, 255, 255));
+                Raylib.DrawTextureEx(Textures[imageID].Resource, Pos * Size + offset, rotation*90, Size.X / Textures[imageID].Resource.width, new Color(255, 255, 255, 255));
+            }
+
+            // Raylib.DrawTextEx(Renderer.GuiFont.Resource, "N: " + Pos.ToString(), Pos * Size, 40, 10, new Color(255, 255, 255, 255));
             // Raylib.DrawTextEx(Renderer.GuiFont.Resource, "ID: " + Id.ToString(), Pos * Size + new Vector2(0, 50), 40, 10, new Color(255, 255, 255, 255));
         }
     }
