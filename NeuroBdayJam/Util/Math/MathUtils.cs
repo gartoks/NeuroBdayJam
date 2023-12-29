@@ -130,6 +130,15 @@ public static class MathUtils {
         return angle;
     }
 
+    public static Vector2 GetClosesPointOnLine(Vector2 point, Vector2 lineStart, Vector2 lineEnd) {
+        Vector2 se = lineEnd - lineStart;
+        Vector2 sp = point - lineStart;
+
+        float t = Vector2.Dot(sp, se) / Vector2.Dot(se, se);
+
+        return t * se + lineStart;
+    }
+
     public static bool LinesIntersectionPointPointEdge(Vector2 s0, Vector2 e0, Vector2 s1, Vector2 e1, out Vector2 intersectionPoint) {
         float s, t;
         s = (-e0.Y * (s0.X - s1.X) + e0.X * (s0.Y - s1.Y)) / (-e1.X * e0.Y + e0.X * e1.Y);
