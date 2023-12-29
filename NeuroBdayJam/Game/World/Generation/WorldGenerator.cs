@@ -2,9 +2,6 @@ using Raylib_CsLo;
 using System.Numerics;
 
 namespace NeuroBdayJam.Game.World.Generation;
-/// <summary>
-/// Class for one set of game resources. Doesn't cache anything.
-/// </summary>
 
 internal class WorldGenerator {
     Tile[,] Tiles;
@@ -36,7 +33,7 @@ internal class WorldGenerator {
     }
 
     internal void CollapseCell(int x, int y, int id) {
-        Tiles[x, y].PossibleValues = (ulong)1 << id - 1;
+        Tiles[x, y].PossibleValues = (ulong)1 << (id - 1);
         Tiles[x, y].Id = id;
 
         ulong possibleNeighbours = IdToPossibleNeighbours[id];
@@ -55,7 +52,6 @@ internal class WorldGenerator {
     }
 
     internal bool Step() {
-
         int minEntropy = int.MaxValue;
         List<(int, int)> minEntropyIndices = new();
 
@@ -76,15 +72,15 @@ internal class WorldGenerator {
 
         if (minEntropyIndices.Count != 0 && minEntropy != 0) {
             (int x, int y) = minEntropyIndices[(int)((uint)Random.Shared.NextInt64() % minEntropyIndices.Count)];
-            List<int> indices = new();
+            
             ulong possibleValuesBitmap = Tiles[x, y].PossibleValues;
-            for (int i = 63; i >= 0; i--) {
-                if ((possibleValuesBitmap & (ulong)1 << i) != 0) {
-                    indices.Add(i);
-                }
+
+            int numSkips = (int)((uint)Random.Shared.NextInt64() % BitOperations.PopCount(possibleValuesBitmap));
+            for (int i=0; i<numSkips; i++){
+                possibleValuesBitmap &= possibleValuesBitmap-1;
             }
 
-            CollapseCell(x, y, indices[(int)((uint)Random.Shared.NextInt64() % indices.Count)] + 1);
+            CollapseCell(x, y, BitOperations.TrailingZeroCount(possibleValuesBitmap)+1);
             return true;
         }
 
