@@ -28,15 +28,19 @@ internal class WorldTestScene : Scene {
         RuleParser parser = new();
         parser.Parse(
 @"
-1 -> FFF FFF FFF FFF
-R 1
-2 -> WFF FFF FFW WWW
+2 -> WFW WWW WFW WWW
 R 2
-3 -> WWW WWW WWW WWW
-4 -> WFF FFW WWW WWW
+4 -> WWW WWW WWW WWW
 R 4
-5 -> WFF FFF FFW WWW
+R 4
+R 4
+R 4
+5 -> WFW WFW WWW WWW
 R 5
+6 -> WFW WFW WFW WWW
+R 6
+7 -> WFW WWW WWW WWW
+R 7
 "
         );
 
@@ -58,11 +62,23 @@ R 5
             {(ulong)1 << id++, (ulong)1},
 
             {(ulong)1 << id++, (ulong)2},
+            {(ulong)1 << id++, (ulong)2},
+            {(ulong)1 << id++, (ulong)2},
+            {(ulong)1 << id++, (ulong)2},
+            {(ulong)1 << id++, (ulong)2},
+            {(ulong)1 << id++, (ulong)2},
+            {(ulong)1 << id++, (ulong)2},
+            {(ulong)1 << id++, (ulong)2},
+            {(ulong)1 << id++, (ulong)2},
+            {(ulong)1 << id++, (ulong)2},
+            {(ulong)1 << id++, (ulong)2},
+            {(ulong)1 << id++, (ulong)2},
+            {(ulong)1 << id++, (ulong)2},
 
-            {(ulong)1 << id++, (ulong)2},
-            {(ulong)1 << id++, (ulong)2},
-            {(ulong)1 << id++, (ulong)2},
-            {(ulong)1 << id++, (ulong)2},
+            {(ulong)1 << id++, (ulong)1},
+            {(ulong)1 << id++, (ulong)1},
+            {(ulong)1 << id++, (ulong)1},
+            {(ulong)1 << id++, (ulong)1},
 
             {(ulong)1 << id++, (ulong)1},
             {(ulong)1 << id++, (ulong)1},
