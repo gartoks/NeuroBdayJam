@@ -1,4 +1,5 @@
 ﻿using NeuroBdayJam.Game.World.Generation;
+using NeuroBdayJam.ResourceHandling;
 
 namespace NeuroBdayJam.Game.Scenes;
 /// <summary>
@@ -12,7 +13,23 @@ internal class WorldGenTestScene : Scene {
     /// Called when the scene is loaded. Override this method to provide custom scene initialization logic and to load resources.
     /// </summary>
     internal override void Load() {
-        WorldGenerator = new WorldGenerator(100, 100);
+        WorldGenerator = new WorldGenerator(10, 10);
+        RuleParser parser = new RuleParser();
+        parser.Parse(
+@"
+1 -> 0 1 0 1
+R 1
+
+2 -> 1 0 0 1
+R 2
+");
+
+    WorldGenerator.SetRules(parser.Export());
+
+    WorldGenerator.CollapseCell(1, 1, 5);
+    WorldGenerator.CollapseCell(0, 1, 6);
+    WorldGenerator.CollapseCell(0, 0, 7);
+    WorldGenerator.CollapseCell(1, 0, 8);
     }
 
     /// <summary>

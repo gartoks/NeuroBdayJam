@@ -1,4 +1,5 @@
 using Raylib_CsLo;
+using Raylib_CsLo.InternalHelpers;
 using System.Numerics;
 
 namespace NeuroBdayJam.Game.World.Generation;
@@ -28,27 +29,23 @@ internal class WorldGenerator {
                 };
             }
         }
-
-        CollapseCell(0, 0, 1);
     }
 
-    internal void CollapseCell(int x, int y, int id) {
+    public void CollapseCell(int x, int y, int id) {
         Tiles[x, y].PossibleValues = (ulong)1 << (id - 1);
         Tiles[x, y].Id = id;
 
-        ulong possibleNeighbours = IdToPossibleNeighbours[id];
-
         if (y != 0)
-            Tiles[x, y - 1].PossibleValues &= possibleNeighbours;
+            Tiles[x, y - 1].PossibleValues &= IdAndSideToPossibleNeighbours[new(id, Side.Top)];
 
         if (x != 0)
-            Tiles[x - 1, y].PossibleValues &= possibleNeighbours;
+            Tiles[x - 1, y].PossibleValues &= IdAndSideToPossibleNeighbours[new(id, Side.Left)];
 
         if (y != Height - 1)
-            Tiles[x, y + 1].PossibleValues &= possibleNeighbours;
+            Tiles[x, y + 1].PossibleValues &= IdAndSideToPossibleNeighbours[new(id, Side.Bottom)];
 
         if (x != Width - 1)
-            Tiles[x + 1, y].PossibleValues &= possibleNeighbours;
+            Tiles[x + 1, y].PossibleValues &= IdAndSideToPossibleNeighbours[new(id, Side.Right)];
     }
 
     internal bool Step() {
@@ -101,29 +98,56 @@ internal class WorldGenerator {
         public ulong PossibleValues;
 
         internal void DEBUG_Draw() {
-            Color color;
-            if (Id == 0)
-                color = new Color(255, 0, 0, 255);
-            else if (Id == 1)
-                color = new Color(0, 255, 0, 255);
-            else if (Id == 2)
-                color = new Color(0, 0, 255, 255);
-            else if (Id == 3)
-                color = new Color(0, 255, 255, 255);
+            if (Id == 0){
+                Raylib.DrawRectangleV(Pos * Size, Size, new Color(255, 0, 0, 255));
+            }
+            else if (Id == 1 || Id == 3){
+                Raylib.DrawRectangleV(Pos * Size, Size, new Color(0, 0, 255, 255));
+                Raylib.DrawRectangleV(Pos * Size + Size * new Vector2(0, 0.25f), Size / new Vector2(1, 2), new Color(100, 100, 100, 255));
+            }
+            else if (Id == 2 || Id == 4){
+                Raylib.DrawRectangleV(Pos * Size, Size, new Color(0, 0, 255, 255));
+                Raylib.DrawRectangleV(Pos * Size + Size * new Vector2(0.25f, 0), Size / new Vector2(2, 1), new Color(100, 100, 100, 255));
+            }
+            else if (Id == 5){
+                Raylib.DrawRectangleV(Pos * Size, Size, new Color(0, 0, 255, 255));
+                Raylib.DrawRectangleV(Pos * Size + Size * new Vector2(0f, 0.25f), Size * new Vector2(0.75f, 0.5f), new Color(100, 100, 100, 255));
+                Raylib.DrawRectangleV(Pos * Size + Size * new Vector2(0.25f, 0f), Size * new Vector2(0.5f, 0.75f), new Color(100, 100, 100, 255));
+            }
+            else if (Id == 6){
+                Raylib.DrawRectangleV(Pos * Size, Size, new Color(0, 0, 255, 255));
+                Raylib.DrawRectangleV(Pos * Size + Size * new Vector2(0.25f, 0.25f), Size * new Vector2(0.75f, 0.5f), new Color(100, 100, 100, 255));
+                Raylib.DrawRectangleV(Pos * Size + Size * new Vector2(0.25f, 0f), Size * new Vector2(0.5f, 0.75f), new Color(100, 100, 100, 255));
+            }
+            else if (Id == 7){
+                Raylib.DrawRectangleV(Pos * Size, Size, new Color(0, 0, 255, 255));
+                Raylib.DrawRectangleV(Pos * Size + Size * new Vector2(0.25f, 0.25f), Size * new Vector2(0.5f, 0.75f), new Color(100, 100, 100, 255));
+                Raylib.DrawRectangleV(Pos * Size + Size * new Vector2(0.25f, 0.25f), Size * new Vector2(0.75f, 0.5f), new Color(100, 100, 100, 255));
+            }
+            else if (Id == 8){
+                Raylib.DrawRectangleV(Pos * Size, Size, new Color(0, 0, 255, 255));
+                Raylib.DrawRectangleV(Pos * Size + Size * new Vector2(0f, 0.25f), Size * new Vector2(0.75f, 0.5f), new Color(100, 100, 100, 255));
+                Raylib.DrawRectangleV(Pos * Size + Size * new Vector2(0.25f, 0.25f), Size * new Vector2(0.5f, 0.75f), new Color(100, 100, 100, 255));
+            }
             else
                 return;
 
-            Raylib.DrawRectangleV(Pos * Size, Size, color);
 
             // Raylib.DrawTextEx(Renderer.GuiFont.Resource, "N: " + PossibleValues.Count.ToString(), Pos * Size, 40, 10, new Color(255, 255, 255, 255));
             // Raylib.DrawTextEx(Renderer.GuiFont.Resource, "ID: " + Id.ToString(), Pos * Size + new Vector2(0, 50), 40, 10, new Color(255, 255, 255, 255));
         }
     }
 
-    Dictionary<int, ulong> IdToPossibleNeighbours = new(){
-        {0, ulong.MaxValue},
-        {1, 0b011},
-        {2, 0b111},
-        {3, 0b110},
-    };
+    public void SetRules(Dictionary<(int, Side), ulong> rules){
+        IdAndSideToPossibleNeighbours = rules;
+    }
+
+    public enum Side{
+        Top = 0,
+        Right = 1,
+        Bottom = 2,
+        Left = 3,
+    }
+
+    Dictionary<(int, Side), ulong> IdAndSideToPossibleNeighbours = new();
 }
