@@ -5,7 +5,7 @@ namespace NeuroBdayJam;
 
 internal class Program {
     static void Main(string[] args) {
-        Application.DRAW_DEBUG = true;  // TODO
+        //Application.DRAW_DEBUG = true;  // TODO
 
         ConsoleControl.Hide();
 

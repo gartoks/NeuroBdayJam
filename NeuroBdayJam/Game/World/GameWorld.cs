@@ -12,6 +12,7 @@ internal class GameWorld {
     public int Height => Tiles.GetLength(1);
 
     public Neuro Player { get; set; }
+    private Worm Worm { get; set; }
 
     private Tileset Tileset { get; set; }
     private ulong[,] Tiles { get; }
@@ -31,11 +32,12 @@ internal class GameWorld {
 
         Tileset = tilesetResource.Resource;
         Player = new Neuro(this, new Vector2(1.5f, 1.5f));
-
+        Worm = new Worm(this, new Vector2(5.5f, 5.5f));
     }
 
     internal void Update(float dT) {
         Player.Update(dT);
+        Worm.Update(dT);
     }
 
     internal void Render(float dT) {
@@ -45,6 +47,7 @@ internal class GameWorld {
             }
         }
 
+        Worm.Render(dT);
         Player.Render(dT);
     }
 
@@ -66,7 +69,7 @@ internal class GameWorld {
                 if (tileType.Collider == null)
                     continue;
 
-                Rectangle boundsRect = new Rectangle((x + tileType.Collider.Value.x) * TILE_SIZE, (y + tileType.Collider.Value.y) * TILE_SIZE, tileType.Collider.Value.width * TILE_SIZE, tileType.Collider.Value.height * TILE_SIZE);
+                Rectangle boundsRect = new Rectangle(x + tileType.Collider.Value.x, y + tileType.Collider.Value.y, tileType.Collider.Value.width, tileType.Collider.Value.height);
                 colliders.Add(boundsRect);
             }
         }
