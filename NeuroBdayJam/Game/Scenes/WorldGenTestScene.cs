@@ -11,11 +11,13 @@ internal class WorldGenTestScene : Scene {
 
     private WorldGenerator WorldGenerator { get; set; }
 
+    private int CurrentX;
+    private int CurrentY;
+
     /// <summary>
     /// Called when the scene is loaded. Override this method to provide custom scene initialization logic and to load resources.
     /// </summary>
     internal override void Load() {
-        WorldGenerator = new WorldGenerator(20, 20);
         RuleParser parser = new RuleParser();
         parser.Parse(
 @"
@@ -50,9 +52,13 @@ R 13
 
 ");
 
+        WorldGenerator = new WorldGenerator(50, 50);
         WorldGenerator.SetRules(parser.Export());
         WorldGenerator.CollapseCell(0, 0, 12);
-        WorldGenerator.Store();
+        WorldGenerator.Store(true);
+        WorldGenerator.GenerateEverything(true);
+        
+        CurrentX = CurrentY = 0;
 
         Input.RegisterHotkey("reset_generation", KeyboardKey.KEY_R, new KeyboardKey[0]);
         
@@ -67,44 +73,30 @@ R 13
     /// </summary>
     /// <param name="dT">The delta time since the last frame, typically used for frame-rate independent updates.</param>
     internal override void Update(float dT) {
-        System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
+
+        if (Input.IsHotkeyDown(GameHotkeys.MOVE_UP)){
+            WorldGenerator.GenerateTileRow(CurrentY + WorldGenerator.Height);
+            CurrentY++;
+        }
+        if (Input.IsHotkeyDown(GameHotkeys.MOVE_DOWN)){
+            WorldGenerator.GenerateTileRow(CurrentY-1);
+            CurrentY--;
+        }
+
+        if (Input.IsHotkeyDown(GameHotkeys.MOVE_LEFT)){
+            WorldGenerator.GenerateTileColumn(CurrentX + WorldGenerator.Width);
+            CurrentX++;
+        }
+        if (Input.IsHotkeyDown(GameHotkeys.MOVE_RIGHT)){
+            WorldGenerator.GenerateTileColumn(CurrentX-1);
+            CurrentX--;
+        }
+
 
         if (Input.IsHotkeyActive("reset_generation")){
-            WorldGenerator.Restore();
+            WorldGenerator.Restore(true);
+            WorldGenerator.GenerateEverything();
         }
-
-        watch.Start();
-
-        WorldGenerator.GenerateEverything();
-
-        watch.Stop();
-
-        bool shouldStore = false;
-
-        // if (Input.IsHotkeyActive(GameHotkeys.MOVE_UP)){
-        //     WorldGenerator.Translate(0, -1);
-        //     shouldStore = true;
-        // }
-        // if (Input.IsHotkeyActive(GameHotkeys.MOVE_DOWN)){
-        //     WorldGenerator.Translate(0, 1);
-        //     shouldStore = true;
-        // }
-
-        // if (Input.IsHotkeyActive(GameHotkeys.MOVE_LEFT)){
-        //     WorldGenerator.Translate(-1, 0);
-        //     shouldStore = true;
-        // }
-        // if (Input.IsHotkeyActive(GameHotkeys.MOVE_RIGHT)){
-        //     WorldGenerator.Translate(1, 0);
-        //     shouldStore = true;
-        // }
-
-        if (shouldStore){
-            WorldGenerator.Store();
-        }
-
-        Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
-
     }
 
     /// <summary>
