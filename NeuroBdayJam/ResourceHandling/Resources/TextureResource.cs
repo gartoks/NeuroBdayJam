@@ -67,7 +67,7 @@ internal sealed class TextureResourceLoader : ResourceLoader<Texture, TextureRes
     }
 
     public override IReadOnlyList<string> GetResources() {
-        return ResourceManager.MainResourceFile.GetSoundResources();
+        return ResourceManager.MainResourceFile.GetTextureResources();
     }
 
     protected override Texture LoadResourceInternal(string key) {

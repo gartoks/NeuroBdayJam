@@ -72,15 +72,15 @@ internal class WorldGenerator {
 
         if (minEntropyIndices.Count != 0 && minEntropy != 0) {
             (int x, int y) = minEntropyIndices[(int)((uint)Random.Shared.NextInt64() % minEntropyIndices.Count)];
-            
+
             ulong possibleValuesBitmap = Tiles[x, y].PossibleValues;
 
             int numSkips = (int)((uint)Random.Shared.NextInt64() % BitOperations.PopCount(possibleValuesBitmap));
-            for (int i=0; i<numSkips; i++){
-                possibleValuesBitmap &= possibleValuesBitmap-1;
+            for (int i = 0; i < numSkips; i++) {
+                possibleValuesBitmap &= possibleValuesBitmap - 1;
             }
 
-            CollapseCell(x, y, BitOperations.TrailingZeroCount(possibleValuesBitmap)+1);
+            CollapseCell(x, y, BitOperations.TrailingZeroCount(possibleValuesBitmap) + 1);
             return true;
         }
 
@@ -93,7 +93,7 @@ internal class WorldGenerator {
         }
     }
 
-    internal struct Tile {
+    private struct Tile {
         public int Id;
         public Vector2 Size;
         public Vector2 Pos;

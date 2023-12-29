@@ -1,4 +1,5 @@
 ﻿using NeuroBdayJam.App;
+using NeuroBdayJam.Game.World;
 using NeuroBdayJam.ResourceHandling.Resources;
 using NeuroBdayJam.Util;
 using Raylib_CsLo;
@@ -27,6 +28,7 @@ internal static class ResourceManager {
     public static TextResourceLoader TextLoader { get; }
     public static NPatchTextureResourceLoader NPatchTextureLoader { get; }
     public static TextureAtlasResourceLoader TextureAtlasLoader { get; }
+    public static TilesetResourceLoader TilesetLoader { get; }
 
     /// <summary>
     /// Base theme.
@@ -47,6 +49,7 @@ internal static class ResourceManager {
         TextLoader = new(ResourceLoadingQueue);
         NPatchTextureLoader = new(ResourceLoadingQueue);
         TextureAtlasLoader = new(ResourceLoadingQueue);
+        TilesetLoader = new(ResourceLoadingQueue);
 
         MainResourceFile = new ResourceFile(Files.GetResourceFilePath("Main.dat"));
     }
@@ -61,17 +64,21 @@ internal static class ResourceManager {
     /// Loads default resources.
     /// </summary>
     internal static void Load() {
+        Image image = Raylib.GenImageColor(1, 1, Raylib.BLANK);
+        Texture fallbackTexture = Raylib.LoadTextureFromImage(image);
+        TextureAtlas fallbackTextureAtlas = new TextureAtlas(fallbackTexture, new Dictionary<string, SubTexture>());
+
         MainResourceFile.Load();
 
         ColorLoader.Load(Raylib.WHITE);
         FontLoader.Load(Raylib.GetFontDefault());
-        Image image = Raylib.GenImageColor(1, 1, Raylib.BLANK);
-        TextureLoader.Load(Raylib.LoadTextureFromImage(image));
+        TextureLoader.Load(fallbackTexture);
         SoundLoader.Load(new Sound());
         MusicLoader.Load(new Music());
         TextLoader.Load(new Dictionary<string, string>());
-        NPatchTextureLoader.Load(new NPatchTexture(Raylib.LoadTextureFromImage(image), 0, 1, 0, 1));
-        TextureAtlasLoader.Load(new TextureAtlas(Raylib.LoadTextureFromImage(image), new Dictionary<string, (int, int, int, int)>()));
+        NPatchTextureLoader.Load(new NPatchTexture(fallbackTexture, 0, 1, 0, 1));
+        TextureAtlasLoader.Load(fallbackTextureAtlas);
+        TilesetLoader.Load(new Tileset("__FALLBACK__", new HashSet<TileType>(), fallbackTextureAtlas));
     }
 
     /// <summary>
@@ -97,6 +104,7 @@ internal static class ResourceManager {
         TextLoader.ReloadAll();
         NPatchTextureLoader.ReloadAll();
         TextureAtlasLoader.ReloadAll();
+        TilesetLoader.ReloadAll();
     }
 
     /// <summary>
@@ -131,6 +139,8 @@ internal static class ResourceManager {
             NPatchTextureLoader.LoadResource(key);
         } else if (type == typeof(TextureAtlas)) {
             TextureAtlasLoader.LoadResource(key);
+        } else if (type == typeof(Tileset)) {
+            TilesetLoader.LoadResource(key);
         } else {
             Debug.WriteLine($"Resource type {type} is not supported");
         }

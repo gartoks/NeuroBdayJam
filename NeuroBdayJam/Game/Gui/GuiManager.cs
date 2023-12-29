@@ -33,6 +33,8 @@ internal static class GuiManager {
         Input.UnregisterHotkey("confirm");
         Input.UnregisterHotkey("next");
         Input.UnregisterHotkey("previous");
+        Input.UnregisterHotkey("next_subItem");
+        Input.UnregisterHotkey("previous_subItem");
     }
 
     internal static void Update(float dT) {

@@ -1,3 +1,4 @@
+using NeuroBdayJam.Game.World;
 using NeuroBdayJam.ResourceHandling.Resources;
 using NeuroBdayJam.Util;
 using Raylib_CsLo;
@@ -78,7 +79,7 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
         StreamReader colorStreamReader = new StreamReader(colorEntry.Open());
         Dictionary<string, int[]>? colors = JsonSerializer.Deserialize<Dictionary<string, int[]>>(colorStreamReader.ReadToEnd());
         if (colors == null) {
-            Debug.WriteLine($"colors.json in theme {ResourceFileFilePath} has a wrong format.");
+            Debug.WriteLine($"colors.json in resource file {ResourceFileFilePath} has a wrong format.");
             return;
         }
 
@@ -105,7 +106,7 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
     /// Tries to get a color to the given key.
     /// </summary>
     /// <param name="key"></param>
-    /// <exception cref="InvalidOperationException">Thrown if the theme was not loaded.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if the resource file was not loaded.</exception>
     internal Color? GetColor(string key) {
         if (!WasLoaded)
             throw new InvalidOperationException("Resource file was not loaded.");
@@ -134,7 +135,7 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
     /// Tries to load a font from the zip archive.
     /// </summary>
     /// <param name="key"></param>
-    /// <exception cref="InvalidOperationException">Thrown if the theme was not loaded.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if the resource file was not loaded.</exception>
     public Font? LoadFont(string key) {
         if (!WasLoaded)
             throw new InvalidOperationException("Resource file was not loaded.");
@@ -148,7 +149,7 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
         }
 
         if (zippedFont == null) {
-            Debug.WriteLine($"Font {key} doesn't exist in this theme");
+            Debug.WriteLine($"Font {key} doesn't exist in this resource file");
             return null;
         }
 
@@ -186,7 +187,7 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
     /// Tries to load a texture from the zip archive.
     /// </summary>
     /// <param name="key"></param>
-    /// <exception cref="InvalidOperationException">Thrown if the theme was not loaded.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if the resource file was not loaded.</exception>
     public Texture? LoadTexture(string key) {
         if (!WasLoaded)
             throw new InvalidOperationException("Resource file was not loaded.");
@@ -195,7 +196,7 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
         ZipArchiveEntry? zippedTexture = ResourceFileArchive!.GetEntry(path);
 
         if (zippedTexture == null) {
-            Debug.WriteLine($"Texture {key} doesn't exist in this theme");
+            Debug.WriteLine($"Texture {key} doesn't exist in this resource file");
             return null;
         }
 
@@ -234,7 +235,7 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
     /// Tries to load a sound from the zip archive.
     /// </summary>
     /// <param name="key"></param>
-    /// <exception cref="InvalidOperationException">Thrown if the theme was not loaded.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if the resource file was not loaded.</exception>
     public Sound? LoadSound(string key) {
         if (!WasLoaded)
             throw new InvalidOperationException("Resource file was not loaded.");
@@ -243,7 +244,7 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
         ZipArchiveEntry? zippedSound = ResourceFileArchive!.GetEntry(path);
 
         if (zippedSound == null) {
-            Debug.WriteLine($"Sound {key} doesn't exist in this theme");
+            Debug.WriteLine($"Sound {key} doesn't exist in this resource file");
             return null;
         }
 
@@ -278,7 +279,7 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
     /// Tries to load a music from the zip archive.
     /// </summary>
     /// <param name="key"></param>
-    /// <exception cref="InvalidOperationException">Thrown if the theme was not loaded.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if the resource file was not loaded.</exception>
     public Music? LoadMusic(string key) {
         if (!WasLoaded)
             throw new InvalidOperationException("Resource file was not loaded.");
@@ -287,7 +288,7 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
         ZipArchiveEntry? zippedSound = ResourceFileArchive!.GetEntry(path);
 
         if (zippedSound == null) {
-            Debug.WriteLine($"Music {key} doesn't exist in this theme");
+            Debug.WriteLine($"Music {key} doesn't exist in this resource file");
             return null;
         }
 
@@ -327,7 +328,7 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
     /// </summary>
     /// <param name="key"></param>
     /// <returns></returns>
-    /// <exception cref="InvalidOperationException">Thrown if the theme was not loaded.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if the resource file was not loaded.</exception>
     internal IReadOnlyDictionary<string, string>? LoadText(string key) {
         if (!WasLoaded)
             throw new InvalidOperationException("Resource file was not loaded.");
@@ -336,7 +337,7 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
         ZipArchiveEntry? zippedText = ResourceFileArchive!.GetEntry(path);
 
         if (zippedText == null) {
-            Debug.WriteLine($"Text {key} doesn't exist in this theme");
+            Debug.WriteLine($"Text {key} doesn't exist in this resource file");
             return null;
         }
 
@@ -362,7 +363,7 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
     /// Tries to load a NPatchTexture from the zip archive.
     /// </summary>
     /// <param name="key"></param>
-    /// <exception cref="InvalidOperationException">Thrown if the theme was not loaded.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if the resource file was not loaded.</exception>
     public NPatchTexture? LoadNPatchTexture(string key) {
         if (!WasLoaded)
             throw new InvalidOperationException("Resource file was not loaded.");
@@ -373,7 +374,7 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
         ZipArchiveEntry? zippedText = ResourceFileArchive!.GetEntry(path);
 
         if (zippedText == null) {
-            Debug.WriteLine($"NPatchData {key} doesn't exist in this theme");
+            Debug.WriteLine($"NPatchData {key} doesn't exist in this resource file");
             return null;
         }
 
@@ -402,7 +403,7 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
     /// Tries to load a TextureAtlas from the zip archive.
     /// </summary>
     /// <param name="key"></param>
-    /// <exception cref="InvalidOperationException">Thrown if the theme was not loaded.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if the resource file was not loaded.</exception>
     public TextureAtlas? LoadTextureAtlas(string key) {
         if (!WasLoaded)
             throw new InvalidOperationException("Resource file was not loaded.");
@@ -413,7 +414,7 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
         ZipArchiveEntry? zippedText = ResourceFileArchive!.GetEntry(path);
 
         if (zippedText == null) {
-            Debug.WriteLine($"TextureAtlasData {key} doesn't exist in this theme");
+            Debug.WriteLine($"TextureAtlasData {key} doesn't exist in this resource file");
             return null;
         }
 
@@ -423,9 +424,9 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
         if (dict == null)
             return null;
 
-        Dictionary<string, (int x, int y, int w, int h)> subTextures = new();
+        Dictionary<string, SubTexture> subTextures = new();
         foreach (KeyValuePair<string, string> item in dict) {
-            string id = item.Key;
+            string subTextureKey = item.Key;
             string[] components = item.Value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
             if (components.Length != 4) {
@@ -441,10 +442,98 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
                 continue;
             }
 
-            subTextures[id] = (x, y, w, h);
+            subTextures[subTextureKey] = new SubTexture(subTextureKey, (x, y, w, h), texture);
         }
 
         return new TextureAtlas(texture, subTextures);
+    }
+
+    internal bool DoesTilesetExist(string key) {
+        string path = $"Tilesets/{key}/";
+        return DoesTextureExist(key) && ResourceFileArchive!.GetEntry(path) != null;
+    }
+
+    internal IReadOnlyList<string> GetTilesetResources() {
+        List<string> tilesetData = ResourceFileArchive!.Entries
+            .Where(e => e.FullName.StartsWith("Tilesets/"))
+            .Select(e => Path.GetFileName(Path.GetDirectoryName(e.FullName)!))
+            .Distinct().ToList();
+        List<string> textureData = ResourceFileArchive!.Entries
+            .Where(e => e.FullName.StartsWith("Textures/") && Path.GetFileNameWithoutExtension(e.FullName).StartsWith("tileset_"))
+            .Select(e => Path.GetFileNameWithoutExtension(e.FullName).Replace("tileset_", ""))
+            .Distinct().ToList();
+
+        return tilesetData.Intersect(textureData).ToList();
+    }
+
+    /// <summary>
+    /// Tries to load a Tileset from the zip archive.
+    /// </summary>
+    /// <param name="key"></param>
+    /// <exception cref="InvalidOperationException">Thrown if the resource file was not loaded.</exception>
+    public Tileset? LoadTileset(string key) {
+        if (!WasLoaded)
+            throw new InvalidOperationException("Resource file was not loaded.");
+
+        TextureAtlas tileTextureAtlas = LoadTextureAtlas($"tileset_{key}")!;
+
+        string path = $"Tilesets/{key}/";
+        if (!ResourceFileArchive!.Entries.Any(e => e.FullName.StartsWith(path))) {
+            Debug.WriteLine($"Tileset {key} doesn't exist in this resource file.");
+            return null;
+        }
+
+        HashSet<TileType> tileTypes = new();
+
+        IEnumerable<ZipArchiveEntry> tileTypeEntries = ResourceFileArchive!.Entries.Where(e => e.FullName.StartsWith(path));
+        foreach (ZipArchiveEntry tileTypeEntry in tileTypeEntries) {
+            Stream tileTypeStream = tileTypeEntry.Open();
+            Dictionary<string, string>? dict = JsonSerializer.Deserialize<Dictionary<string, string>>(tileTypeStream);
+            tileTypeStream.Dispose();
+
+            if (dict == null)
+                return null;
+
+            TileType? tileType = ParseTileType(dict);
+
+            if (tileType == null)
+                return null;
+
+            tileTypes.Add(tileType);
+        }
+
+        return new Tileset(key, tileTypes, tileTextureAtlas);
+    }
+
+    private TileType? ParseTileType(IReadOnlyDictionary<string, string> dict) {
+        if (!dict.TryGetValue("id", out string? idStr) || !ulong.TryParse(idStr, out ulong id))
+            return null;
+
+        if (!dict.TryGetValue("name", out string? name))
+            return null;
+
+        if (!dict.TryGetValue("collider", out string? colliderStr))
+            return null;
+
+        Rectangle? bounds;
+        if (string.IsNullOrEmpty(colliderStr))
+            bounds = null;
+        else {
+            string[] comps = colliderStr.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+            if (comps.Length != 4)
+                return null;
+
+            if (!float.TryParse(comps[0], CultureInfo.InvariantCulture, out float x) ||
+                !float.TryParse(comps[1], CultureInfo.InvariantCulture, out float y) ||
+                !float.TryParse(comps[2], CultureInfo.InvariantCulture, out float w) ||
+                !float.TryParse(comps[3], CultureInfo.InvariantCulture, out float h))
+                return null;
+
+            bounds = new Rectangle(x, y, w, h);
+        }
+
+        return new TileType(id, name, bounds);
     }
 
     private void Dispose(bool disposing) {

@@ -5,6 +5,8 @@ namespace NeuroBdayJam;
 
 internal class Program {
     static void Main(string[] args) {
+        Application.DRAW_DEBUG = true;  // TODO
+
         ConsoleControl.Hide();
 
         Log.OnLog += (msg, type) => Console.WriteLine(msg);

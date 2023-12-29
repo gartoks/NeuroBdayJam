@@ -1,7 +1,7 @@
-﻿using NeuroBdayJam.Util;
-using NeuroBdayJam.App;
+﻿using NeuroBdayJam.App;
 using Raylib_CsLo;
 using System.Numerics;
+using NeuroBdayJam.Util.Extensions;
 
 namespace NeuroBdayJam.Game.Gui;
 internal abstract class InteractiveGuiElement : GuiElement {

@@ -1,5 +1,7 @@
-﻿using NeuroBdayJam.Game.World;
-using NeuroBdayJam.ResourceHandling;
+﻿using NeuroBdayJam.App;
+using NeuroBdayJam.Game.Utils;
+using NeuroBdayJam.Game.World;
+using Raylib_CsLo;
 
 namespace NeuroBdayJam.Game.Scenes;
 /// <summary>
@@ -13,12 +15,13 @@ internal class WorldTestScene : Scene {
     /// Called when the scene is loaded. Override this method to provide custom scene initialization logic and to load resources.
     /// </summary>
     internal override void Load() {
-        IEnumerable<string> tileTextures = ResourceManager.TextureLoader.GetResources().Where(r => r.StartsWith("tile_"));
-        foreach (string tileTexture in tileTextures) {
-            ResourceManager.TextureLoader.Load(tileTexture);
-        }
+        Input.RegisterHotkey(GameHotkeys.MOVE_UP, KeyboardKey.KEY_W);
+        Input.RegisterHotkey(GameHotkeys.MOVE_LEFT, KeyboardKey.KEY_A);
+        Input.RegisterHotkey(GameHotkeys.MOVE_DOWN, KeyboardKey.KEY_S);
+        Input.RegisterHotkey(GameHotkeys.MOVE_RIGHT, KeyboardKey.KEY_D);
 
-        World = LoadTestWorld("Map_Test_0");
+        World = CreateTestWorld("Map_Test_0");
+        World.Load();
     }
 
     /// <summary>
@@ -41,7 +44,7 @@ internal class WorldTestScene : Scene {
     /// </summary>
     internal override void Unload() { }
 
-    private static GameWorld LoadTestWorld(string fileName) {
+    private static GameWorld CreateTestWorld(string fileName) {
         string path = Path.Combine("Resources", "TestStuff", "Maps", $"{fileName}.txt");
         string[] lines = File.ReadAllLines(path);
 
@@ -57,10 +60,10 @@ internal class WorldTestScene : Scene {
 
                 switch (tileChar) {
                     case ' ':
-                        tiles[x, y] = 0;
+                        tiles[x, y] = 1;
                         break;
                     case 'x':
-                        tiles[x, y] = 1;
+                        tiles[x, y] = 2;
                         break;
                     default:
                         break;
@@ -69,6 +72,6 @@ internal class WorldTestScene : Scene {
             }
         }
 
-        return new GameWorld(new Tileset(), tiles);
+        return new GameWorld(tiles);
     }
 }
