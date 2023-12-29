@@ -1,5 +1,5 @@
-﻿using NeuroBdayJam.Game.World.Generation;
-using NeuroBdayJam.ResourceHandling;
+﻿using NeuroBdayJam.App;
+using NeuroBdayJam.Game.World.Generation;
 
 namespace NeuroBdayJam.Game.Scenes;
 /// <summary>
@@ -17,40 +17,40 @@ internal class WorldGenTestScene : Scene {
         RuleParser parser = new RuleParser();
         parser.Parse(
 @"
-1 -> 0 0 0 0
+1 -> CCC CCC CCC CCC
 R 1
-2 -> 1 1 1 1
+2 -> GGG GGG GGG GGG
 R 2
-3 -> 1 2 1 1
+3 -> GGG GgG GGG GGG
 R 3
-4 -> 1 3 1 3
+4 -> GGG GrG GGG GrG
 R 4
 
-5 -> 9 9 9 9
+5 -> CGG GgG GGC CCC
 R 5
-6 -> 9 9 9 9
+6 -> CGG GGG GGG GGC
 R 6
 
-7 -> 1 2 1 2
+7 -> GGG GgG GGG GgG
 R 7
-8 -> 3 2 3 2
+8 -> GrG GgG GrG GgG
 R 8
-9 -> 3 1 2 1
+9 -> GrG GGG GgG GGG
 R 9
-10 -> 2 2 1 2
+10 -> GgG GgG GGG GgG
 R 10
-11 -> 2 2 2 2
+11 -> GgG GgG GgG GgG
 R 11
-12 -> 2 2 1 1
+12 -> GgG GgG GGG GGG
 R 12
-13 -> 1 2 1 2
+13 -> GGG GgG GGG GgG
 R 13
 
 ");
 
         WorldGenerator.SetRules(parser.Export());
 
-        WorldGenerator.CollapseCell(0, 0, 5);
+        Input.RegisterHotkey("reset_generation", Raylib_CsLo.KeyboardKey.KEY_R, new Raylib_CsLo.KeyboardKey[0]);
     }
 
     /// <summary>
@@ -59,9 +59,20 @@ R 13
     /// <param name="dT">The delta time since the last frame, typically used for frame-rate independent updates.</param>
     internal override void Update(float dT) {
         System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
+
+        if (Input.IsHotkeyActive("reset_generation")){
+            WorldGenerator.Reset();
+            WorldGenerator.CollapseCell(0, 0, 5); 
+        }
+
         watch.Start();
 
-        while (WorldGenerator.Step()) ;
+        while (!WorldGenerator.IsDone()){
+            WorldGenerator.Reset();
+            WorldGenerator.CollapseCell(0, 0, 5); 
+            while (WorldGenerator.Step()) ;
+        }
+
 
         watch.Stop();
 
@@ -79,6 +90,8 @@ R 13
     /// <summary>
     /// Called when the scene is about to be unloaded or replaced by another scene. Override this method to provide custom cleanup or deinitialization logic and to unload resources.
     /// </summary>
-    internal override void Unload() { }
+    internal override void Unload() {
+        Input.UnregisterHotkey("reset_generation");
+    }
 
 }

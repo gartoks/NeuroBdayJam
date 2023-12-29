@@ -2,6 +2,7 @@ using NeuroBdayJam.ResourceHandling.Resources;
 using Raylib_CsLo;
 using System.Numerics;
 using System.Resources;
+using System.Security.Cryptography.X509Certificates;
 
 namespace NeuroBdayJam.Game.World.Generation;
 
@@ -11,7 +12,7 @@ internal class WorldGenerator {
 
     int Width, Height;
 
-    TextureResource[] textures;
+    TextureResource[] DEBUG_Textures;
 
     internal WorldGenerator(int width, int height) {
         Width = width;
@@ -22,18 +23,9 @@ internal class WorldGenerator {
         int maxTileDim = Math.Max(width, height);
         TileSize = new Vector2(minDim / maxTileDim);
 
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                Tiles[x, y] = new Tile() {
-                    Pos = new Vector2(x, y),
-                    Id = 0,
-                    Size = TileSize,
-                    PossibleValues = ulong.MaxValue
-                };
-            }
-        }
+        Reset();
 
-        textures = new TextureResource[13]{
+        DEBUG_Textures = new TextureResource[13]{
             ResourceHandling.ResourceManager.TextureLoader.Get("0"),
             ResourceHandling.ResourceManager.TextureLoader.Get("1"),
             ResourceHandling.ResourceManager.TextureLoader.Get("2"),
@@ -49,8 +41,8 @@ internal class WorldGenerator {
             ResourceHandling.ResourceManager.TextureLoader.Get("12"),
         };
 
-        for (int i=0; i<textures.Length; i++){
-            textures[i].WaitForLoad();
+        for (int i=0; i<DEBUG_Textures.Length; i++){
+            DEBUG_Textures[i].WaitForLoad();
         }
     }
 
@@ -107,9 +99,32 @@ internal class WorldGenerator {
         return false;
     }
 
+    public void Reset(){
+        for (int x = 0; x < Width; x++) {
+            for (int y = 0; y < Height; y++) {
+                Tiles[x, y] = new Tile() {
+                    Pos = new Vector2(x, y),
+                    Id = 0,
+                    Size = TileSize,
+                    PossibleValues = ulong.MaxValue
+                };
+            }
+        }
+    }
+
+    public bool IsDone(){
+        foreach (Tile tile in Tiles){
+            if (tile.Id == 0){
+                return false;
+            }
+        }
+        return true;
+    }
+
+
     internal void DEBUG_Draw() {
         foreach (Tile tile in Tiles) {
-            tile.DEBUG_Draw(textures);
+            tile.DEBUG_Draw(DEBUG_Textures);
         }
     }
 

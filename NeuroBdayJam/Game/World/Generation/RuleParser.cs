@@ -28,10 +28,15 @@ internal class RuleParser {
 
     struct Tile{
         public int Id;
-        public int[] EdgeTypes;
+        public string[] EdgeTypes;
 
         public Tile(){
-            EdgeTypes = new int[4];
+            EdgeTypes = new string[4]{
+                "-----------------------",
+                "-----------------------",
+                "-----------------------",
+                "-----------------------",
+            };
         }
     }
 
@@ -41,7 +46,7 @@ internal class RuleParser {
 
         tile.Id = int.Parse(lineParts[0]);
         for (int i=2; i<2+4; i++){
-            tile.EdgeTypes[i-2] = int.Parse(lineParts[i]);
+            tile.EdgeTypes[i-2] = lineParts[i];
         }
 
         Tiles.Add(tile);
@@ -50,7 +55,7 @@ internal class RuleParser {
         Tile tile = Tiles.Where((Tile t) => t.Id == id).First();
         Tiles.Add(new(){
             Id = 0,
-            EdgeTypes = new int[4]{
+            EdgeTypes = new string[4]{
                 tile.EdgeTypes[(int)WorldGenerator.Side.Left],
                 tile.EdgeTypes[(int)WorldGenerator.Side.Top],
                 tile.EdgeTypes[(int)WorldGenerator.Side.Right],
@@ -59,7 +64,7 @@ internal class RuleParser {
         });
         Tiles.Add(new(){
             Id = 0,
-            EdgeTypes = new int[4]{
+            EdgeTypes = new string[4]{
                 tile.EdgeTypes[(int)WorldGenerator.Side.Bottom],
                 tile.EdgeTypes[(int)WorldGenerator.Side.Left],
                 tile.EdgeTypes[(int)WorldGenerator.Side.Top],
@@ -68,7 +73,7 @@ internal class RuleParser {
         });
         Tiles.Add(new(){
             Id = 0,
-            EdgeTypes = new int[4]{
+            EdgeTypes = new string[4]{
                 tile.EdgeTypes[(int)WorldGenerator.Side.Right],
                 tile.EdgeTypes[(int)WorldGenerator.Side.Bottom],
                 tile.EdgeTypes[(int)WorldGenerator.Side.Left],
@@ -125,19 +130,19 @@ internal class RuleParser {
 
         foreach (Tile t1 in Tiles){
             foreach (Tile t2 in Tiles){
-                if (t1.EdgeTypes[(int)WorldGenerator.Side.Top] == t2.EdgeTypes[(int)WorldGenerator.Side.Bottom]){
+                if (t1.EdgeTypes[(int)WorldGenerator.Side.Top] == new string(t2.EdgeTypes[(int)WorldGenerator.Side.Bottom].Reverse().ToArray())){
                     AddOrAdjustRule(t1.Id, WorldGenerator.Side.Top, (ulong)1 << (t2.Id-1));
                     AddOrAdjustRule(t2.Id, WorldGenerator.Side.Bottom, (ulong)1 << (t1.Id-1));
                 }
-                if (t1.EdgeTypes[(int)WorldGenerator.Side.Bottom] == t2.EdgeTypes[(int)WorldGenerator.Side.Top]){
+                if (t1.EdgeTypes[(int)WorldGenerator.Side.Bottom] == new string(t2.EdgeTypes[(int)WorldGenerator.Side.Top].Reverse().ToArray())){
                     AddOrAdjustRule(t1.Id, WorldGenerator.Side.Bottom, (ulong)1 << (t2.Id-1));
                     AddOrAdjustRule(t2.Id, WorldGenerator.Side.Top, (ulong)1 << (t1.Id-1));
                 }
-                if (t1.EdgeTypes[(int)WorldGenerator.Side.Left] == t2.EdgeTypes[(int)WorldGenerator.Side.Right]){
+                if (t1.EdgeTypes[(int)WorldGenerator.Side.Left] == new string(t2.EdgeTypes[(int)WorldGenerator.Side.Right].Reverse().ToArray())){
                     AddOrAdjustRule(t1.Id, WorldGenerator.Side.Left, (ulong)1 << (t2.Id-1));
                     AddOrAdjustRule(t2.Id, WorldGenerator.Side.Right, (ulong)1 << (t1.Id-1));
                 }
-                if (t1.EdgeTypes[(int)WorldGenerator.Side.Right] == t2.EdgeTypes[(int)WorldGenerator.Side.Left]){
+                if (t1.EdgeTypes[(int)WorldGenerator.Side.Right] == new string(t2.EdgeTypes[(int)WorldGenerator.Side.Left].Reverse().ToArray())){
                     AddOrAdjustRule(t1.Id, WorldGenerator.Side.Right, (ulong)1 << (t2.Id-1));
                     AddOrAdjustRule(t2.Id, WorldGenerator.Side.Left, (ulong)1 << (t1.Id-1));
                 }
@@ -146,27 +151,4 @@ internal class RuleParser {
 
         return IdAndSideToPossibleNeighbours;
     }
-
-    // Dictionary<(int, Side), ulong> IdAndSideToPossibleNeighbours = new(){
-    //     {new(0, Side.Top), ulong.MaxValue},
-    //     {new(0, Side.Left), ulong.MaxValue},
-    //     {new(0, Side.Bottom), ulong.MaxValue},
-    //     {new(0, Side.Right), ulong.MaxValue},
-
-
-    //     {new(1, Side.Top), 0b101},
-    //     {new(1, Side.Left), 0b001},
-    //     {new(1, Side.Bottom), 0b101},
-    //     {new(1, Side.Right), 0b011},
-
-    //     {new(2, Side.Top), 0b100},
-    //     {new(2, Side.Left), 0b101},
-    //     {new(2, Side.Bottom), 0b101},
-    //     {new(2, Side.Right), 0b100},
-
-    //     {new(3, Side.Top), 0b111},
-    //     {new(3, Side.Left), 0b111},
-    //     {new(3, Side.Bottom), 0b111},
-    //     {new(3, Side.Right), 0b111},
-    // };
 }
