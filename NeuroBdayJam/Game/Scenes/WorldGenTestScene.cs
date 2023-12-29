@@ -1,5 +1,7 @@
 ﻿using NeuroBdayJam.App;
+using NeuroBdayJam.Game.Utils;
 using NeuroBdayJam.Game.World.Generation;
+using Raylib_CsLo;
 
 namespace NeuroBdayJam.Game.Scenes;
 /// <summary>
@@ -49,8 +51,15 @@ R 13
 ");
 
         WorldGenerator.SetRules(parser.Export());
+        WorldGenerator.CollapseCell(0, 0, 12);
+        WorldGenerator.Store();
 
-        Input.RegisterHotkey("reset_generation", Raylib_CsLo.KeyboardKey.KEY_R, new Raylib_CsLo.KeyboardKey[0]);
+        Input.RegisterHotkey("reset_generation", KeyboardKey.KEY_R, new KeyboardKey[0]);
+        
+        Input.RegisterHotkey(GameHotkeys.MOVE_UP, KeyboardKey.KEY_W);
+        Input.RegisterHotkey(GameHotkeys.MOVE_LEFT, KeyboardKey.KEY_A);
+        Input.RegisterHotkey(GameHotkeys.MOVE_DOWN, KeyboardKey.KEY_S);
+        Input.RegisterHotkey(GameHotkeys.MOVE_RIGHT, KeyboardKey.KEY_D);
     }
 
     /// <summary>
@@ -61,20 +70,38 @@ R 13
         System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
 
         if (Input.IsHotkeyActive("reset_generation")){
-            WorldGenerator.Reset();
-            WorldGenerator.CollapseCell(0, 0, 5); 
+            WorldGenerator.Restore();
         }
 
         watch.Start();
 
-        while (!WorldGenerator.IsDone()){
-            WorldGenerator.Reset();
-            WorldGenerator.CollapseCell(0, 0, 5); 
-            while (WorldGenerator.Step()) ;
-        }
-
+        WorldGenerator.GenerateEverything();
 
         watch.Stop();
+
+        bool shouldStore = false;
+
+        // if (Input.IsHotkeyActive(GameHotkeys.MOVE_UP)){
+        //     WorldGenerator.Translate(0, -1);
+        //     shouldStore = true;
+        // }
+        // if (Input.IsHotkeyActive(GameHotkeys.MOVE_DOWN)){
+        //     WorldGenerator.Translate(0, 1);
+        //     shouldStore = true;
+        // }
+
+        // if (Input.IsHotkeyActive(GameHotkeys.MOVE_LEFT)){
+        //     WorldGenerator.Translate(-1, 0);
+        //     shouldStore = true;
+        // }
+        // if (Input.IsHotkeyActive(GameHotkeys.MOVE_RIGHT)){
+        //     WorldGenerator.Translate(1, 0);
+        //     shouldStore = true;
+        // }
+
+        if (shouldStore){
+            WorldGenerator.Store();
+        }
 
         Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
 

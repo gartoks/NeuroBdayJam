@@ -1,6 +1,7 @@
 ﻿using NeuroBdayJam.App;
 using NeuroBdayJam.Game.Utils;
 using NeuroBdayJam.Game.World;
+using NeuroBdayJam.Game.World.Generation;
 using Raylib_CsLo;
 
 namespace NeuroBdayJam.Game.Scenes;
@@ -10,6 +11,8 @@ namespace NeuroBdayJam.Game.Scenes;
 internal class WorldTestScene : Scene {
 
     private GameWorld World { get; set; }
+    private WorldGenerator WorldGenerator { get; set; }
+    private Dictionary<ulong, ulong> ExportSettings { get; set; }
 
     /// <summary>
     /// Called when the scene is loaded. Override this method to provide custom scene initialization logic and to load resources.
@@ -19,8 +22,55 @@ internal class WorldTestScene : Scene {
         Input.RegisterHotkey(GameHotkeys.MOVE_LEFT, KeyboardKey.KEY_A);
         Input.RegisterHotkey(GameHotkeys.MOVE_DOWN, KeyboardKey.KEY_S);
         Input.RegisterHotkey(GameHotkeys.MOVE_RIGHT, KeyboardKey.KEY_D);
+        Input.RegisterHotkey("DEBUG_reset_generation", KeyboardKey.KEY_R, new KeyboardKey[0]);
 
-        World = CreateTestWorld("Map_Test_0");
+        WorldGenerator = new WorldGenerator(15, 10);
+        RuleParser parser = new();
+        parser.Parse(
+@"
+1 -> FFF FFF FFF FFF
+R 1
+2 -> WFF FFF FFW WWW
+R 2
+3 -> WWW WWW WWW WWW
+4 -> WFF FFW WWW WWW
+R 4
+5 -> WFF FFF FFW WWW
+R 5
+"
+        );
+
+        WorldGenerator.SetRules(parser.Export());
+        WorldGenerator.CollapseCell(0, 0, 2);
+        WorldGenerator.Store();
+        WorldGenerator.GenerateEverything();
+
+        int id = 0;
+        ExportSettings = new Dictionary<ulong, ulong>{
+            {(ulong)1 << id++, (ulong)1},
+            {(ulong)1 << id++, (ulong)1},
+            {(ulong)1 << id++, (ulong)1},
+            {(ulong)1 << id++, (ulong)1},
+
+            {(ulong)1 << id++, (ulong)1},
+            {(ulong)1 << id++, (ulong)1},
+            {(ulong)1 << id++, (ulong)1},
+            {(ulong)1 << id++, (ulong)1},
+
+            {(ulong)1 << id++, (ulong)2},
+
+            {(ulong)1 << id++, (ulong)2},
+            {(ulong)1 << id++, (ulong)2},
+            {(ulong)1 << id++, (ulong)2},
+            {(ulong)1 << id++, (ulong)2},
+
+            {(ulong)1 << id++, (ulong)1},
+            {(ulong)1 << id++, (ulong)1},
+            {(ulong)1 << id++, (ulong)1},
+            {(ulong)1 << id++, (ulong)1},
+        };
+
+        World = new GameWorld(WorldGenerator.ExportToUlongs(ExportSettings));
         World.Load();
     }
 
@@ -30,6 +80,13 @@ internal class WorldTestScene : Scene {
     /// <param name="dT">The delta time since the last frame, typically used for frame-rate independent updates.</param>
     internal override void Update(float dT) {
         World.Update(dT);
+
+        if (Input.IsHotkeyActive("DEBUG_reset_generation")){
+            WorldGenerator.Restore();
+            WorldGenerator.GenerateEverything();
+            World = new GameWorld(WorldGenerator.ExportToUlongs(ExportSettings));
+            World.Load();
+        }
     }
 
     /// <summary>

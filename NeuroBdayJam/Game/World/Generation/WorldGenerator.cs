@@ -7,6 +7,7 @@ using System.Security.Cryptography.X509Certificates;
 namespace NeuroBdayJam.Game.World.Generation;
 
 internal class WorldGenerator {
+    Tile[,] StoredTiles;
     Tile[,] Tiles;
     Vector2 TileSize;
 
@@ -19,31 +20,43 @@ internal class WorldGenerator {
         Height = height;
 
         Tiles = new Tile[width, height];
-        int minDim = Math.Min(Application.BASE_WIDTH, Application.BASE_HEIGHT);
+        StoredTiles = new Tile[width, height];
+        int minDim = 800; //Math.Min(Application.BASE_WIDTH, Application.BASE_HEIGHT);
         int maxTileDim = Math.Max(width, height);
         TileSize = new Vector2(minDim / maxTileDim);
 
-        Reset();
-
-        DEBUG_Textures = new TextureResource[13]{
-            ResourceHandling.ResourceManager.TextureLoader.Get("0"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("1"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("2"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("3"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("4"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("5"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("6"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("7"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("8"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("9"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("10"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("11"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("12"),
-        };
-
-        for (int i=0; i<DEBUG_Textures.Length; i++){
-            DEBUG_Textures[i].WaitForLoad();
+        for (int x = 0; x < Width; x++) {
+            for (int y = 0; y < Height; y++) {
+                Tiles[x, y] = new Tile() {
+                    Pos = new Vector2(x, y),
+                    Id = 0,
+                    Size = TileSize,
+                    PossibleValues = ulong.MaxValue
+                };
+            }
         }
+
+        Store();
+
+        // DEBUG_Textures = new TextureResource[13]{
+        //     ResourceHandling.ResourceManager.TextureLoader.Get("0"),
+        //     ResourceHandling.ResourceManager.TextureLoader.Get("1"),
+        //     ResourceHandling.ResourceManager.TextureLoader.Get("2"),
+        //     ResourceHandling.ResourceManager.TextureLoader.Get("3"),
+        //     ResourceHandling.ResourceManager.TextureLoader.Get("4"),
+        //     ResourceHandling.ResourceManager.TextureLoader.Get("5"),
+        //     ResourceHandling.ResourceManager.TextureLoader.Get("6"),
+        //     ResourceHandling.ResourceManager.TextureLoader.Get("7"),
+        //     ResourceHandling.ResourceManager.TextureLoader.Get("8"),
+        //     ResourceHandling.ResourceManager.TextureLoader.Get("9"),
+        //     ResourceHandling.ResourceManager.TextureLoader.Get("10"),
+        //     ResourceHandling.ResourceManager.TextureLoader.Get("11"),
+        //     ResourceHandling.ResourceManager.TextureLoader.Get("12"),
+        // };
+
+        // for (int i=0; i<DEBUG_Textures.Length; i++){
+        //     DEBUG_Textures[i].WaitForLoad();
+        // }
     }
 
     public void CollapseCell(int x, int y, int id) {
@@ -99,17 +112,19 @@ internal class WorldGenerator {
         return false;
     }
 
-    public void Reset(){
-        for (int x = 0; x < Width; x++) {
-            for (int y = 0; y < Height; y++) {
-                Tiles[x, y] = new Tile() {
-                    Pos = new Vector2(x, y),
-                    Id = 0,
-                    Size = TileSize,
-                    PossibleValues = ulong.MaxValue
-                };
-            }
+    public void GenerateEverything(){
+        while (!IsDone()){
+            Restore();
+            while (Step()) ;
         }
+    }
+
+    public void Restore(){
+        Tiles = StoredTiles.Clone() as Tile[,];
+    }
+
+    public void Store(){
+        StoredTiles = Tiles.Clone() as Tile[,];
     }
 
     public bool IsDone(){
@@ -121,6 +136,38 @@ internal class WorldGenerator {
         return true;
     }
 
+    public ulong[,] ExportToUlongs(Dictionary<ulong, ulong> generatorUlongsToWorldUlongs){
+        ulong[,] ulongTiles = new ulong[Width, Height];
+        for (int y = 0; y < Height; y++) {
+            for (int x = 0; x < Width; x++) {
+                ulongTiles[x, y] = generatorUlongsToWorldUlongs[Tiles[x, y].PossibleValues];
+            }
+        }
+        return ulongTiles;
+    }
+
+    // public void Translate(int dx, int dy){
+    //     Tile[,] tmpTiles = new Tile[Width, Height];
+    //     for (int x = 0; x < Width; x++) {
+    //         for (int y = 0; y < Height; y++) {
+    //             tmpTiles[x, y] = new Tile() {
+    //                 Pos = new Vector2(x, y),
+    //                 Id = 0,
+    //                 Size = TileSize,
+    //                 PossibleValues = ulong.MaxValue
+    //             };
+    //         }
+    //     }
+
+    //     for (int y=0; y<Width; y++){
+    //         for (int x=0; x<Width; x++){
+    //             if (x+dx >= 0 && x+dx < Width && y+dy >= 0 && y+dy < Height)
+    //                 tmpTiles[x+dx, y+dy] = Tiles[x, y];
+    //         }
+    //     }
+
+    //     Tiles = tmpTiles;
+    // }
 
     internal void DEBUG_Draw() {
         foreach (Tile tile in Tiles) {
