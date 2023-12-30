@@ -40,6 +40,7 @@ internal sealed class Memory : Entity {
                 ScaleSpeed: Random.Shared.NextSingle(0.01f, 0.3f)));
         }
         MemoryBlocks = memoryBlocks;
+    }
 
     public override void LoadInternal()
     {
