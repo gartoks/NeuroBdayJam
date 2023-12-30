@@ -53,7 +53,7 @@ internal static class Renderer {
     /// <summary>
     /// Main drawing method. Called every frame. Tracks delta time and calls the game's draw method. Also scales all drawing operations to the game's resolution.
     /// </summary>
-    internal static void Draw() {
+    internal static void Render() {
         UpdateStopwatch.Stop();
         long ms = UpdateStopwatch.ElapsedMilliseconds;
         float dT = ms / 1000f;
@@ -67,7 +67,7 @@ internal static class Renderer {
 
         RlGl.rlScalef(Application.WorldToScreenMultiplierX, Application.WorldToScreenMultiplierY, 1);
 
-        Game.GameManager.Draw(dT);
+        Game.GameManager.Render(dT);
 
         RlGl.rlPopMatrix();
 

@@ -39,7 +39,7 @@ internal sealed class Neuro : Entity {
     public Neuro(Vector2 position)
         : base("Neuro", position) {
 
-        Speed = 2.0f;
+        Speed = 3.0f;
 
         Camouflage = new CamouflageAbility();
         Dash = new DashAbility();

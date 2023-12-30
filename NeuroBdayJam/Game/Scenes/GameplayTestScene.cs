@@ -14,8 +14,6 @@ namespace NeuroBdayJam.Game.Scenes;
 internal class GameplayTestScene : Scene {
 
     private GameWorld World { get; set; }
-    private WorldGenerator WorldGenerator { get; set; }
-    private Dictionary<ulong, ulong> ExportSettings { get; set; }
 
     private GuiDynamicLabel MemoryTrackerLabel;
 
@@ -34,65 +32,7 @@ internal class GameplayTestScene : Scene {
         Input.RegisterHotkey(GameHotkeys.USE_MEMORY_2, KeyboardKey.KEY_TWO);
         Input.RegisterHotkey(GameHotkeys.USE_MEMORY_3, KeyboardKey.KEY_THREE);
 
-        WorldGenerator = new WorldGenerator(15, 10);
-        RuleParser parser = new();
-        parser.Parse(
-@"
-2 -> WFW WWW WFW WWW
-R 2
-4 -> WWW WWW WWW WWW
-R 4
-R 4
-R 4
-R 4
-5 -> WFW WFW WWW WWW
-R 5
-6 -> WFW WFW WFW WWW
-R 6
-"
-        );
-
-        WorldGenerator.SetRules(parser.Export());
-        WorldGenerator.CollapseCell(0, 0, 1);
-        WorldGenerator.GenerateEverything(true);
-
-        int id = 0;
-        WorldGenerator.ExportSettings = new Dictionary<ulong, ulong>{
-            {(ulong)1 << id++, 1},
-            {(ulong)1 << id++, 1},
-            {(ulong)1 << id++, 1},
-            {(ulong)1 << id++, 1},
-
-            {(ulong)1 << id++, 2},
-            {(ulong)1 << id++, 2},
-            {(ulong)1 << id++, 2},
-            {(ulong)1 << id++, 2},
-            {(ulong)1 << id++, 2},
-            {(ulong)1 << id++, 2},
-            {(ulong)1 << id++, 2},
-            {(ulong)1 << id++, 2},
-            {(ulong)1 << id++, 2},
-            {(ulong)1 << id++, 2},
-            {(ulong)1 << id++, 2},
-            {(ulong)1 << id++, 2},
-            {(ulong)1 << id++, 2},
-
-            {(ulong)1 << id++, 1},
-            {(ulong)1 << id++, 1},
-            {(ulong)1 << id++, 1},
-            {(ulong)1 << id++, 1},
-
-            {(ulong)1 << id++, 1},
-            {(ulong)1 << id++, 1},
-            {(ulong)1 << id++, 1},
-            {(ulong)1 << id++, 1},
-        };
-
-        if (id >= 64){
-            throw new Exception("Too many ids. Worldgen will fail.");
-        }
-
-        World = new GameWorld(WorldGenerator);
+        World = new GameWorld(new DefaultWorldGenerator(40, 30));
         // World = CreateTestWorld("Map_Test_1");
         World.Load();
 

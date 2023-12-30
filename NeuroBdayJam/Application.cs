@@ -114,7 +114,7 @@ internal static class Application {
             ResourceManager.Update();
             AudioManager.Update();
             Input.Update();
-            Renderer.Draw();
+            Renderer.Render();
 
             if (Raylib.WindowShouldClose()) {
                 IsRunning = false;

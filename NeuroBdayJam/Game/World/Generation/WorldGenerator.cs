@@ -1,28 +1,25 @@
 using NeuroBdayJam.ResourceHandling.Resources;
 using Raylib_CsLo;
-using System.Dynamic;
 using System.Numerics;
-using System.Resources;
-using System.Security.Cryptography.X509Certificates;
 
 namespace NeuroBdayJam.Game.World.Generation;
 
-internal class WorldGenerator {
-    Tile[,] KnownGoodTiles;
-    Tile[,] StoredTiles;
-    Tile[,] Tiles;
-    Vector2 TileSize;
+internal abstract class WorldGenerator {
+    public int Width { get; }
+    public int Height { get; }
+    private Vector2 TileSize { get; }
 
-    public int Width { get; private set; }
-    public int Height { get; private set; }
+    private Tile[,] KnownGoodTiles { get; set; }
+    private Tile[,] StoredTiles { get; set; }
+    private Tile[,] Tiles { get; set; }
+    private Dictionary<ulong, ulong> ExportSettings { get; }
 
-    TextureResource[] DEBUG_Textures;
+    private TextureResource[] DEBUG_Textures { get; set; }
 
-    int CurrentX, CurrentY;
+    private int CurrentX { get; set; }
+    private int CurrentY { get; set; }
 
-    public Dictionary<ulong, ulong> ExportSettings { get; set; }
-
-    internal WorldGenerator(int width, int height) {
+    protected WorldGenerator(int width, int height, WorldGeneratorSettings settings) {
         Width = width;
         Height = height;
 
@@ -47,24 +44,50 @@ internal class WorldGenerator {
 
         Store();
 
-        DEBUG_Textures = new TextureResource[13]{
-            ResourceHandling.ResourceManager.TextureLoader.Get("0"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("1"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("2"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("3"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("4"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("5"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("6"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("7"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("8"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("9"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("10"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("11"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("12"),
+        if (Application.DRAW_DEBUG)
+            LoadDEBUGTextures();
+
+        RuleParser parser = new();
+        parser.Parse(settings.Ruleset);
+
+        SetRules(parser.Export());
+        CollapseCell(0, 0, 1);
+        GenerateEverything(settings.GenerateEverything);
+
+        int id = 0;
+        ExportSettings = new Dictionary<ulong, ulong>{
+            {(ulong)1 << id++, 1},
+            {(ulong)1 << id++, 1},
+            {(ulong)1 << id++, 1},
+            {(ulong)1 << id++, 1},
+
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
+
+            {(ulong)1 << id++, 1},
+            {(ulong)1 << id++, 1},
+            {(ulong)1 << id++, 1},
+            {(ulong)1 << id++, 1},
+
+            {(ulong)1 << id++, 1},
+            {(ulong)1 << id++, 1},
+            {(ulong)1 << id++, 1},
+            {(ulong)1 << id++, 1},
         };
 
-        for (int i=0; i<DEBUG_Textures.Length; i++){
-            DEBUG_Textures[i].WaitForLoad();
+        if (id >= 64) {
+            throw new Exception("Too many ids. Worldgen will fail.");
         }
     }
 
@@ -73,16 +96,16 @@ internal class WorldGenerator {
         Tiles[x, y].Id = id;
 
         if (y != 0)
-            Tiles[x, y - 1].PossibleValues &= IdAndSideToPossibleNeighbours[new(id, Side.Top)];
+            Tiles[x, y - 1].PossibleValues &= IdAndSideToPossibleNeighbours[new(id, eSide.Top)];
 
         if (x != 0)
-            Tiles[x - 1, y].PossibleValues &= IdAndSideToPossibleNeighbours[new(id, Side.Left)];
+            Tiles[x - 1, y].PossibleValues &= IdAndSideToPossibleNeighbours[new(id, eSide.Left)];
 
         if (y != Height - 1)
-            Tiles[x, y + 1].PossibleValues &= IdAndSideToPossibleNeighbours[new(id, Side.Bottom)];
+            Tiles[x, y + 1].PossibleValues &= IdAndSideToPossibleNeighbours[new(id, eSide.Bottom)];
 
         if (x != Width - 1)
-            Tiles[x + 1, y].PossibleValues &= IdAndSideToPossibleNeighbours[new(id, Side.Right)];
+            Tiles[x + 1, y].PossibleValues &= IdAndSideToPossibleNeighbours[new(id, eSide.Right)];
     }
 
     internal bool Step() {
@@ -121,22 +144,22 @@ internal class WorldGenerator {
         return false;
     }
 
-    public void GenerateEverything(bool doSpeedup = false){
+    public void GenerateEverything(bool doSpeedup = false) {
         Store(true);
         Store();
-        int i=0;
-        int j=0;
-        while (!IsDone()){
+        int i = 0;
+        int j = 0;
+        while (!IsDone()) {
             Restore();
             j++;
-            if (j > Width*Height/10){
+            if (j > Width * Height / 10) {
                 Restore(true);
                 Store();
                 i = 0;
                 j = 0;
             }
             while (Step()) {
-                if (i++ % 100 == 0 && doSpeedup){
+                if (i++ % 100 == 0 && doSpeedup) {
                     Store();
                     Console.WriteLine($"Store at {i}");
                 }
@@ -147,38 +170,38 @@ internal class WorldGenerator {
         Store(true);
     }
 
-    public void GeneratePartial(){
+    public void GeneratePartial() {
         Store();
-        while (!IsDone()){
+        while (!IsDone()) {
             Restore();
-            while (Step()) {};
+            while (Step()) { };
         }
     }
 
-    public void Restore(bool knownGood = false){
+    public void Restore(bool knownGood = false) {
         if (knownGood)
             Tiles = KnownGoodTiles.Clone() as Tile[,];
         else
             Tiles = StoredTiles.Clone() as Tile[,];
     }
 
-    public void Store(bool knownGood = false){
+    public void Store(bool knownGood = false) {
         if (knownGood)
             KnownGoodTiles = Tiles.Clone() as Tile[,];
         else
             StoredTiles = Tiles.Clone() as Tile[,];
     }
 
-    public bool IsDone(){
-        foreach (Tile tile in Tiles){
-            if (tile.Id == 0){
+    public bool IsDone() {
+        foreach (Tile tile in Tiles) {
+            if (tile.Id == 0) {
                 return false;
             }
         }
         return true;
     }
 
-    public ulong[,] ExportToUlongs(){
+    public ulong[,] ExportToUlongs() {
         ulong[,] ulongTiles = new ulong[Width, Height];
         for (int y = 0; y < Height; y++) {
             for (int x = 0; x < Width; x++) {
@@ -188,7 +211,7 @@ internal class WorldGenerator {
         return ulongTiles;
     }
 
-    public IReadOnlyList<(int x, int y, ulong id)> Translate(int dx, int dy){
+    public IReadOnlyList<(int x, int y, ulong id)> Translate(int dx, int dy) {
         CurrentX += dx;
         CurrentY += dy;
         Tile[,] tmpTiles = Tiles.Clone() as Tile[,];
@@ -204,10 +227,10 @@ internal class WorldGenerator {
             }
         }
 
-        for (int y=0; y<Height; y++){
-            for (int x=0; x<Width; x++){
-                if (x+dx >= 0 && x+dx < Width && y+dy >= 0 && y+dy < Height)
-                    CollapseCell(x+dx, y+dy, tmpTiles[x, y].Id);
+        for (int y = 0; y < Height; y++) {
+            for (int x = 0; x < Width; x++) {
+                if (x + dx >= 0 && x + dx < Width && y + dy >= 0 && y + dy < Height)
+                    CollapseCell(x + dx, y + dy, tmpTiles[x, y].Id);
             }
         }
 
@@ -215,16 +238,16 @@ internal class WorldGenerator {
         GeneratePartial();
         Store(true);
         List<(int x, int y, ulong id)> newTiles = new();
-        for (int y=0; y<Height; y++){
-            for (int x=0; x<Width; x++){
-                if (x+dx < 0 || x+dx >= Width || y+dy < 0 || y+dy >= Height)
+        for (int y = 0; y < Height; y++) {
+            for (int x = 0; x < Width; x++) {
+                if (x + dx < 0 || x + dx >= Width || y + dy < 0 || y + dy >= Height)
                     newTiles.Add(new((int)Tiles[x, y].Pos.X + dx, (int)Tiles[x, y].Pos.Y + dy, Tiles[x, y].PossibleValues));
             }
         }
 
         return newTiles;
     }
-    public IReadOnlyList<(int x, int y, ulong id)> GenerateTileRow(int y){
+    public IReadOnlyList<(int x, int y, ulong id)> GenerateTileRow(int y) {
         if (y == CurrentY - 1)
             return Translate(0, -1);
         else if (y == CurrentY + Height)
@@ -232,7 +255,7 @@ internal class WorldGenerator {
         else
             throw new ArgumentException($"Only y-values {CurrentY - 1} and {CurrentY + Height} are valid in the current state.");
     }
-    public IReadOnlyList<(int x, int y, ulong id)> GenerateTileColumn(int x){
+    public IReadOnlyList<(int x, int y, ulong id)> GenerateTileColumn(int x) {
         if (x == CurrentX - 1)
             return Translate(-1, 0);
         else if (x == CurrentX + Width)
@@ -243,6 +266,9 @@ internal class WorldGenerator {
 
 
     internal void DEBUG_Draw() {
+        if (!Application.DRAW_DEBUG)
+            return;
+
         foreach (Tile tile in Tiles) {
             tile.DEBUG_Draw(DEBUG_Textures);
         }
@@ -256,13 +282,11 @@ internal class WorldGenerator {
         public ulong PossibleValues;
 
         internal void DEBUG_Draw(TextureResource[] Textures) {
-            if (Id == 0){
+            if (Id == 0) {
                 Raylib.DrawRectangleV(Pos * Size, Size, new Color(255, 0, 0, 255));
-            }
-
-            else{
-                int imageID = (Id-1) / 4;
-                int rotation = (Id-1) % 4;
+            } else {
+                int imageID = (Id - 1) / 4;
+                int rotation = (Id - 1) % 4;
 
                 Vector2 offset = Vector2.Zero;
                 if (rotation == 0) offset = new Vector2(0);
@@ -271,7 +295,7 @@ internal class WorldGenerator {
                 else if (rotation == 3) offset = new Vector2(0, Size.X);
 
 
-                Raylib.DrawTextureEx(Textures[imageID].Resource, Pos * Size + offset, rotation*90, Size.X / Textures[imageID].Resource.width, new Color(255, 255, 255, 255));
+                Raylib.DrawTextureEx(Textures[imageID].Resource, Pos * Size + offset, rotation * 90, Size.X / Textures[imageID].Resource.width, new Color(255, 255, 255, 255));
             }
 
             // Raylib.DrawTextEx(Renderer.GuiFont.Resource, "N: " + Pos.ToString(), Pos * Size, 40, 10, new Color(255, 255, 255, 255));
@@ -279,16 +303,41 @@ internal class WorldGenerator {
         }
     }
 
-    public void SetRules(Dictionary<(int, Side), ulong> rules){
+    private void SetRules(Dictionary<(int, eSide), ulong> rules) {
         IdAndSideToPossibleNeighbours = rules;
     }
 
-    public enum Side{
+    private void LoadDEBUGTextures() {
+        if (!Application.DRAW_DEBUG)
+            return;
+
+        DEBUG_Textures = new TextureResource[13]{
+            ResourceHandling.ResourceManager.TextureLoader.Get("0"),
+            ResourceHandling.ResourceManager.TextureLoader.Get("1"),
+            ResourceHandling.ResourceManager.TextureLoader.Get("2"),
+            ResourceHandling.ResourceManager.TextureLoader.Get("3"),
+            ResourceHandling.ResourceManager.TextureLoader.Get("4"),
+            ResourceHandling.ResourceManager.TextureLoader.Get("5"),
+            ResourceHandling.ResourceManager.TextureLoader.Get("6"),
+            ResourceHandling.ResourceManager.TextureLoader.Get("7"),
+            ResourceHandling.ResourceManager.TextureLoader.Get("8"),
+            ResourceHandling.ResourceManager.TextureLoader.Get("9"),
+            ResourceHandling.ResourceManager.TextureLoader.Get("10"),
+            ResourceHandling.ResourceManager.TextureLoader.Get("11"),
+            ResourceHandling.ResourceManager.TextureLoader.Get("12"),
+        };
+
+        for (int i = 0; i < DEBUG_Textures.Length; i++) {
+            DEBUG_Textures[i].WaitForLoad();
+        }
+    }
+
+    public enum eSide {
         Top = 0,
         Right = 1,
         Bottom = 2,
         Left = 3,
     }
 
-    Dictionary<(int, Side), ulong> IdAndSideToPossibleNeighbours = new();
+    Dictionary<(int, eSide), ulong> IdAndSideToPossibleNeighbours = new();
 }

@@ -55,28 +55,28 @@ internal class RuleParser {
         Tiles.Add(new() {
             Id = 0,
             EdgeTypes = new string[4]{
-                tile.EdgeTypes[(int)WorldGenerator.Side.Left],
-                tile.EdgeTypes[(int)WorldGenerator.Side.Top],
-                tile.EdgeTypes[(int)WorldGenerator.Side.Right],
-                tile.EdgeTypes[(int)WorldGenerator.Side.Bottom],
+                tile.EdgeTypes[(int)WorldGenerator.eSide.Left],
+                tile.EdgeTypes[(int)WorldGenerator.eSide.Top],
+                tile.EdgeTypes[(int)WorldGenerator.eSide.Right],
+                tile.EdgeTypes[(int)WorldGenerator.eSide.Bottom],
             }
         });
         Tiles.Add(new() {
             Id = 0,
             EdgeTypes = new string[4]{
-                tile.EdgeTypes[(int)WorldGenerator.Side.Bottom],
-                tile.EdgeTypes[(int)WorldGenerator.Side.Left],
-                tile.EdgeTypes[(int)WorldGenerator.Side.Top],
-                tile.EdgeTypes[(int)WorldGenerator.Side.Right],
+                tile.EdgeTypes[(int)WorldGenerator.eSide.Bottom],
+                tile.EdgeTypes[(int)WorldGenerator.eSide.Left],
+                tile.EdgeTypes[(int)WorldGenerator.eSide.Top],
+                tile.EdgeTypes[(int)WorldGenerator.eSide.Right],
             }
         });
         Tiles.Add(new() {
             Id = 0,
             EdgeTypes = new string[4]{
-                tile.EdgeTypes[(int)WorldGenerator.Side.Right],
-                tile.EdgeTypes[(int)WorldGenerator.Side.Bottom],
-                tile.EdgeTypes[(int)WorldGenerator.Side.Left],
-                tile.EdgeTypes[(int)WorldGenerator.Side.Top],
+                tile.EdgeTypes[(int)WorldGenerator.eSide.Right],
+                tile.EdgeTypes[(int)WorldGenerator.eSide.Bottom],
+                tile.EdgeTypes[(int)WorldGenerator.eSide.Left],
+                tile.EdgeTypes[(int)WorldGenerator.eSide.Top],
             }
         });
     }
@@ -97,10 +97,10 @@ internal class RuleParser {
         Console.WriteLine(Tiles);
     }
 
-    public Dictionary<(int, WorldGenerator.Side), ulong> Export() {
-        Dictionary<(int, WorldGenerator.Side), ulong> IdAndSideToPossibleNeighbours = new();
+    public Dictionary<(int, WorldGenerator.eSide), ulong> Export() {
+        Dictionary<(int, WorldGenerator.eSide), ulong> IdAndSideToPossibleNeighbours = new();
 
-        Action<int, WorldGenerator.Side, ulong> AddOrAdjustRule = (int id, WorldGenerator.Side side, ulong possibleValuesBitmap) => {
+        Action<int, WorldGenerator.eSide, ulong> AddOrAdjustRule = (int id, WorldGenerator.eSide side, ulong possibleValuesBitmap) => {
             if (!IdAndSideToPossibleNeighbours.ContainsKey(new(id, side))) {
                 IdAndSideToPossibleNeighbours.Add(new(id, side), possibleValuesBitmap);
             } else {
@@ -108,10 +108,10 @@ internal class RuleParser {
             }
         };
 
-        AddOrAdjustRule(0, WorldGenerator.Side.Top, ulong.MaxValue);
-        AddOrAdjustRule(0, WorldGenerator.Side.Left, ulong.MaxValue);
-        AddOrAdjustRule(0, WorldGenerator.Side.Bottom, ulong.MaxValue);
-        AddOrAdjustRule(0, WorldGenerator.Side.Right, ulong.MaxValue);
+        AddOrAdjustRule(0, WorldGenerator.eSide.Top, ulong.MaxValue);
+        AddOrAdjustRule(0, WorldGenerator.eSide.Left, ulong.MaxValue);
+        AddOrAdjustRule(0, WorldGenerator.eSide.Bottom, ulong.MaxValue);
+        AddOrAdjustRule(0, WorldGenerator.eSide.Right, ulong.MaxValue);
 
         // make all ids unique
         for (int i = 0; i < Tiles.Count; i++) {
@@ -119,29 +119,29 @@ internal class RuleParser {
             t.Id = i + 1;
             Tiles[i] = t;
 
-            AddOrAdjustRule(t.Id, WorldGenerator.Side.Top, 0);
-            AddOrAdjustRule(t.Id, WorldGenerator.Side.Left, 0);
-            AddOrAdjustRule(t.Id, WorldGenerator.Side.Bottom, 0);
-            AddOrAdjustRule(t.Id, WorldGenerator.Side.Right, 0);
+            AddOrAdjustRule(t.Id, WorldGenerator.eSide.Top, 0);
+            AddOrAdjustRule(t.Id, WorldGenerator.eSide.Left, 0);
+            AddOrAdjustRule(t.Id, WorldGenerator.eSide.Bottom, 0);
+            AddOrAdjustRule(t.Id, WorldGenerator.eSide.Right, 0);
         }
 
         foreach (Tile t1 in Tiles) {
             foreach (Tile t2 in Tiles) {
-                if (t1.EdgeTypes[(int)WorldGenerator.Side.Top] == new string(t2.EdgeTypes[(int)WorldGenerator.Side.Bottom].Reverse().ToArray())) {
-                    AddOrAdjustRule(t1.Id, WorldGenerator.Side.Top, (ulong)1 << (t2.Id - 1));
-                    AddOrAdjustRule(t2.Id, WorldGenerator.Side.Bottom, (ulong)1 << (t1.Id - 1));
+                if (t1.EdgeTypes[(int)WorldGenerator.eSide.Top] == new string(t2.EdgeTypes[(int)WorldGenerator.eSide.Bottom].Reverse().ToArray())) {
+                    AddOrAdjustRule(t1.Id, WorldGenerator.eSide.Top, (ulong)1 << (t2.Id - 1));
+                    AddOrAdjustRule(t2.Id, WorldGenerator.eSide.Bottom, (ulong)1 << (t1.Id - 1));
                 }
-                if (t1.EdgeTypes[(int)WorldGenerator.Side.Bottom] == new string(t2.EdgeTypes[(int)WorldGenerator.Side.Top].Reverse().ToArray())) {
-                    AddOrAdjustRule(t1.Id, WorldGenerator.Side.Bottom, (ulong)1 << (t2.Id - 1));
-                    AddOrAdjustRule(t2.Id, WorldGenerator.Side.Top, (ulong)1 << (t1.Id - 1));
+                if (t1.EdgeTypes[(int)WorldGenerator.eSide.Bottom] == new string(t2.EdgeTypes[(int)WorldGenerator.eSide.Top].Reverse().ToArray())) {
+                    AddOrAdjustRule(t1.Id, WorldGenerator.eSide.Bottom, (ulong)1 << (t2.Id - 1));
+                    AddOrAdjustRule(t2.Id, WorldGenerator.eSide.Top, (ulong)1 << (t1.Id - 1));
                 }
-                if (t1.EdgeTypes[(int)WorldGenerator.Side.Left] == new string(t2.EdgeTypes[(int)WorldGenerator.Side.Right].Reverse().ToArray())) {
-                    AddOrAdjustRule(t1.Id, WorldGenerator.Side.Left, (ulong)1 << (t2.Id - 1));
-                    AddOrAdjustRule(t2.Id, WorldGenerator.Side.Right, (ulong)1 << (t1.Id - 1));
+                if (t1.EdgeTypes[(int)WorldGenerator.eSide.Left] == new string(t2.EdgeTypes[(int)WorldGenerator.eSide.Right].Reverse().ToArray())) {
+                    AddOrAdjustRule(t1.Id, WorldGenerator.eSide.Left, (ulong)1 << (t2.Id - 1));
+                    AddOrAdjustRule(t2.Id, WorldGenerator.eSide.Right, (ulong)1 << (t1.Id - 1));
                 }
-                if (t1.EdgeTypes[(int)WorldGenerator.Side.Right] == new string(t2.EdgeTypes[(int)WorldGenerator.Side.Left].Reverse().ToArray())) {
-                    AddOrAdjustRule(t1.Id, WorldGenerator.Side.Right, (ulong)1 << (t2.Id - 1));
-                    AddOrAdjustRule(t2.Id, WorldGenerator.Side.Left, (ulong)1 << (t1.Id - 1));
+                if (t1.EdgeTypes[(int)WorldGenerator.eSide.Right] == new string(t2.EdgeTypes[(int)WorldGenerator.eSide.Left].Reverse().ToArray())) {
+                    AddOrAdjustRule(t1.Id, WorldGenerator.eSide.Right, (ulong)1 << (t2.Id - 1));
+                    AddOrAdjustRule(t2.Id, WorldGenerator.eSide.Left, (ulong)1 << (t1.Id - 1));
                 }
             }
         }

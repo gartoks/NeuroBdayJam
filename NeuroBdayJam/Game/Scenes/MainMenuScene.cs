@@ -6,7 +6,6 @@ using System.Numerics;
 namespace NeuroBdayJam.Game.Scenes;
 internal sealed class MainMenuScene : Scene {
     private GUIImage TitleImage { get; }
-    private GuiTextButton WorldGenTestButton { get; }
     private GuiTextButton WorldTestButton { get; }
     private GuiTextButton GameplayTestButton { get; }
     private GuiTextButton LoadButton { get; }
@@ -17,8 +16,6 @@ internal sealed class MainMenuScene : Scene {
     public MainMenuScene() {
 
         float yOffset = 0.25f;
-        WorldGenTestButton = new GuiTextButton($"0.5 {yOffset} 0.25 0.1", "World Gen Test", new Vector2(0.5f, 0.5f));
-        yOffset += 0.125f;
         WorldTestButton = new GuiTextButton($"0.5 {yOffset} 0.25 0.1", "World Test", new Vector2(0.5f, 0.5f));
         yOffset += 0.125f;
         GameplayTestButton = new GuiTextButton($"0.5 {yOffset} 0.25 0.1", "Gameplay Test", new Vector2(0.5f, 0.5f));
@@ -53,14 +50,11 @@ internal sealed class MainMenuScene : Scene {
     }
 
     internal override void Draw(float dT) {
-        WorldGenTestButton.Draw();
         WorldTestButton.Draw();
         GameplayTestButton.Draw();
         SettingsButton.Draw();
         QuitButton.Draw();
 
-        if (WorldGenTestButton.IsClicked)
-            GameManager.SetScene(new WorldGenTestScene());
         if (WorldTestButton.IsClicked)
             GameManager.SetScene(new WorldTestScene());
         if (GameplayTestButton.IsClicked)

@@ -79,7 +79,7 @@ public static class GameManager {
     /// <summary>
     /// Draws the game. Is executed every frame.
     /// </summary>
-    internal static void Draw(float dT) {
+    internal static void Render(float dT) {
         DrawBackground();
 
         if (!WasSceneLoaded)
