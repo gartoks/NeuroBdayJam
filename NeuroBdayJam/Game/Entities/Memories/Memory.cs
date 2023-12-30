@@ -1,5 +1,6 @@
 ﻿using NeuroBdayJam.Game.Memories;
 using NeuroBdayJam.Game.World;
+using NeuroBdayJam.Graphics;
 using Raylib_CsLo;
 using System.Numerics;
 
@@ -22,8 +23,10 @@ internal sealed class Memory : Entity {
     public override void Render(float dT) {
         Raylib.DrawCircleV(Position * GameWorld.TILE_SIZE, MEMORY_RADIUS * GameWorld.TILE_SIZE, Color);
 
-        if (Application.DRAW_DEBUG)
+        if (Application.DRAW_DEBUG){
             Raylib.DrawCircleLines((int)(Position.X * GameWorld.TILE_SIZE), (int)(Position.Y * GameWorld.TILE_SIZE), CollisionRadius * GameWorld.TILE_SIZE, Raylib.LIME);
+            Raylib.DrawTextEx(Renderer.GuiFont.Resource, $"{MemoryIndex}", (Position + new Vector2(0, 0.35f)) * GameWorld.TILE_SIZE, 30, 0, Raylib.WHITE);
+        }
     }
 
     public override void Update(float dT) {

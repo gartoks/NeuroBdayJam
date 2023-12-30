@@ -37,8 +37,8 @@ internal static class MemoryTracker {
         return CollectedMemories.Contains(AllMemories.FindIndex(m => m.Name == name));
     }
 
-    public static int GetRandomUncollectedMemory() {
-        return UncollectedMemories.Shuffle(Random.Shared).First();
+    public static int GetNextUncollectedMemory() {
+        return UncollectedMemories.First();
     }
 
     public static void CollectMemory(int index) {
@@ -53,6 +53,7 @@ internal static class MemoryTracker {
 
     public static void LooseTemporaryMemories() {
         UncollectedMemories.InsertRange(UncollectedMemories.Count, TemporaryMemories);
+        UncollectedMemories.Sort();
         TemporaryMemories.Clear();
     }
 }

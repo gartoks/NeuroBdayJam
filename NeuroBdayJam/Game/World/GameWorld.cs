@@ -59,7 +59,7 @@ internal class GameWorld {
 
         Player = new Neuro(new Vector2(Width/2, Height/2));
         AddEntity(Player);
-        ActiveMemory = new Memory(new Vector2(5.5f, 5.5f), MemoryTracker.GetRandomUncollectedMemory());
+        ActiveMemory = new Memory(new Vector2(5.5f, 5.5f), MemoryTracker.GetNextUncollectedMemory());
         AddEntity(ActiveMemory);
         VedalTerminal = new VedalTerminal(new Vector2(1.5f, 7.5f));
         AddEntity(VedalTerminal);
@@ -77,16 +77,16 @@ internal class GameWorld {
         }
 
         if (WorldgenDelta.X > 1){
-            RegenerateWorldHOffset(-1);
+            MoveWorldHorizontally(-1);
         }
         if (WorldgenDelta.X < -1){
-            RegenerateWorldHOffset(1);
+            MoveWorldHorizontally(1);
         }
         if (WorldgenDelta.Y > 1){
-            RegenerateWorldVOffset(-1);
+            MoveWorldVertically(-1);
         }
         if (WorldgenDelta.Y < -1){
-            RegenerateWorldVOffset(1);
+            MoveWorldVertically(1);
         }
 
         for (int x = 0; x < Width; x++) {
@@ -113,6 +113,7 @@ internal class GameWorld {
 
     internal void Render(float dT) {
         RlGl.rlPushMatrix();
+        // RlGl.rlTranslatef(-(TopLeftCorner.X + 3) * TILE_SIZE, -(TopLeftCorner.Y + 3) * TILE_SIZE, 0);
         RlGl.rlTranslatef(-TopLeftCorner.X * TILE_SIZE, -TopLeftCorner.Y * TILE_SIZE, 0);
 
         for (int x = 0; x < Width; x++) {
@@ -131,7 +132,7 @@ internal class GameWorld {
         Player.Render(dT);
 
         if (Application.DRAW_DEBUG){
-            Raylib.DrawCircleV(CenterOfScreen, 10, Raylib.RED);
+            Raylib.DrawCircleV(CenterOfScreen * TILE_SIZE, 10, Raylib.RED);
             Raylib.DrawCircleLines((int)(CenterOfScreen.X * TILE_SIZE), (int)(CenterOfScreen.Y * TILE_SIZE), SmallerDimension/5 * TILE_SIZE, Raylib.RED);
         }
         RlGl.rlPopMatrix();
@@ -165,6 +166,13 @@ internal class GameWorld {
     }
     public Vector2 TileIndexToWorldSpace(Vector2 vec){
         return vec + LastWorldgenTLCorner;
+    }
+
+    public Vector2 ScreenToWorldSpace(Vector2 vec){
+        return vec / TILE_SIZE + TopLeftCorner;
+    }
+    public Vector2 WorldToScreenSpace(Vector2 vec){
+        return (vec - TopLeftCorner) * TILE_SIZE;
     }
 
     public IReadOnlyList<Rectangle> GetSurroundingTileColliders(Vector2 position) {
@@ -216,41 +224,70 @@ internal class GameWorld {
         return worldTiles;
     }
 
-    private void RegenerateWorldHOffset(int dx){
+    private void MoveWorldHorizontally(int dx){
         if (WorldGenerator == null)
             return;
 
         LastWorldgenTLCorner += new Vector2(dx, 0);
-        // for (int x = 1; x < Width; x++) {
-        //     for (int y = 0; y < Height; y++) {
-        //         Tiles[x, y] = Tiles[x-1, y];
-        //     }
-        // }
+
+        bool isPositive = dx > 0;
+        int absDX = Math.Abs(dx);
+
+        {
+            int startX = isPositive ? 0 : Width-1;
+            int endX = isPositive ? Width-absDX : absDX-1;
+
+            for (int x = startX; x != endX; x += Math.Sign(dx)) {
+                for (int y = 0; y < Height; y++) {
+                    Tiles[x, y] = Tiles[x+dx, y];
+                }
+            }
+        }
+
         WorldGenerator.Translate(-dx, 0);
         WorldTile[,] newTiles = CreateFromIds(WorldGenerator.ExportToUlongs(), (int)LastWorldgenTLCorner.X, (int)LastWorldgenTLCorner.Y);
 
-        for (int x = 0; x < Width; x++) {
-            for (int y = 0; y < Height; y++) {
-                Tiles[x, y] = newTiles[x, y];
+        {
+            int startX = isPositive ? Width-dx : 0;
+            int endX = isPositive ? Width : absDX;
+
+            for (int x = startX; x < endX; x++) {
+                for (int y = 0; y < Height; y++) {
+                    Tiles[x, y] = newTiles[x, y];
+                }
             }
         }
     }
-    private void RegenerateWorldVOffset(int dy){
+    private void MoveWorldVertically(int dy){
         if (WorldGenerator == null)
             return;
             
         LastWorldgenTLCorner += new Vector2(0, dy);
-        // for (int x = 1; x < Width; x++) {
-        //     for (int y = 0; y < Height; y++) {
-        //         Tiles[x, y] = Tiles[x-1, y];
-        //     }
-        // }
+
+        bool isPositive = dy > 0;
+        int absDY = Math.Abs(dy);
+
+        {
+            int startY = isPositive ? 0 : Height-1;
+            int endY = isPositive ? Height-absDY : absDY-1;
+
+            for (int x = 0; x < Width; x++) {
+                for (int y = startY; y != endY; y += Math.Sign(dy)) {
+                    Tiles[x, y] = Tiles[x, y+dy];
+                }
+            }
+        }
         WorldGenerator.Translate(0, -dy);
         WorldTile[,] newTiles = CreateFromIds(WorldGenerator.ExportToUlongs(), (int)LastWorldgenTLCorner.X, (int)LastWorldgenTLCorner.Y);
 
-        for (int x = 0; x < Width; x++) {
-            for (int y = 0; y < Height; y++) {
-                Tiles[x, y] = newTiles[x, y];
+        {
+            int startY = isPositive ? Height-dy : 0;
+            int endY = isPositive ? Height : absDY;
+
+            for (int x = 0; x < Width; x++) {
+                for (int y = startY; y < endY; y++) {
+                    Tiles[x, y] = newTiles[x, y];
+                }
             }
         }
     }
