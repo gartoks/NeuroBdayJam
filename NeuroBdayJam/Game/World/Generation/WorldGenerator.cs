@@ -20,6 +20,8 @@ internal class WorldGenerator {
 
     int CurrentX, CurrentY;
 
+    public Dictionary<ulong, ulong> ExportSettings { get; set; }
+
     internal WorldGenerator(int width, int height) {
         Width = width;
         Height = height;
@@ -145,6 +147,14 @@ internal class WorldGenerator {
         Store(true);
     }
 
+    public void GeneratePartial(){
+        Store();
+        while (!IsDone()){
+            Restore();
+            while (Step()) {};
+        }
+    }
+
     public void Restore(bool knownGood = false){
         if (knownGood)
             Tiles = KnownGoodTiles.Clone() as Tile[,];
@@ -168,11 +178,11 @@ internal class WorldGenerator {
         return true;
     }
 
-    public ulong[,] ExportToUlongs(Dictionary<ulong, ulong> generatorUlongsToWorldUlongs){
+    public ulong[,] ExportToUlongs(){
         ulong[,] ulongTiles = new ulong[Width, Height];
         for (int y = 0; y < Height; y++) {
             for (int x = 0; x < Width; x++) {
-                ulongTiles[x, y] = generatorUlongsToWorldUlongs[Tiles[x, y].PossibleValues];
+                ulongTiles[x, y] = ExportSettings[Tiles[x, y].PossibleValues];
             }
         }
         return ulongTiles;
@@ -194,7 +204,7 @@ internal class WorldGenerator {
             }
         }
 
-        for (int y=0; y<Width; y++){
+        for (int y=0; y<Height; y++){
             for (int x=0; x<Width; x++){
                 if (x+dx >= 0 && x+dx < Width && y+dy >= 0 && y+dy < Height)
                     CollapseCell(x+dx, y+dy, tmpTiles[x, y].Id);
@@ -202,10 +212,10 @@ internal class WorldGenerator {
         }
 
         Store(true);
-        GenerateEverything();
+        GeneratePartial();
         Store(true);
         List<(int x, int y, ulong id)> newTiles = new();
-        for (int y=0; y<Width; y++){
+        for (int y=0; y<Height; y++){
             for (int x=0; x<Width; x++){
                 if (x+dx < 0 || x+dx >= Width || y+dy < 0 || y+dy >= Height)
                     newTiles.Add(new((int)Tiles[x, y].Pos.X + dx, (int)Tiles[x, y].Pos.Y + dy, Tiles[x, y].PossibleValues));

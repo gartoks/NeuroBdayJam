@@ -49,23 +49,15 @@ R 4
 R 5
 6 -> WFW WFW WFW WWW
 R 6
-7 -> WFW WWW WWW WWW
-R 7
 "
         );
 
         WorldGenerator.SetRules(parser.Export());
-        WorldGenerator.CollapseCell(0, 0, 2);
-        WorldGenerator.Store();
-        WorldGenerator.GenerateEverything();
+        WorldGenerator.CollapseCell(0, 0, 1);
+        WorldGenerator.GenerateEverything(true);
 
         int id = 0;
-        ExportSettings = new Dictionary<ulong, ulong>{
-            {(ulong)1 << id++, 1},
-            {(ulong)1 << id++, 1},
-            {(ulong)1 << id++, 1},
-            {(ulong)1 << id++, 1},
-
+        WorldGenerator.ExportSettings = new Dictionary<ulong, ulong>{
             {(ulong)1 << id++, 1},
             {(ulong)1 << id++, 1},
             {(ulong)1 << id++, 1},
@@ -96,8 +88,12 @@ R 7
             {(ulong)1 << id++, 1},
         };
 
-        World = new GameWorld(WorldGenerator.ExportToUlongs(ExportSettings));
-        World = CreateTestWorld("Map_Test_1");
+        if (id >= 64){
+            throw new Exception("Too many ids. Worldgen will fail.");
+        }
+
+        World = new GameWorld(WorldGenerator);
+        // World = CreateTestWorld("Map_Test_1");
         World.Load();
 
         MemoryTrackerLabel = new(0, Application.BASE_HEIGHT - 50, "0/3", 50, new Vector2(0, 1));

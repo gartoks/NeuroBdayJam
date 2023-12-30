@@ -6,9 +6,10 @@ internal static class MemoryTracker {
         public string Name;
     }
 
-    public static int NumMemories { get => AllMemories.Count; }
-    public static int NumMemoriesCollected { get => CollectedMemories.Count(); }
-    public static int NumTemproaryMemories { get => TemporaryMemories.Count(); }
+    public static int NumMemories => AllMemories.Count;
+    public static int NumMemoriesCollected => CollectedMemories.Count;
+    public static int NumTemproaryMemories => TemporaryMemories.Count;
+    public static int NumUncollectedMemories => UncollectedMemories.Count;
 
     public static List<MemoryData> AllMemories { get; }
     private static List<int> CollectedMemories;
@@ -37,8 +38,8 @@ internal static class MemoryTracker {
         return CollectedMemories.Contains(AllMemories.FindIndex(m => m.Name == name));
     }
 
-    public static int GetRandomUncollectedMemory() {
-        return UncollectedMemories.Shuffle(Random.Shared).First();
+    public static int GetNextUncollectedMemory() {
+        return UncollectedMemories.First();
     }
 
     public static void CollectMemory(int index) {
@@ -53,6 +54,7 @@ internal static class MemoryTracker {
 
     public static void LooseTemporaryMemories() {
         UncollectedMemories.InsertRange(UncollectedMemories.Count, TemporaryMemories);
+        UncollectedMemories.Sort();
         TemporaryMemories.Clear();
     }
 }
