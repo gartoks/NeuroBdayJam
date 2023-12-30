@@ -6,9 +6,10 @@ internal static class MemoryTracker {
         public string Name;
     }
 
-    public static int NumMemories { get => AllMemories.Count; }
-    public static int NumMemoriesCollected { get => CollectedMemories.Count(); }
-    public static int NumTemproaryMemories { get => TemporaryMemories.Count(); }
+    public static int NumMemories => AllMemories.Count;
+    public static int NumMemoriesCollected => CollectedMemories.Count;
+    public static int NumTemproaryMemories => TemporaryMemories.Count;
+    public static int NumUncollectedMemories => UncollectedMemories.Count;
 
     public static List<MemoryData> AllMemories { get; }
     private static List<int> CollectedMemories;

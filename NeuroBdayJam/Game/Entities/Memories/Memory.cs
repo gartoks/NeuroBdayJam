@@ -19,6 +19,11 @@ internal sealed class Memory : Entity {
 
         MemoryIndex = memoryIndex;
     }
+    public Memory(Vector2 position)
+        : base("Memory", position) {
+
+        MemoryIndex = MemoryTracker.GetNextUncollectedMemory();
+    }
 
     public override void Render(float dT) {
         Raylib.DrawCircleV(Position * GameWorld.TILE_SIZE, MEMORY_RADIUS * GameWorld.TILE_SIZE, Color);

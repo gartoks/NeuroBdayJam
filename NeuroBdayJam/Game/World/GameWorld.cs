@@ -5,6 +5,7 @@ using NeuroBdayJam.Game.Memories;
 using NeuroBdayJam.Game.World.Generation;
 using NeuroBdayJam.ResourceHandling;
 using NeuroBdayJam.ResourceHandling.Resources;
+using NeuroBdayJam.Util.Extensions;
 using Raylib_CsLo;
 using System.Numerics;
 
@@ -19,8 +20,6 @@ internal class GameWorld {
     public Neuro Player { get; set; }
     private HashSet<Entity> Entities { get; }
     public Memory? ActiveMemory { get; set; }
-    private VedalTerminal VedalTerminal { get; set; }
-
     public TextureAtlas MiscAtlas { get; private set; }
     public Tileset Tileset { get; private set; }
     private WorldTile[,] Tiles { get; }
@@ -32,12 +31,21 @@ internal class GameWorld {
 
     private WorldGenerator? WorldGenerator { get; }
 
+    public delegate bool SpawnCondition(WorldTile tile);
+    private List<(Type entity, float spawnRate, SpawnCondition condition)> Spawnables { get; }
+
     public GameWorld(WorldGenerator worldGenerator){
         WorldGenerator = worldGenerator;
         Tiles = CreateFromIds(WorldGenerator.ExportToUlongs(), 0, 0);
         Entities = new HashSet<Entity>();
         TopLeftCorner = new Vector2(0, 0);
         LastWorldgenTLCorner = TopLeftCorner;
+
+        Spawnables = new(){
+            new(typeof(Memory), 0.0015f, (tile) => MemoryTracker.NumUncollectedMemories > 0 && ActiveMemory == null),
+            new(typeof(VedalTerminal), 0.003f, (_) => true),
+            new(typeof(Worm), 0.005f, (_) => true),
+        };
     }
     public GameWorld(ulong[,] tiles) {
         Tiles = CreateFromIds(tiles, 0, 0);
@@ -59,10 +67,9 @@ internal class GameWorld {
 
         Player = new Neuro(new Vector2(Width/2, Height/2));
         AddEntity(Player);
-        ActiveMemory = new Memory(new Vector2(5.5f, 5.5f), MemoryTracker.GetNextUncollectedMemory());
+        ActiveMemory = new Memory(new Vector2(5.5f, 5.5f));
         AddEntity(ActiveMemory);
-        VedalTerminal = new VedalTerminal(new Vector2(1.5f, 7.5f));
-        AddEntity(VedalTerminal);
+        AddEntity(new VedalTerminal(new Vector2(1.5f, 7.5f)));
 
         // TODO TESTING
         AddEntity(new Worm(new Vector2(5.5f, 5.5f)));
@@ -102,13 +109,21 @@ internal class GameWorld {
             if (entity.IsDead) {
                 entity.Unload();
                 Entities.Remove(entity);
+            } else if (entity.Position.X < TopLeftCorner.X || entity.Position.X > TopLeftCorner.X + Width || entity.Position.Y < TopLeftCorner.Y || entity.Position.Y > TopLeftCorner.Y + Height){
+                if (entity is not Neuro){
+                    entity.Unload();
+                    Entities.Remove(entity);
+                }
             } else
                 entity.Update(dT);
         }
 
         Player.Update(dT);
-        VedalTerminal.Update(dT);
-        ActiveMemory?.Update(dT);
+        if (ActiveMemory != null && !(ActiveMemory!.IsDead))
+            ActiveMemory?.Update(dT);
+        else{
+            ActiveMemory = null;
+        }
     }
 
     internal void Render(float dT) {
@@ -128,7 +143,6 @@ internal class GameWorld {
         }
 
         ActiveMemory?.Render(dT);
-        VedalTerminal.Render(dT);
         Player.Render(dT);
 
         if (Application.DRAW_DEBUG){
@@ -140,6 +154,27 @@ internal class GameWorld {
             Raylib.DrawCircleV(-TopLeftCorner * TILE_SIZE, 10, Raylib.RED);
             Raylib.DrawCircleV(-LastWorldgenTLCorner * TILE_SIZE, 10, Raylib.YELLOW);
             
+        }
+    }
+
+    public void OnTileGenerate(WorldTile tile){
+        TileType tileType = Tileset.GetTileType(tile.Id);
+        if (tileType.Collider == null){
+            // floor
+            foreach ((Type entityType, float spawnRate, SpawnCondition condition) in Spawnables.Shuffle(Random.Shared)){
+                if (Random.Shared.NextSingle() <= spawnRate){
+                    if (!condition(tile))
+                        continue;
+                    
+                    var newEntity = (Entity)Activator.CreateInstance(entityType, new Vector2(tile.Position.x + 0.5f, tile.Position.y + 0.5f));
+                    AddEntity(newEntity);
+
+                    if (entityType == typeof(Memory)){
+                        ActiveMemory = (Memory)newEntity;
+                    }
+                    break;
+                }
+            }
         }
     }
 
@@ -248,12 +283,16 @@ internal class GameWorld {
         WorldTile[,] newTiles = CreateFromIds(WorldGenerator.ExportToUlongs(), (int)LastWorldgenTLCorner.X, (int)LastWorldgenTLCorner.Y);
 
         {
-            int startX = isPositive ? Width-dx : 0;
-            int endX = isPositive ? Width : absDX;
+            // copies one extra column to update the texture
+            int startX = isPositive ? Width-absDX-1 : 0;
+            int endX = isPositive ? Width : absDX+1;
 
             for (int x = startX; x < endX; x++) {
                 for (int y = 0; y < Height; y++) {
                     Tiles[x, y] = newTiles[x, y];
+                    if (x != (isPositive ? startX : endX-1)){
+                        OnTileGenerate(Tiles[x, y]);
+                    }
                 }
             }
         }
@@ -281,12 +320,16 @@ internal class GameWorld {
         WorldTile[,] newTiles = CreateFromIds(WorldGenerator.ExportToUlongs(), (int)LastWorldgenTLCorner.X, (int)LastWorldgenTLCorner.Y);
 
         {
-            int startY = isPositive ? Height-dy : 0;
-            int endY = isPositive ? Height : absDY;
+            // copies one extra row to update the texture
+            int startY = isPositive ? Height-absDY-1 : 0;
+            int endY = isPositive ? Height : absDY+1;
 
             for (int x = 0; x < Width; x++) {
                 for (int y = startY; y < endY; y++) {
                     Tiles[x, y] = newTiles[x, y];
+                    if (y != (isPositive ? startY : endY-1)){
+                        OnTileGenerate(Tiles[x, y]);
+                    }
                 }
             }
         }
