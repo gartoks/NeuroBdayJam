@@ -112,15 +112,15 @@ internal sealed class Neuro : Entity {
 
     private void UpdateAbilities(float dT) {
         Camouflage.Update(dT);
-        if (MemoryTracker.IsMemoryCollected("Memory 1") && Input.IsHotkeyActive(GameHotkeys.USE_MEMORY_1) && Camouflage.IsReady)
+        if (World.MemoryTracker.IsMemoryCollected("Memory 1") && Input.IsHotkeyActive(GameHotkeys.USE_MEMORY_1) && Camouflage.IsReady)
             Camouflage.Use(this);
 
         Dash.Update(dT);
-        if (MemoryTracker.IsMemoryCollected("Memory 2") && Input.IsHotkeyActive(GameHotkeys.USE_MEMORY_2) && Dash.IsReady)
+        if (World.MemoryTracker.IsMemoryCollected("Memory 2") && Input.IsHotkeyActive(GameHotkeys.USE_MEMORY_2) && Dash.IsReady)
             Dash.Use(this);
 
         /*Stun.Update(dT);
-        if (MemoryTracker.IsMemoryCollected("Memory 3") && Input.IsHotkeyActive(GameHotkeys.USE_MEMORY_3) && Stun.IsReady) {
+        if (World.MemoryTracker.IsMemoryCollected("Memory 3") && Input.IsHotkeyActive(GameHotkeys.USE_MEMORY_3) && Stun.IsReady) {
 
         }*/
     }

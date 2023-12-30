@@ -37,8 +37,8 @@ internal sealed class MainMenuScene : Scene {
     internal override void Load() {
         TextureResource titleTexture = ResourceManager.TextureLoader.Get("title_logo");
         TitleImage.Texture = titleTexture;
-
-
+        
+        ResourceManager.TextureAtlasLoader.Load("player_animations");
 
         LoadAllGuiElements();
     }
