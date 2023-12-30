@@ -25,7 +25,7 @@ internal sealed class Neuro : Entity {
 
     public float Speed { get; private set; }
 
-    public override Vector2 Facing => World!.ScreenToWorldSpace(Raylib.GetMousePosition()) - Position;
+    public override Vector2 Facing => (Raylib.GetMousePosition() / new Vector2(Raylib.GetScreenWidth(), Raylib.GetScreenHeight()) - new Vector2(0.5f, 0.5f)) * GameWorld.GetVisibleTileSize();
 
     private Ability Camouflage { get; }
     private Ability Dash { get; }

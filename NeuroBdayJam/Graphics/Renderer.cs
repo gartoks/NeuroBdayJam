@@ -63,6 +63,9 @@ internal static class Renderer {
         Raylib.BeginDrawing();
         Raylib.ClearBackground(ResourceManager.ColorLoader.Get("background").Resource);
 
+        //Raylib.LoadShader(null, );
+        //Raylib.BeginShaderMode(shader);
+
         RlGl.rlPushMatrix();
 
         RlGl.rlScalef(Application.WorldToScreenMultiplierX, Application.WorldToScreenMultiplierY, 1);

@@ -5,7 +5,7 @@ using Raylib_CsLo;
 using System.Numerics;
 
 namespace NeuroBdayJam.Game.Entities.Enemies;
-internal class Worm : Entity {
+internal class Worm : Enemy {
     private const int SEGMENT_COUNT = 3;
     private const float MAX_SEGMENT_DISTANCE = 0.3f;
     private const float SEGMENT_RADIUS = 0.2f;

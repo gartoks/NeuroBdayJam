@@ -2,7 +2,6 @@ using NeuroBdayJam.Game.World;
 using NeuroBdayJam.ResourceHandling.Resources;
 using NeuroBdayJam.Util;
 using Raylib_CsLo;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO.Compression;
 using System.Text.Json;
@@ -61,7 +60,7 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
         if (WasLoaded)
             throw new InvalidOperationException("Resource file was already loaded.");
 
-        Debug.WriteLine($"Loading resource file {Name}");
+        Log.WriteLine($"Loading resource file {Name}");
         MemoryStream ms = new MemoryStream();
         using FileStream fs = new FileStream(ResourceFileFilePath, FileMode.Open);
 
@@ -72,14 +71,14 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
 
         ZipArchiveEntry? colorEntry = ResourceFileArchive.GetEntry("colors.json");
         if (colorEntry == null) {
-            Debug.WriteLine($"Resource file {ResourceFileFilePath} doesn't contain colors.");
+            Log.WriteLine($"Resource file {ResourceFileFilePath} doesn't contain colors.");
             return;
         }
 
         StreamReader colorStreamReader = new StreamReader(colorEntry.Open());
         Dictionary<string, int[]>? colors = JsonSerializer.Deserialize<Dictionary<string, int[]>>(colorStreamReader.ReadToEnd());
         if (colors == null) {
-            Debug.WriteLine($"colors.json in resource file {ResourceFileFilePath} has a wrong format.");
+            Log.WriteLine($"colors.json in resource file {ResourceFileFilePath} has a wrong format.");
             return;
         }
 
@@ -149,7 +148,7 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
         }
 
         if (zippedFont == null) {
-            Debug.WriteLine($"Font {key} doesn't exist in this resource file");
+            Log.WriteLine($"Font {key} doesn't exist in this resource file");
             return null;
         }
 
@@ -168,7 +167,7 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
         }
 
         if (font.texture.id == 0) {
-            Debug.WriteLine($"Failed to load font {key} from {path}");
+            Log.WriteLine($"Failed to load font {key} from {path}");
             return null;
         }
         return font;
@@ -196,7 +195,7 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
         ZipArchiveEntry? zippedTexture = ResourceFileArchive!.GetEntry(path);
 
         if (zippedTexture == null) {
-            Debug.WriteLine($"Texture {key} doesn't exist in this resource file");
+            Log.WriteLine($"Texture {key} doesn't exist in this resource file");
             return null;
         }
 
@@ -216,7 +215,7 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
         }
 
         if (texture.id == 0) {
-            Debug.WriteLine($"Failed to load texture {key} from {path}");
+            Log.WriteLine($"Failed to load texture {key} from {path}");
             return null;
         }
         return texture;
@@ -244,7 +243,7 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
         ZipArchiveEntry? zippedSound = ResourceFileArchive!.GetEntry(path);
 
         if (zippedSound == null) {
-            Debug.WriteLine($"Sound {key} doesn't exist in this resource file");
+            Log.WriteLine($"Sound {key} doesn't exist in this resource file");
             return null;
         }
 
@@ -288,7 +287,7 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
         ZipArchiveEntry? zippedSound = ResourceFileArchive!.GetEntry(path);
 
         if (zippedSound == null) {
-            Debug.WriteLine($"Music {key} doesn't exist in this resource file");
+            Log.WriteLine($"Music {key} doesn't exist in this resource file");
             return null;
         }
 
@@ -337,7 +336,7 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
         ZipArchiveEntry? zippedText = ResourceFileArchive!.GetEntry(path);
 
         if (zippedText == null) {
-            Debug.WriteLine($"Text {key} doesn't exist in this resource file");
+            Log.WriteLine($"Text {key} doesn't exist in this resource file");
             return null;
         }
 
@@ -374,7 +373,7 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
         ZipArchiveEntry? zippedText = ResourceFileArchive!.GetEntry(path);
 
         if (zippedText == null) {
-            Debug.WriteLine($"NPatchData {key} doesn't exist in this resource file");
+            Log.WriteLine($"NPatchData {key} doesn't exist in this resource file");
             return null;
         }
 
@@ -414,7 +413,7 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
         ZipArchiveEntry? zippedText = ResourceFileArchive!.GetEntry(path);
 
         if (zippedText == null) {
-            Debug.WriteLine($"TextureAtlasData {key} doesn't exist in this resource file");
+            Log.WriteLine($"TextureAtlasData {key} doesn't exist in this resource file");
             return null;
         }
 
@@ -479,7 +478,7 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
 
         string path = $"Tilesets/{key}/";
         if (!ResourceFileArchive!.Entries.Any(e => e.FullName.StartsWith(path))) {
-            Debug.WriteLine($"Tileset {key} doesn't exist in this resource file.");
+            Log.WriteLine($"Tileset {key} doesn't exist in this resource file.");
             return null;
         }
 
@@ -503,6 +502,54 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
         }
 
         return new Tileset(key, tileTypes, tileTextureAtlas);
+    }
+
+    internal bool DoesShaderExist(string key) {
+        string fragmentShaderPath = $"Shaders/{key}.frag";
+        return ResourceFileArchive!.GetEntry(fragmentShaderPath) != null;
+    }
+
+    internal IReadOnlyList<string> GetShaderResources() {
+        List<string> fragmentShaderData = ResourceFileArchive!.Entries.Where(e => e.FullName.StartsWith("Shaders/") && Path.GetExtension(e.FullName) == ".frag").Select(e => Path.GetFileNameWithoutExtension(e.FullName)).ToList();
+
+        return fragmentShaderData.ToList();
+    }
+
+    public Shader? LoadShader(string key) {
+        if (!WasLoaded)
+            throw new InvalidOperationException("Resource file was not loaded.");
+
+        string vertexShaderPath = $"Shaders/{key}.vert";
+        ZipArchiveEntry? vertexShaderEntry = ResourceFileArchive!.GetEntry(vertexShaderPath);
+
+        string fragmentShaderPath = $"Shaders/{key}.frag";
+        ZipArchiveEntry? fragmentShaderEntry = ResourceFileArchive!.GetEntry(fragmentShaderPath);
+
+        if (fragmentShaderEntry == null) {
+            Log.WriteLine($"Shader {key} doesn't exist in this resource file");
+            return null;
+        }
+
+        string? vertexShaderSource = null;
+        if (vertexShaderEntry != null) {
+            using Stream vertexShaderStream = vertexShaderEntry.Open();
+            StreamReader vsr = new StreamReader(vertexShaderStream);
+            vertexShaderSource = vsr.ReadToEnd();
+            vertexShaderSource = Raylib.TextFormat(vertexShaderSource, 330 /* GLSL version*/);
+        }
+
+        using Stream fragmentShaderStream = fragmentShaderEntry.Open();
+        StreamReader fsr = new StreamReader(fragmentShaderStream);
+        string fragmentShaderSource = fsr.ReadToEnd();
+        fragmentShaderSource = Raylib.TextFormat(fragmentShaderSource, 330 /* GLSL version*/);
+
+        Shader shader = Raylib.LoadShader(vertexShaderSource, fragmentShaderSource);
+
+        if (shader.id == 0) {
+            Log.WriteLine($"Failed to load shader {key} from {key}");
+            return null;
+        }
+        return shader;
     }
 
     private TileType? ParseTileType(IReadOnlyDictionary<string, string> dict) {

@@ -35,10 +35,9 @@ internal class GameWorld {
     private List<(Type entity, float spawnRate, SpawnCondition condition)> Spawnables { get; }
 
     public GameWorld() {
-        float visibleTileWidth = Application.BASE_WIDTH / TILE_SIZE;
-        float visibleTileHeight = Application.BASE_HEIGHT / TILE_SIZE;
-        int tileWidth = (int)Math.Ceiling(visibleTileWidth + 6);
-        int tileHeight = (int)Math.Ceiling(visibleTileHeight + 6);
+        Vector2 visibleTileSize = GetVisibleTileSize();
+        int tileWidth = (int)Math.Ceiling(visibleTileSize.X + 6);
+        int tileHeight = (int)Math.Ceiling(visibleTileSize.Y + 6);
         WorldGenerator = new DefaultWorldGenerator(tileWidth, tileHeight);
 
         Tiles = new WorldTile[tileWidth, tileHeight];
@@ -140,11 +139,9 @@ internal class GameWorld {
     internal void Render(float dT) {
         RlGl.rlPushMatrix();
 
-
-        float visibleTileWidth = Application.BASE_WIDTH / TILE_SIZE;
-        float visibleTileHeight = Application.BASE_HEIGHT / TILE_SIZE;
-        int xOffset = ((int)(Width - visibleTileWidth) / 2);
-        int yOffset = ((int)(Height - visibleTileHeight) / 2);
+        Vector2 visibleTileSize = GetVisibleTileSize();
+        int xOffset = ((int)(Width - visibleTileSize.X) / 2);
+        int yOffset = ((int)(Height - visibleTileSize.Y) / 2);
 
         RlGl.rlTranslatef(-(TopLeftCorner.X + xOffset) * TILE_SIZE, -(TopLeftCorner.Y + yOffset) * TILE_SIZE, 0);
         //RlGl.rlTranslatef(-TopLeftCorner.X * TILE_SIZE, -TopLeftCorner.Y * TILE_SIZE, 0);
@@ -354,6 +351,13 @@ internal class GameWorld {
     }
     public Vector2 WorldToScreenSpace(Vector2 vec) {
         return (vec - TopLeftCorner) * TILE_SIZE;
+    }
+
+    public static Vector2 GetVisibleTileSize() {
+        float visibleTileWidth = Application.BASE_WIDTH / TILE_SIZE;
+        float visibleTileHeight = Application.BASE_HEIGHT / TILE_SIZE;
+
+        return new(visibleTileWidth, visibleTileHeight);
     }
 
     private static byte FindConfiguration(ulong center, ulong left, ulong right, ulong top, ulong bottom) {

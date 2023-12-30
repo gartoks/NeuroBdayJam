@@ -158,7 +158,7 @@ internal static class AudioManager {
         MusicResource music = ResourceManager.MusicLoader.Get(name);
 
         MusicActionQueue.Add(() => {
-            //Debug.WriteLine($"Playing {name} ({Raylib.GetMusicTimeLength(music.Resource)}s)");
+            //Log.WriteLine($"Playing {name} ({Raylib.GetMusicTimeLength(music.Resource)}s)");
             PlayingMusic[name] = music;
             Raylib.PlayMusicStream(music.Resource);
             Raylib.SetMusicVolume(music.Resource, MUSIC_VOLUME_MODIFIER * Application.Settings.MusicVolume / 100f);

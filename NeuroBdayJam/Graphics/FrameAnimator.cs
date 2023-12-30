@@ -77,7 +77,7 @@ internal sealed class FrameAnimator {
         }
 
         IDrawableResource frame = ActiveFrame!;
-        frame.Draw(bounds, pivot, rotation, color);
+        frame?.Draw(bounds, pivot, rotation, color);
 
         SequencePlayTime += dT;
     }

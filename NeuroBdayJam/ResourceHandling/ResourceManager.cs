@@ -4,7 +4,6 @@ using NeuroBdayJam.ResourceHandling.Resources;
 using NeuroBdayJam.Util;
 using Raylib_CsLo;
 using System.Collections.Concurrent;
-using System.Diagnostics;
 
 namespace NeuroBdayJam.ResourceHandling;
 /// <summary>
@@ -29,6 +28,7 @@ internal static class ResourceManager {
     public static NPatchTextureResourceLoader NPatchTextureLoader { get; }
     public static TextureAtlasResourceLoader TextureAtlasLoader { get; }
     public static TilesetResourceLoader TilesetLoader { get; }
+    public static ShaderResourceLoader ShaderLoader { get; }
 
     /// <summary>
     /// Base theme.
@@ -50,6 +50,7 @@ internal static class ResourceManager {
         NPatchTextureLoader = new(ResourceLoadingQueue);
         TextureAtlasLoader = new(ResourceLoadingQueue);
         TilesetLoader = new(ResourceLoadingQueue);
+        ShaderLoader = new(ResourceLoadingQueue);
 
         MainResourceFile = new ResourceFile(Files.GetResourceFilePath("Main.dat"));
     }
@@ -79,6 +80,7 @@ internal static class ResourceManager {
         NPatchTextureLoader.Load(new NPatchTexture(fallbackTexture, 0, 1, 0, 1));
         TextureAtlasLoader.Load(fallbackTextureAtlas);
         TilesetLoader.Load(new Tileset("__FALLBACK__", new HashSet<TileType>(), fallbackTextureAtlas));
+        ShaderLoader.Load(new Shader());
     }
 
     /// <summary>
@@ -105,6 +107,7 @@ internal static class ResourceManager {
         NPatchTextureLoader.ReloadAll();
         TextureAtlasLoader.ReloadAll();
         TilesetLoader.ReloadAll();
+        ShaderLoader.ReloadAll();
     }
 
     /// <summary>
@@ -141,8 +144,10 @@ internal static class ResourceManager {
             TextureAtlasLoader.LoadResource(key);
         } else if (type == typeof(Tileset)) {
             TilesetLoader.LoadResource(key);
+        } else if (type == typeof(Shader)) {
+            ShaderLoader.LoadResource(key);
         } else {
-            Debug.WriteLine($"Resource type {type} is not supported");
+            Log.WriteLine($"Resource type {type} is not supported");
         }
     }
 
