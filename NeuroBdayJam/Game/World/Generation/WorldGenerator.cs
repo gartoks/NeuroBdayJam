@@ -13,6 +13,7 @@ internal abstract class WorldGenerator {
     private Tile[,] StoredTiles { get; set; }
     private Tile[,] Tiles { get; set; }
     private Dictionary<ulong, ulong> ExportSettings { get; }
+    private Dictionary<(int, eSide), ulong> IdAndSideToPossibleNeighbours { get; }
 
     private TextureResource[] DEBUG_Textures { get; set; }
 
@@ -50,7 +51,7 @@ internal abstract class WorldGenerator {
         RuleParser parser = new();
         parser.Parse(settings.Ruleset);
 
-        SetRules(parser.Export());
+        IdAndSideToPossibleNeighbours = parser.Export();
         CollapseCell(0, 0, 1);
         GenerateEverything(settings.GenerateEverything);
 
@@ -303,10 +304,6 @@ internal abstract class WorldGenerator {
         }
     }
 
-    private void SetRules(Dictionary<(int, eSide), ulong> rules) {
-        IdAndSideToPossibleNeighbours = rules;
-    }
-
     private void LoadDEBUGTextures() {
         if (!Application.DRAW_DEBUG)
             return;
@@ -339,5 +336,4 @@ internal abstract class WorldGenerator {
         Left = 3,
     }
 
-    Dictionary<(int, eSide), ulong> IdAndSideToPossibleNeighbours = new();
 }

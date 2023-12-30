@@ -15,29 +15,33 @@ internal class GameWorld {
 
     public int Width => Tiles.GetLength(0);
     public int Height => Tiles.GetLength(1);
-    public int SmallerDimension => Math.Min(Width, Height);
+
+    private WorldGenerator? WorldGenerator { get; }
+    private WorldTile[,] Tiles { get; }
 
     public Neuro Player { get; set; }
     private HashSet<Entity> Entities { get; }
     public Memory? ActiveMemory { get; set; }
 
-    public TextureAtlas MiscAtlas { get; private set; }
     public Tileset Tileset { get; private set; }
-    private WorldTile[,] Tiles { get; }
+    public TextureAtlas MiscAtlas { get; private set; }
 
     private Vector2 TopLeftCorner { get; set; }
     private Vector2 CenterOfScreen => TopLeftCorner + new Vector2(Width, Height) / 2.0f;
     private Vector2 LastWorldgenTLCorner { get; set; }
     private Vector2 WorldgenDelta => LastWorldgenTLCorner - TopLeftCorner;
 
-    private WorldGenerator? WorldGenerator { get; }
-
     public delegate bool SpawnCondition(WorldTile tile);
     private List<(Type entity, float spawnRate, SpawnCondition condition)> Spawnables { get; }
 
-    public GameWorld(WorldGenerator worldGenerator) {
-        WorldGenerator = worldGenerator;
-        Tiles = CreateFromIds(WorldGenerator.ExportToUlongs(), 0, 0);
+    public GameWorld() {
+        float visibleTileWidth = Application.BASE_WIDTH / TILE_SIZE;
+        float visibleTileHeight = Application.BASE_HEIGHT / TILE_SIZE;
+        int tileWidth = (int)Math.Ceiling(visibleTileWidth + 6);
+        int tileHeight = (int)Math.Ceiling(visibleTileHeight + 6);
+        WorldGenerator = new DefaultWorldGenerator(tileWidth, tileHeight);
+
+        Tiles = new WorldTile[tileWidth, tileHeight];
         Entities = new HashSet<Entity>();
         TopLeftCorner = new Vector2(0, 0);
         LastWorldgenTLCorner = TopLeftCorner;
@@ -49,13 +53,18 @@ internal class GameWorld {
         };
     }
     public GameWorld(ulong[,] tiles) {
-        Tiles = CreateFromIds(tiles, 0, 0);
+        Tiles = new WorldTile[tiles.GetLength(0), tiles.GetLength(1)];
+        SetFromIds(Tiles, tiles, 0, 0);
+
         Entities = new HashSet<Entity>();
         TopLeftCorner = new Vector2(0, 0);
         LastWorldgenTLCorner = TopLeftCorner;
     }
 
     public void Load() {
+        if (WorldGenerator != null)
+            SetFromIds(Tiles, WorldGenerator.ExportToUlongs(), 0, 0);
+
         TilesetResource tilesetResource = ResourceManager.TilesetLoader.Get("dark");
         TextureAtlasResource miscAtlasResource = ResourceManager.TextureAtlasLoader.Get("misc_atlas");
         ResourceManager.TextureAtlasLoader.Load("player_animations");
@@ -79,12 +88,13 @@ internal class GameWorld {
     }
 
     internal void Update(float dT) {
-        if ((Player.Position - CenterOfScreen).Length() > SmallerDimension / 5) {
-            Vector2 delta = Player.Position - CenterOfScreen;
-            delta *= dT;
+        TopLeftCorner = Player.Position - new Vector2(Width, Height) / 2.0f;
+        //if ((Player.Position - CenterOfScreen).Length() > Math.Min(Width, Height) / 5) {
+        //    Vector2 delta = Player.Position - CenterOfScreen;
+        //    delta *= dT;
 
-            TopLeftCorner += Vector2.Normalize(delta) * delta.LengthSquared() * 8;
-        }
+        //    TopLeftCorner += Vector2.Normalize(delta) * delta.LengthSquared() * 8;
+        //}
 
         if (WorldgenDelta.X > 1) {
             MoveWorldHorizontally(-1);
@@ -129,7 +139,14 @@ internal class GameWorld {
 
     internal void Render(float dT) {
         RlGl.rlPushMatrix();
-        RlGl.rlTranslatef(-(TopLeftCorner.X + 3) * TILE_SIZE, -(TopLeftCorner.Y + 3) * TILE_SIZE, 0);
+
+
+        float visibleTileWidth = Application.BASE_WIDTH / TILE_SIZE;
+        float visibleTileHeight = Application.BASE_HEIGHT / TILE_SIZE;
+        int xOffset = ((int)(Width - visibleTileWidth) / 2);
+        int yOffset = ((int)(Height - visibleTileHeight) / 2);
+
+        RlGl.rlTranslatef(-(TopLeftCorner.X + xOffset) * TILE_SIZE, -(TopLeftCorner.Y + yOffset) * TILE_SIZE, 0);
         //RlGl.rlTranslatef(-TopLeftCorner.X * TILE_SIZE, -TopLeftCorner.Y * TILE_SIZE, 0);
 
         for (int x = 0; x < Width; x++) {
@@ -148,7 +165,7 @@ internal class GameWorld {
 
         if (Application.DRAW_DEBUG) {
             Raylib.DrawCircleV(CenterOfScreen * TILE_SIZE, 10, Raylib.RED);
-            Raylib.DrawCircleLines((int)(CenterOfScreen.X * TILE_SIZE), (int)(CenterOfScreen.Y * TILE_SIZE), SmallerDimension / 5 * TILE_SIZE, Raylib.RED);
+            Raylib.DrawCircleLines((int)(CenterOfScreen.X * TILE_SIZE), (int)(CenterOfScreen.Y * TILE_SIZE), Math.Min(Width, Height) / 5 * TILE_SIZE, Raylib.RED);
         }
         RlGl.rlPopMatrix();
         if (Application.DRAW_DEBUG) {
@@ -204,25 +221,6 @@ internal class GameWorld {
         }
 
         return colliders;
-    }
-
-    private WorldTile[,] CreateFromIds(ulong[,] tiles, int xOffset, int yOffset) {
-        WorldTile[,] worldTiles = new WorldTile[tiles.GetLength(0), tiles.GetLength(1)];
-
-        for (int x = 0; x < tiles.GetLength(0); x++) {
-            for (int y = 0; y < tiles.GetLength(1); y++) {
-                ulong tileId = tiles[x, y];
-
-                ulong left = x > 0 ? tiles[x - 1, y] : tileId;
-                ulong right = x < tiles.GetLength(0) - 1 ? tiles[x + 1, y] : tileId;
-                ulong top = y > 0 ? tiles[x, y - 1] : tileId;
-                ulong bottom = y < tiles.GetLength(1) - 1 ? tiles[x, y + 1] : tileId;
-
-                worldTiles[x, y] = new WorldTile(this, tileId, (x + xOffset, y + yOffset), FindConfiguration(tileId, left, right, top, bottom));
-            }
-        }
-
-        return worldTiles;
     }
 
     private void MoveWorldHorizontally(int dx) {
@@ -319,6 +317,27 @@ internal class GameWorld {
                     }
                     break;
                 }
+            }
+        }
+    }
+
+    private WorldTile[,] CreateFromIds(ulong[,] tileIds, int xOffset, int yOffset) {
+        WorldTile[,] newTiles = new WorldTile[tileIds.GetLength(0), tileIds.GetLength(1)];
+        SetFromIds(newTiles, tileIds, xOffset, yOffset);
+        return newTiles;
+    }
+
+    private void SetFromIds(WorldTile[,] tiles, ulong[,] tileIds, int xOffset, int yOffset) {
+        for (int x = 0; x < tileIds.GetLength(0); x++) {
+            for (int y = 0; y < tileIds.GetLength(1); y++) {
+                ulong tileId = tileIds[x, y];
+
+                ulong left = x > 0 ? tileIds[x - 1, y] : tileId;
+                ulong right = x < tileIds.GetLength(0) - 1 ? tileIds[x + 1, y] : tileId;
+                ulong top = y > 0 ? tileIds[x, y - 1] : tileId;
+                ulong bottom = y < tileIds.GetLength(1) - 1 ? tileIds[x, y + 1] : tileId;
+
+                tiles[x, y] = new WorldTile(this, tileId, (x + xOffset, y + yOffset), FindConfiguration(tileId, left, right, top, bottom));
             }
         }
     }

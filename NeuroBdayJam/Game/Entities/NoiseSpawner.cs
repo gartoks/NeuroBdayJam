@@ -59,7 +59,7 @@ internal sealed class NoiseSpawner : Entity {
     }
 
     private float CalculateNoiseValue(float radius) {
-        float tmp = 0.1f / NoiseStrength / 2.5f * radius;
+        float tmp = 0.05f / NoiseStrength / 2.5f * radius;
         return (-tmp * tmp + 1) * NoiseStrength;
     }
 }

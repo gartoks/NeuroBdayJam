@@ -92,6 +92,7 @@ internal sealed class Neuro : Entity {
             HasMovedToNewTile = hasMovedToNewTile;
         }
 
+
         Color color = Raylib.WHITE;
 
         if (State.HasFlag(eEntityStates.Hidden))

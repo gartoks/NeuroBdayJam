@@ -3,7 +3,6 @@ using NeuroBdayJam.Game.Gui;
 using NeuroBdayJam.Game.Memories;
 using NeuroBdayJam.Game.Utils;
 using NeuroBdayJam.Game.World;
-using NeuroBdayJam.Game.World.Generation;
 using Raylib_CsLo;
 using System.Numerics;
 
@@ -12,10 +11,9 @@ namespace NeuroBdayJam.Game.Scenes;
 /// Represents a base class for game scenes. Provides methods for scene lifecycle including loading, updating, drawing, and unloading.
 /// </summary>
 internal class GameplayTestScene : Scene {
+    private GuiDynamicLabel MemoryTrackerLabel { get; set; }
 
     private GameWorld World { get; set; }
-
-    private GuiDynamicLabel MemoryTrackerLabel;
 
     /// <summary>
     /// Called when the scene is loaded. Override this method to provide custom scene initialization logic and to load resources.
@@ -32,7 +30,7 @@ internal class GameplayTestScene : Scene {
         Input.RegisterHotkey(GameHotkeys.USE_MEMORY_2, KeyboardKey.KEY_TWO);
         Input.RegisterHotkey(GameHotkeys.USE_MEMORY_3, KeyboardKey.KEY_THREE);
 
-        World = new GameWorld(new DefaultWorldGenerator(40, 30));
+        World = new GameWorld();
         // World = CreateTestWorld("Map_Test_1");
         World.Load();
 
