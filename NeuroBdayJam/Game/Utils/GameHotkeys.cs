@@ -7,5 +7,6 @@ internal static class GameHotkeys {
     public const string MOVE_RIGHT = "move_right";
     public const string SPRINT = "sprint";
     public const string SNEAK = "sneak";
+    public const string INTERACT = "interact";
 
 }

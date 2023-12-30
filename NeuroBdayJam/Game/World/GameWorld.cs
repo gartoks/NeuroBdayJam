@@ -1,4 +1,5 @@
 ﻿using NeuroBdayJam.Game.Entities;
+using NeuroBdayJam.Game.Memories;
 using NeuroBdayJam.ResourceHandling;
 using NeuroBdayJam.ResourceHandling.Resources;
 using Raylib_CsLo;
@@ -13,6 +14,8 @@ internal class GameWorld {
 
     public Neuro Player { get; set; }
     private Worm Worm { get; set; }
+    public Memory? Memory { get; set; }
+    private VedalTerminal VedalTerminal { get; set; }
 
     private Tileset Tileset { get; set; }
     private ulong[,] Tiles { get; }
@@ -33,11 +36,15 @@ internal class GameWorld {
         Tileset = tilesetResource.Resource;
         Player = new Neuro(this, new Vector2(1.5f, 1.5f));
         Worm = new Worm(this, new Vector2(5.5f, 5.5f));
+        Memory = new Memory(this, new Vector2(5.5f, 5.5f), MemoryTracker.GetRandomUncollectedMemory());
+        VedalTerminal = new VedalTerminal(this, new Vector2(1.5f, 7.5f));
     }
 
     internal void Update(float dT) {
         Player.Update(dT);
         Worm.Update(dT);
+        VedalTerminal.Update(dT);
+        Memory?.Update(dT);
     }
 
     internal void Render(float dT) {
@@ -48,6 +55,8 @@ internal class GameWorld {
         }
 
         Worm.Render(dT);
+        Memory?.Render(dT);
+        VedalTerminal.Render(dT);
         Player.Render(dT);
     }
 
