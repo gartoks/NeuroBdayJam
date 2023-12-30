@@ -27,10 +27,10 @@ internal class WorldTestScene : Scene {
         Input.RegisterHotkey(GameHotkeys.USE_MEMORY_1, KeyboardKey.KEY_ONE);
         Input.RegisterHotkey(GameHotkeys.USE_MEMORY_2, KeyboardKey.KEY_TWO);
         Input.RegisterHotkey(GameHotkeys.USE_MEMORY_3, KeyboardKey.KEY_THREE);
-        Input.RegisterHotkey("DEBUG_reset_generation", KeyboardKey.KEY_R, new KeyboardKey[0]);
+        Input.RegisterHotkey(GameHotkeys.INTERACT, KeyboardKey.KEY_E);
 
         World = CreateTestWorld("Map_Test_1");
-        //World = new GameWorld(WorldGenerator.ExportToUlongs(ExportSettings));
+        //World = new GameWorld(WorldGenerator.ExportToUlongs());
         World.Load();
     }
 
@@ -40,13 +40,6 @@ internal class WorldTestScene : Scene {
     /// <param name="dT">The delta time since the last frame, typically used for frame-rate independent updates.</param>
     internal override void Update(float dT) {
         World.Update(dT);
-
-        if (Input.IsHotkeyActive("DEBUG_reset_generation")) {
-            WorldGenerator.Restore();
-            WorldGenerator.GenerateEverything();
-            World = new GameWorld(WorldGenerator.ExportToUlongs());
-            World.Load();
-        }
     }
 
     /// <summary>

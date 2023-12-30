@@ -30,7 +30,7 @@ internal class GameWorld {
     private Vector2 LastWorldgenTLCorner { get; set; }
     private Vector2 WorldgenDelta => LastWorldgenTLCorner - TopLeftCorner;
 
-    private WorldGenerator WorldGenerator { get; }
+    private WorldGenerator? WorldGenerator { get; }
 
     public GameWorld(WorldGenerator worldGenerator){
         WorldGenerator = worldGenerator;
@@ -217,6 +217,9 @@ internal class GameWorld {
     }
 
     private void RegenerateWorldHOffset(int dx){
+        if (WorldGenerator == null)
+            return;
+
         LastWorldgenTLCorner += new Vector2(dx, 0);
         // for (int x = 1; x < Width; x++) {
         //     for (int y = 0; y < Height; y++) {
@@ -233,6 +236,9 @@ internal class GameWorld {
         }
     }
     private void RegenerateWorldVOffset(int dy){
+        if (WorldGenerator == null)
+            return;
+            
         LastWorldgenTLCorner += new Vector2(0, dy);
         // for (int x = 1; x < Width; x++) {
         //     for (int y = 0; y < Height; y++) {
