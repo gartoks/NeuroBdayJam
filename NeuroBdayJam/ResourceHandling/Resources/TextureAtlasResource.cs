@@ -59,8 +59,8 @@ internal record TextureAtlas(Texture Texture, IReadOnlyDictionary<string, SubTex
     }
 }
 
-internal record SubTexture(string key, (int x, int y, int w, int h) Bounds, Texture AtlasTexture) {
-    internal void Draw(Rectangle bounds, Vector2? pivot = null, float rotation = 0, Color? tint = null) {
+public record SubTexture(string key, (int x, int y, int w, int h) Bounds, Texture AtlasTexture) : IDrawableResource {
+    public void Draw(Rectangle bounds, Vector2? pivot = null, float rotation = 0, Color? tint = null) {
         if (pivot == null)
             pivot = Vector2.Zero;
 
@@ -69,8 +69,8 @@ internal record SubTexture(string key, (int x, int y, int w, int h) Bounds, Text
         Raylib.DrawTexturePro(
                     AtlasTexture,
                     new Rectangle(Bounds.x, Bounds.y, Bounds.w, Bounds.h),
-                    bounds,
-                    new Vector2(bounds.width * pivot.Value.X, bounds.height * pivot.Value.Y),
+                    new Rectangle(bounds.x - bounds.width * (pivot.Value.X - 0.5f), bounds.y - bounds.height * (pivot.Value.Y - 0.5f), bounds.width, bounds.height),
+                    new Vector2(bounds.width / 2f, bounds.height / 2f),
                     rotation,
                     tint != null ? tint.Value : Raylib.WHITE);
     }

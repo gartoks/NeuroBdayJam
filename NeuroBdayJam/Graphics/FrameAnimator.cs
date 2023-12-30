@@ -16,7 +16,7 @@ internal sealed class FrameAnimator {
     public string? ActiveSequence { get; private set; }
     private int ActiveSequenceIndex { get; set; }
     private float SequencePlayTime { get; set; }
-    private int FrameIndex => (int)(SequencePlayTime / FrameDuration);
+    public int FrameIndex => (int)(SequencePlayTime / FrameDuration);
     private IDrawableResource? ActiveFrame => ActiveSequence == null ? null : Frames[FrameSequences[ActiveSequence][ActiveSequenceIndex].frames[FrameIndex]];
 
     public bool IsReady => ActiveSequence == null;
@@ -52,7 +52,7 @@ internal sealed class FrameAnimator {
         DefaultSequence = sequenceKey;
     }
 
-    public void StartSequence(string sequenceKey) {
+    public void StartSequence(string sequenceKey, int frameIndex = 0) {
         if (!FrameSequences.TryGetValue(sequenceKey, out List<(float weight, IReadOnlyList<string> frames)>? sequences)) {
             Log.WriteLine($"Unable to start sequence '{sequenceKey}' because it does not exist.", eLogType.Error);
             return;
@@ -60,10 +60,15 @@ internal sealed class FrameAnimator {
 
         ActiveSequence = sequenceKey;
         ActiveSequenceIndex = SelectSequence(sequences);
-        SequencePlayTime = 0;
+        SequencePlayTime = frameIndex * FrameDuration;
     }
 
-    public void Draw(float dT, Rectangle bounds, float rotation, Vector2 pivot, Color color) {
+    public void Render(float dT, Rectangle bounds, float rotation, Vector2 pivot, Color color) {
+        if (FrameIndex >= FrameSequences[ActiveSequence!][ActiveSequenceIndex].frames.Count) {
+            ActiveSequence = null;
+            return;
+        }
+
         if (ActiveSequence == null) {
             if (DefaultSequence != null)
                 StartSequence(DefaultSequence);
@@ -75,11 +80,6 @@ internal sealed class FrameAnimator {
         frame.Draw(bounds, pivot, rotation, color);
 
         SequencePlayTime += dT;
-
-        if (FrameIndex >= FrameSequences[ActiveSequence!][ActiveSequenceIndex].frames.Count) {
-            ActiveSequence = null;
-            return;
-        }
     }
 
     private int SelectSequence(IReadOnlyList<(float weight, IReadOnlyList<string> frames)> sequences) {

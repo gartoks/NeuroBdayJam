@@ -61,7 +61,7 @@ R 13
         CurrentX = CurrentY = 0;
 
         Input.RegisterHotkey("reset_generation", KeyboardKey.KEY_R, new KeyboardKey[0]);
-        
+
         Input.RegisterHotkey(GameHotkeys.MOVE_UP, KeyboardKey.KEY_W);
         Input.RegisterHotkey(GameHotkeys.MOVE_LEFT, KeyboardKey.KEY_A);
         Input.RegisterHotkey(GameHotkeys.MOVE_DOWN, KeyboardKey.KEY_S);
@@ -93,10 +93,42 @@ R 13
         }
 
 
-        if (Input.IsHotkeyActive("reset_generation")){
-            WorldGenerator.Restore(true);
-            WorldGenerator.GenerateEverything();
+        if (Input.IsHotkeyActive("reset_generation")) {
+            WorldGenerator.Restore();
         }
+
+        watch.Start();
+
+        WorldGenerator.GenerateEverything();
+
+        watch.Stop();
+
+        bool shouldStore = false;
+
+        // if (Input.IsHotkeyActive(GameHotkeys.MOVE_UP)){
+        //     WorldGenerator.Translate(0, -1);
+        //     shouldStore = true;
+        // }
+        // if (Input.IsHotkeyActive(GameHotkeys.MOVE_DOWN)){
+        //     WorldGenerator.Translate(0, 1);
+        //     shouldStore = true;
+        // }
+
+        // if (Input.IsHotkeyActive(GameHotkeys.MOVE_LEFT)){
+        //     WorldGenerator.Translate(-1, 0);
+        //     shouldStore = true;
+        // }
+        // if (Input.IsHotkeyActive(GameHotkeys.MOVE_RIGHT)){
+        //     WorldGenerator.Translate(1, 0);
+        //     shouldStore = true;
+        // }
+
+        if (shouldStore) {
+            WorldGenerator.Store();
+        }
+
+        Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
+
     }
 
     /// <summary>

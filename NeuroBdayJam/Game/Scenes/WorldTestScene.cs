@@ -26,8 +26,7 @@ internal class WorldTestScene : Scene {
         Input.RegisterHotkey(GameHotkeys.SPRINT, KeyboardKey.KEY_LEFT_SHIFT);
         Input.RegisterHotkey("DEBUG_reset_generation", KeyboardKey.KEY_R, new KeyboardKey[0]);
 
-        // World = CreateTestWorld("Map_Test_1");
-        WorldGenerator = new WorldGenerator(15, 10);
+        /*WorldGenerator = new WorldGenerator(15, 10);
         RuleParser parser = new();
         parser.Parse(
 @"
@@ -54,42 +53,43 @@ R 7
 
         int id = 0;
         ExportSettings = new Dictionary<ulong, ulong>{
-            {(ulong)1 << id++, (ulong)1},
-            {(ulong)1 << id++, (ulong)1},
-            {(ulong)1 << id++, (ulong)1},
-            {(ulong)1 << id++, (ulong)1},
+            {(ulong)1 << id++, 1},
+            {(ulong)1 << id++, 1},
+            {(ulong)1 << id++, 1},
+            {(ulong)1 << id++, 1},
 
-            {(ulong)1 << id++, (ulong)1},
-            {(ulong)1 << id++, (ulong)1},
-            {(ulong)1 << id++, (ulong)1},
-            {(ulong)1 << id++, (ulong)1},
+            {(ulong)1 << id++, 1},
+            {(ulong)1 << id++, 1},
+            {(ulong)1 << id++, 1},
+            {(ulong)1 << id++, 1},
 
-            {(ulong)1 << id++, (ulong)2},
-            {(ulong)1 << id++, (ulong)2},
-            {(ulong)1 << id++, (ulong)2},
-            {(ulong)1 << id++, (ulong)2},
-            {(ulong)1 << id++, (ulong)2},
-            {(ulong)1 << id++, (ulong)2},
-            {(ulong)1 << id++, (ulong)2},
-            {(ulong)1 << id++, (ulong)2},
-            {(ulong)1 << id++, (ulong)2},
-            {(ulong)1 << id++, (ulong)2},
-            {(ulong)1 << id++, (ulong)2},
-            {(ulong)1 << id++, (ulong)2},
-            {(ulong)1 << id++, (ulong)2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
 
-            {(ulong)1 << id++, (ulong)1},
-            {(ulong)1 << id++, (ulong)1},
-            {(ulong)1 << id++, (ulong)1},
-            {(ulong)1 << id++, (ulong)1},
+            {(ulong)1 << id++, 1},
+            {(ulong)1 << id++, 1},
+            {(ulong)1 << id++, 1},
+            {(ulong)1 << id++, 1},
 
-            {(ulong)1 << id++, (ulong)1},
-            {(ulong)1 << id++, (ulong)1},
-            {(ulong)1 << id++, (ulong)1},
-            {(ulong)1 << id++, (ulong)1},
-        };
+            {(ulong)1 << id++, 1},
+            {(ulong)1 << id++, 1},
+            {(ulong)1 << id++, 1},
+            {(ulong)1 << id++, 1},
+        };*/
 
-        World = new GameWorld(WorldGenerator.ExportToUlongs(ExportSettings));
+        World = CreateTestWorld("Map_Test_1");
+        //World = new GameWorld(WorldGenerator.ExportToUlongs(ExportSettings));
         World.Load();
     }
 
@@ -100,7 +100,7 @@ R 7
     internal override void Update(float dT) {
         World.Update(dT);
 
-        if (Input.IsHotkeyActive("DEBUG_reset_generation")){
+        if (Input.IsHotkeyActive("DEBUG_reset_generation")) {
             WorldGenerator.Restore();
             WorldGenerator.GenerateEverything();
             World = new GameWorld(WorldGenerator.ExportToUlongs(ExportSettings));
@@ -129,7 +129,7 @@ R 7
 
         ulong[,] tiles = new ulong[width, height];
         for (int y = 0; y < lines.Length; y++) {
-            string line = lines[y].Trim();
+            string line = lines[y];
 
             for (int x = 0; x < line.Length; x++) {
                 char tileChar = line[x];
