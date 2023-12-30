@@ -55,7 +55,7 @@ R 13
         WorldGenerator.Store();
 
         Input.RegisterHotkey("reset_generation", KeyboardKey.KEY_R, new KeyboardKey[0]);
-        
+
         Input.RegisterHotkey(GameHotkeys.MOVE_UP, KeyboardKey.KEY_W);
         Input.RegisterHotkey(GameHotkeys.MOVE_LEFT, KeyboardKey.KEY_A);
         Input.RegisterHotkey(GameHotkeys.MOVE_DOWN, KeyboardKey.KEY_S);
@@ -69,7 +69,7 @@ R 13
     internal override void Update(float dT) {
         System.Diagnostics.Stopwatch watch = new System.Diagnostics.Stopwatch();
 
-        if (Input.IsHotkeyActive("reset_generation")){
+        if (Input.IsHotkeyActive("reset_generation")) {
             WorldGenerator.Restore();
         }
 
@@ -99,7 +99,7 @@ R 13
         //     shouldStore = true;
         // }
 
-        if (shouldStore){
+        if (shouldStore) {
             WorldGenerator.Store();
         }
 

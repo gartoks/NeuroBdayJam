@@ -30,19 +30,104 @@ internal sealed class Tileset : IDisposable {
     /// <param name="tileId"></param>
     /// <param name="configuration"></param>
     /// <returns></returns>
-    internal SubTexture GetTileTexture(ulong tileId, byte configuration = 0) {
+    internal void GetTileTexture(ulong tileId, byte configuration, out SubTexture texture, out float rotation) {
         TileType tileType = GetTileType(tileId);
 
-        string[] tileTextureVariations = TileTextureAtlas.SubTextures.Keys.Where(k =>
-            k.StartsWith(tileType.Name) && (
-            (configuration == 0 && k.Split("_").Length == 2) ||
-            (configuration > 0 && k.Split("_").Length == 3))).ToArray();
+        GetConfigurationKey(configuration, out string configurationKey, out int rotValue);
 
-        int textureIndex = Random.Shared.Next(tileTextureVariations.Length);
-        string textureKey = tileTextureVariations[textureIndex];
+        string[] tileTextureVariations = TileTextureAtlas.SubTextures.Keys.Where(k => k.StartsWith(tileType.Name) && k.EndsWith(configurationKey)).ToArray();
 
-        return TileTextureAtlas.GetSubTexture(textureKey)!;
+        bool hasVariations = tileTextureVariations.Length > 0;
+        if (!hasVariations) {
+            tileTextureVariations = TileTextureAtlas.SubTextures.Keys.Where(k => k.StartsWith(tileType.Name)).ToArray();
+            rotValue = 0;
+        }
 
+        int variationIndex = Random.Shared.Next(tileTextureVariations.Length);
+
+        string textureKey;
+        if (hasVariations)
+            textureKey = $"{tileType.Name}_{variationIndex}_{configurationKey}";
+        else
+            textureKey = $"{tileType.Name}_{variationIndex}_solo";
+
+        texture = TileTextureAtlas.GetSubTexture(textureKey)!;
+        rotation = rotValue * MathF.PI / 2f;
+    }
+
+    private static void GetConfigurationKey(byte configuration, out string configurationKey, out int rotation) {
+        configurationKey = string.Empty;
+        rotation = 0;
+        switch (configuration) {
+            case 0:
+                configurationKey = "solo";
+                rotation = 0;
+                break;
+            case 1:
+                configurationKey = "end";
+                rotation = 1;
+                break;
+            case 2:
+                configurationKey = "end";
+                rotation = 3;
+                break;
+            case 3:
+                configurationKey = "straight";
+                rotation = 1;
+                break;
+            case 4:
+                configurationKey = "end";
+                rotation = 2;
+                break;
+            case 5:
+                configurationKey = "corner";
+                rotation = 2;
+                break;
+            case 6:
+                configurationKey = "corner";
+                rotation = 3;
+                break;
+            case 7:
+                configurationKey = "side";
+                rotation = 3;
+                break;
+            case 8:
+                configurationKey = "end";
+                rotation = 0;
+                break;
+            case 9:
+                configurationKey = "corner";
+                rotation = 1;
+                break;
+            case 10:
+                configurationKey = "corner";
+                rotation = 0;
+                break;
+            case 11:
+                configurationKey = "side";
+                rotation = 1;
+                break;
+            case 12:
+                configurationKey = "straight";
+                rotation = 0;
+                break;
+            case 13:
+                configurationKey = "side";
+                rotation = 2;
+                break;
+            case 14:
+                configurationKey = "side";
+                rotation = 0;
+                break;
+            case 15:
+                configurationKey = "center";
+                rotation = 0;
+                break;
+            default:
+                configurationKey = "solo";
+                rotation = 0;
+                break;
+        }
     }
 
     public void Unload() {

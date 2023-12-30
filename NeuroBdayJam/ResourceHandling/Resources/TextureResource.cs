@@ -50,7 +50,7 @@ internal sealed class TextureResource : GameResource<Texture>, IDrawableResource
         Raylib.DrawTexturePro(
                     Resource,
                     new Rectangle(0, 0, Resource.width, Resource.height),
-                    bounds,
+                    new Rectangle(bounds.x - bounds.width * (pivot.Value.X - 0.5f), bounds.y - bounds.height * (pivot.Value.Y - 0.5f), bounds.width, bounds.height),
                     new Vector2(bounds.width * pivot.Value.X, bounds.height * pivot.Value.Y),
                     rotation,
                     tint != null ? tint.Value : Raylib.WHITE);

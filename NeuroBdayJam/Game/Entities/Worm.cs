@@ -15,8 +15,8 @@ internal class Worm : Entity {
 
     public Vector2[] SegmentPositions { get; }
 
-    public Worm(GameWorld world, Vector2 position)
-        : base(world, "Worm", position) {
+    public Worm(Vector2 position)
+        : base("Worm", position) {
 
         Speed = 1f;
 
@@ -27,6 +27,10 @@ internal class Worm : Entity {
             SegmentPositions[i] = last + Random.Shared.NextRandomInCircleUniformly(MAX_SEGMENT_DISTANCE);
             last = SegmentPositions[i];
         }
+    }
+
+    public override void LoadInternal() {
+        base.LoadInternal();
     }
 
     public override void Update(float dT) {
