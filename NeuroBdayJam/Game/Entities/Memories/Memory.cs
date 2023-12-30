@@ -42,11 +42,16 @@ internal sealed class Memory : Entity {
         MemoryBlocks = memoryBlocks;
     }
 
-    public override void LoadInternal()
-    {
+    public override void LoadInternal(){
         base.LoadInternal();
 
         MemoryIndex = World.MemoryTracker.GetNextUncollectedMemory();
+    }
+
+    public override void UnloadInternal(){
+        base.UnloadInternal();
+
+        World.ActiveMemory = null;
     }
 
     public override void Render(float dT) {
