@@ -44,7 +44,7 @@ internal class WorldTestScene : Scene {
         if (Input.IsHotkeyActive("DEBUG_reset_generation")) {
             WorldGenerator.Restore();
             WorldGenerator.GenerateEverything();
-            World = new GameWorld(WorldGenerator.ExportToUlongs(ExportSettings));
+            World = new GameWorld(WorldGenerator.ExportToUlongs());
             World.Load();
         }
     }

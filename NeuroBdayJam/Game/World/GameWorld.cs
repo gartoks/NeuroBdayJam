@@ -2,6 +2,7 @@
 using NeuroBdayJam.Game.Entities.Enemies;
 using NeuroBdayJam.Game.Entities.Memories;
 using NeuroBdayJam.Game.Memories;
+using NeuroBdayJam.Game.World.Generation;
 using NeuroBdayJam.ResourceHandling;
 using NeuroBdayJam.ResourceHandling.Resources;
 using Raylib_CsLo;
@@ -13,19 +14,36 @@ internal class GameWorld {
 
     public int Width => Tiles.GetLength(0);
     public int Height => Tiles.GetLength(1);
+    public int SmallerDimension => Math.Min(Width, Height);
 
     public Neuro Player { get; set; }
     private HashSet<Entity> Entities { get; }
     public Memory? ActiveMemory { get; set; }
     private VedalTerminal VedalTerminal { get; set; }
 
-    public TextureAtlas MiscAtatlas { get; private set; }
+    public TextureAtlas MiscAtlas { get; private set; }
     public Tileset Tileset { get; private set; }
     private WorldTile[,] Tiles { get; }
 
-    public GameWorld(ulong[,] tiles) {
-        Tiles = CreateFromIds(tiles);
+    private Vector2 TopLeftCorner { get; set; }
+    private Vector2 CenterOfScreen => TopLeftCorner + new Vector2(Width, Height) / 2.0f;
+    private Vector2 LastWorldgenTLCorner { get; set; }
+    private Vector2 WorldgenDelta => LastWorldgenTLCorner - TopLeftCorner;
+
+    private WorldGenerator WorldGenerator { get; }
+
+    public GameWorld(WorldGenerator worldGenerator){
+        WorldGenerator = worldGenerator;
+        Tiles = CreateFromIds(WorldGenerator.ExportToUlongs(), 0, 0);
         Entities = new HashSet<Entity>();
+        TopLeftCorner = new Vector2(0, 0);
+        LastWorldgenTLCorner = TopLeftCorner;
+    }
+    public GameWorld(ulong[,] tiles) {
+        Tiles = CreateFromIds(tiles, 0, 0);
+        Entities = new HashSet<Entity>();
+        TopLeftCorner = new Vector2(0, 0);
+        LastWorldgenTLCorner = TopLeftCorner;
     }
 
     public void Load() {
@@ -37,9 +55,9 @@ internal class GameWorld {
         miscAtlasResource.WaitForLoad();
 
         Tileset = tilesetResource.Resource;
-        MiscAtatlas = miscAtlasResource.Resource;
+        MiscAtlas = miscAtlasResource.Resource;
 
-        Player = new Neuro(new Vector2(1.5f, 1.5f));
+        Player = new Neuro(new Vector2(Width/2, Height/2));
         AddEntity(Player);
         ActiveMemory = new Memory(new Vector2(5.5f, 5.5f), MemoryTracker.GetRandomUncollectedMemory());
         AddEntity(ActiveMemory);
@@ -51,9 +69,29 @@ internal class GameWorld {
     }
 
     internal void Update(float dT) {
+        if ((Player.Position - CenterOfScreen).Length() > SmallerDimension/5){
+            Vector2 delta = Player.Position - CenterOfScreen;
+            delta *= dT;
+
+            TopLeftCorner += Vector2.Normalize(delta) * delta.LengthSquared() * 8;
+        }
+
+        if (WorldgenDelta.X > 1){
+            RegenerateWorldHOffset(-1);
+        }
+        if (WorldgenDelta.X < -1){
+            RegenerateWorldHOffset(1);
+        }
+        if (WorldgenDelta.Y > 1){
+            RegenerateWorldVOffset(-1);
+        }
+        if (WorldgenDelta.Y < -1){
+            RegenerateWorldVOffset(1);
+        }
+
         for (int x = 0; x < Width; x++) {
             for (int y = 0; y < Height; y++) {
-                Tiles[x, y].Update(dT); ;
+                Tiles[x, y].Update(dT);
             }
         }
 
@@ -74,9 +112,12 @@ internal class GameWorld {
     }
 
     internal void Render(float dT) {
+        RlGl.rlPushMatrix();
+        RlGl.rlTranslatef(-TopLeftCorner.X * TILE_SIZE, -TopLeftCorner.Y * TILE_SIZE, 0);
+
         for (int x = 0; x < Width; x++) {
             for (int y = 0; y < Height; y++) {
-                Tiles[x, y].Render(dT); ;
+                Tiles[x, y].Render(dT);
             }
         }
 
@@ -88,6 +129,17 @@ internal class GameWorld {
         ActiveMemory?.Render(dT);
         VedalTerminal.Render(dT);
         Player.Render(dT);
+
+        if (Application.DRAW_DEBUG){
+            Raylib.DrawCircleV(CenterOfScreen, 10, Raylib.RED);
+            Raylib.DrawCircleLines((int)(CenterOfScreen.X * TILE_SIZE), (int)(CenterOfScreen.Y * TILE_SIZE), SmallerDimension/5 * TILE_SIZE, Raylib.RED);
+        }
+        RlGl.rlPopMatrix();
+        if (Application.DRAW_DEBUG){
+            Raylib.DrawCircleV(-TopLeftCorner * TILE_SIZE, 10, Raylib.RED);
+            Raylib.DrawCircleV(-LastWorldgenTLCorner * TILE_SIZE, 10, Raylib.YELLOW);
+            
+        }
     }
 
     public void AddEntity(Entity entity) {
@@ -108,7 +160,16 @@ internal class GameWorld {
         return Tiles[x, y];
     }
 
+    public Vector2 WorldToTileIndexSpace(Vector2 vec){
+        return vec - LastWorldgenTLCorner;
+    }
+    public Vector2 TileIndexToWorldSpace(Vector2 vec){
+        return vec + LastWorldgenTLCorner;
+    }
+
     public IReadOnlyList<Rectangle> GetSurroundingTileColliders(Vector2 position) {
+        position = WorldToTileIndexSpace(position);
+
         int pX = (int)position.X;
         int pY = (int)position.Y;
 
@@ -126,7 +187,9 @@ internal class GameWorld {
                 if (tileType.Collider == null)
                     continue;
 
-                Rectangle boundsRect = new Rectangle(x + tileType.Collider.Value.x, y + tileType.Collider.Value.y, tileType.Collider.Value.width, tileType.Collider.Value.height);
+                Vector2 worldPos = TileIndexToWorldSpace(new(x, y));
+
+                Rectangle boundsRect = new Rectangle(worldPos.X + tileType.Collider.Value.x, worldPos.Y + tileType.Collider.Value.y, tileType.Collider.Value.width, tileType.Collider.Value.height);
                 colliders.Add(boundsRect);
             }
         }
@@ -134,7 +197,7 @@ internal class GameWorld {
         return colliders;
     }
 
-    private WorldTile[,] CreateFromIds(ulong[,] tiles) {
+    private WorldTile[,] CreateFromIds(ulong[,] tiles, int xOffset, int yOffset) {
         WorldTile[,] worldTiles = new WorldTile[tiles.GetLength(0), tiles.GetLength(1)];
 
         for (int x = 0; x < tiles.GetLength(0); x++) {
@@ -146,11 +209,44 @@ internal class GameWorld {
                 ulong top = y > 0 ? tiles[x, y - 1] : tileId;
                 ulong bottom = y < tiles.GetLength(1) - 1 ? tiles[x, y + 1] : tileId;
 
-                worldTiles[x, y] = new WorldTile(this, tileId, (x, y), FindConfiguration(tileId, left, right, top, bottom));
+                worldTiles[x, y] = new WorldTile(this, tileId, (x + xOffset, y + yOffset), FindConfiguration(tileId, left, right, top, bottom));
             }
         }
 
         return worldTiles;
+    }
+
+    private void RegenerateWorldHOffset(int dx){
+        LastWorldgenTLCorner += new Vector2(dx, 0);
+        // for (int x = 1; x < Width; x++) {
+        //     for (int y = 0; y < Height; y++) {
+        //         Tiles[x, y] = Tiles[x-1, y];
+        //     }
+        // }
+        WorldGenerator.Translate(-dx, 0);
+        WorldTile[,] newTiles = CreateFromIds(WorldGenerator.ExportToUlongs(), (int)LastWorldgenTLCorner.X, (int)LastWorldgenTLCorner.Y);
+
+        for (int x = 0; x < Width; x++) {
+            for (int y = 0; y < Height; y++) {
+                Tiles[x, y] = newTiles[x, y];
+            }
+        }
+    }
+    private void RegenerateWorldVOffset(int dy){
+        LastWorldgenTLCorner += new Vector2(0, dy);
+        // for (int x = 1; x < Width; x++) {
+        //     for (int y = 0; y < Height; y++) {
+        //         Tiles[x, y] = Tiles[x-1, y];
+        //     }
+        // }
+        WorldGenerator.Translate(0, -dy);
+        WorldTile[,] newTiles = CreateFromIds(WorldGenerator.ExportToUlongs(), (int)LastWorldgenTLCorner.X, (int)LastWorldgenTLCorner.Y);
+
+        for (int x = 0; x < Width; x++) {
+            for (int y = 0; y < Height; y++) {
+                Tiles[x, y] = newTiles[x, y];
+            }
+        }
     }
 
     private static byte FindConfiguration(ulong center, ulong left, ulong right, ulong top, ulong bottom) {
