@@ -28,7 +28,7 @@ internal sealed class Memory : Entity {
     public Memory(Vector2 position)
         : base("Memory", position) {
 
-        MemoryIndex = MemoryTracker.GetNextUncollectedMemory();
+        MemoryIndex = 0;
         Time = 0;
 
         List<MemoryBlock> memoryBlocks = new List<MemoryBlock>();
@@ -41,6 +41,11 @@ internal sealed class Memory : Entity {
         }
         MemoryBlocks = memoryBlocks;
 
+    public override void LoadInternal()
+    {
+        base.LoadInternal();
+
+        MemoryIndex = World.MemoryTracker.GetNextUncollectedMemory();
     }
 
     public override void Render(float dT) {
@@ -75,7 +80,7 @@ internal sealed class Memory : Entity {
         if ((World.Player.Position - Position).LengthSquared() > minDistance * minDistance)
             return;
 
-        MemoryTracker.CollectMemory(MemoryIndex);
+        World.MemoryTracker.CollectMemory(MemoryIndex);
 
         World.ActiveMemory = null;
         IsDead = true;

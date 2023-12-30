@@ -23,6 +23,8 @@ internal class GameWorld {
     private HashSet<Entity> Entities { get; }
     public Memory? ActiveMemory { get; set; }
 
+    public MemoryTracker MemoryTracker { get; }
+
     public Tileset Tileset { get; private set; }
     public TextureAtlas MiscAtlas { get; private set; }
 
@@ -33,12 +35,14 @@ internal class GameWorld {
 
     public delegate bool SpawnCondition(WorldTile tile);
     private List<(Type entity, float spawnRate, SpawnCondition condition)> Spawnables { get; }
+    public float TimeScale { get; set;} = 1;
 
     public GameWorld() {
         Vector2 visibleTileSize = GetVisibleTileSize();
         int tileWidth = (int)Math.Ceiling(visibleTileSize.X + 6);
         int tileHeight = (int)Math.Ceiling(visibleTileSize.Y + 6);
         WorldGenerator = new DefaultWorldGenerator(tileWidth, tileHeight);
+        MemoryTracker = new MemoryTracker();
 
         Tiles = new WorldTile[tileWidth, tileHeight];
         Entities = new HashSet<Entity>();
@@ -58,6 +62,7 @@ internal class GameWorld {
         Entities = new HashSet<Entity>();
         TopLeftCorner = new Vector2(0, 0);
         LastWorldgenTLCorner = TopLeftCorner;
+        MemoryTracker = new MemoryTracker();
     }
 
     public void Load() {
@@ -87,6 +92,8 @@ internal class GameWorld {
     }
 
     internal void Update(float dT) {
+        dT *= TimeScale;
+
         TopLeftCorner = Player.Position - new Vector2(Width, Height) / 2.0f;
         //if ((Player.Position - CenterOfScreen).Length() > Math.Min(Width, Height) / 5) {
         //    Vector2 delta = Player.Position - CenterOfScreen;
@@ -132,6 +139,7 @@ internal class GameWorld {
             } else
                 entity.Update(dT);
         }
+        MemoryTracker.Update(this, dT);
 
         //Player.Update(dT);
     }
