@@ -11,13 +11,21 @@ internal abstract class Entity {
     public Vector2 Position { get; set; }
     public float Rotation { get; set; }
 
+    public abstract float CollisionRadius { get; }
+    public abstract Vector2 Facing { get; }
+
+    public eEntityStates State { get; protected set; }
+
     public bool IsDead { get; protected set; }
+    public bool HasMoved { get; protected set; }
 
     protected Entity(string name, Vector2 position) {
         Id = Guid.NewGuid();
         Name = name;
         Position = position;
         Rotation = 0;
+
+        HasMoved = false;
     }
 
     public void Load(GameWorld world) {
@@ -32,6 +40,14 @@ internal abstract class Entity {
         IsDead = true;
         UnloadInternal();
         World = null;
+    }
+
+    public void SetState(eEntityStates state) {
+        State = State | state;
+    }
+
+    public void RemoveState(eEntityStates state) {
+        State = State & (~state);
     }
 
     public virtual void UnloadInternal() {

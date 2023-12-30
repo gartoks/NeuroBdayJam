@@ -1,10 +1,13 @@
 ﻿using NeuroBdayJam.App;
+using NeuroBdayJam.Game.Abilities;
+using NeuroBdayJam.Game.Memories;
 using NeuroBdayJam.Game.Utils;
 using NeuroBdayJam.Game.World;
 using NeuroBdayJam.Graphics;
 using NeuroBdayJam.ResourceHandling;
 using NeuroBdayJam.ResourceHandling.Resources;
 using NeuroBdayJam.Util;
+using NeuroBdayJam.Util.Extensions;
 using Raylib_CsLo;
 using System.Numerics;
 
@@ -18,25 +21,32 @@ internal sealed class Neuro : Entity {
     private FrameAnimator FaceLeftAnimator { get; set; }
     private FrameAnimator FaceRightAnimator { get; set; }
 
-    public float CollisionRadius { get; }
+    public override float CollisionRadius => 0.3f;
+
     public float Speed { get; private set; }
 
-    private Vector2 Facing => Raylib.GetMousePosition() / GameWorld.TILE_SIZE - Position;
+    public override Vector2 Facing => Raylib.GetMousePosition() / GameWorld.TILE_SIZE - Position;
+
+    private Ability Camouflage { get; }
+    private Ability Dash { get; }
+    private Ability Stun { get; }
 
     private bool SpawnedStep { get; set; }
     private (int x, int y) MovementDirection { get; set; }
     private FrameAnimator LastAnimator { get; set; }
-    private bool WasMoving { get; set; }
+    private bool HasMovedToNewTile { get; set; }
 
     public Neuro(Vector2 position)
         : base("Neuro", position) {
 
         Speed = 2.0f;
-        CollisionRadius = 0.3f;
+
+        Camouflage = new CamouflageAbility();
+        Dash = new DashAbility();
+        //Stun = ;
 
         MovementDirection = (0, 0);
-        LastAnimator = null;
-        WasMoving = false;
+        HasMovedToNewTile = false;
     }
 
     public override void LoadInternal() {
@@ -61,34 +71,63 @@ internal sealed class Neuro : Entity {
     public override void Render(float dT) {
         //IdleTexture.Draw(new Rectangle(Position.X * GameWorld.TILE_SIZE, (Position.Y - 0.3f) * GameWorld.TILE_SIZE, GameWorld.TILE_SIZE, GameWorld.TILE_SIZE), new Vector2(0.5f, 0.5f), 0, new Color(80, 92, 160, 255));
 
-        FrameAnimator animator = GetAnimator(out bool isMoving);
+        FrameAnimator animator = GetAnimator(out bool hasMovedToNewTile);
 
         if (animator.IsReady) {
-            if (isMoving)
+            if (hasMovedToNewTile)
                 animator.StartSequence("walk");
             else
                 animator.StartSequence("idle");
         }
 
         if (LastAnimator != animator) {
-            if (isMoving && WasMoving) {
+            if (hasMovedToNewTile && HasMovedToNewTile) {
                 animator.StartSequence("walk", LastAnimator.FrameIndex);
-            } else if (isMoving)
+            } else if (hasMovedToNewTile)
                 animator.StartSequence("walk");
             else
                 animator.StartSequence("idle");
 
             LastAnimator = animator;
-            WasMoving = isMoving;
+            HasMovedToNewTile = hasMovedToNewTile;
         }
 
-        animator.Render(dT, new Rectangle(Position.X * GameWorld.TILE_SIZE, (Position.Y - 0.3f) * GameWorld.TILE_SIZE, GameWorld.TILE_SIZE, GameWorld.TILE_SIZE), 0, new Vector2(0.5f, 0.5f), Raylib.WHITE/*new Color(80, 92, 160, 255)*/);
+        Color color = Raylib.WHITE;
+
+        if (State.HasFlag(eEntityStates.Hidden))
+            color = color.ChangeAlpha(32);
+
+        animator.Render(dT, new Rectangle(Position.X * GameWorld.TILE_SIZE, (Position.Y - 0.3f) * GameWorld.TILE_SIZE, GameWorld.TILE_SIZE, GameWorld.TILE_SIZE), 0, new Vector2(0.5f, 0.5f), color/*new Color(80, 92, 160, 255)*/);
 
         if (Application.DRAW_DEBUG)
             Raylib.DrawCircleLines((int)(Position.X * GameWorld.TILE_SIZE), (int)(Position.Y * GameWorld.TILE_SIZE), CollisionRadius * GameWorld.TILE_SIZE, Raylib.LIME);
     }
 
     public override void Update(float dT) {
+        UpdateMovement(dT);
+
+        UpdateAbilities(dT);
+    }
+
+    private void UpdateAbilities(float dT) {
+        Camouflage.Update(dT);
+        if (MemoryTracker.IsMemoryCollected("Memory 1") && Input.IsHotkeyActive(GameHotkeys.USE_MEMORY_1) && Camouflage.IsReady)
+            Camouflage.Use(this);
+
+        Dash.Update(dT);
+        if (MemoryTracker.IsMemoryCollected("Memory 2") && Input.IsHotkeyActive(GameHotkeys.USE_MEMORY_2) && Dash.IsReady)
+            Dash.Use(this);
+
+        /*Stun.Update(dT);
+        if (MemoryTracker.IsMemoryCollected("Memory 3") && Input.IsHotkeyActive(GameHotkeys.USE_MEMORY_3) && Stun.IsReady) {
+
+        }*/
+    }
+
+    private void UpdateMovement(float dT) {
+        if (State.HasFlag(eEntityStates.Stunned))
+            return;
+
         float speed = Speed;
         if (Input.IsHotkeyDown(GameHotkeys.SPRINT))
             speed *= 1.5f;
@@ -117,6 +156,8 @@ internal sealed class Neuro : Entity {
         }
         MovementDirection = (xDir, yDir);
 
+        HasMoved = movement.LengthSquared() > 0;
+
         if (movement.LengthSquared() <= 0)
             return;
 
@@ -124,7 +165,6 @@ internal sealed class Neuro : Entity {
         Vector2 newPosition = Position + movement * dT;
 
         IReadOnlyList<Rectangle> colliders = World.GetSurroundingTileColliders(newPosition);
-
         Vector2 mtv = Collisions.ResolveCollisionCircleRects(newPosition, CollisionRadius, colliders);
         newPosition += mtv;
 

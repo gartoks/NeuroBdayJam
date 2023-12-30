@@ -8,5 +8,8 @@ internal static class GameHotkeys {
     public const string SPRINT = "sprint";
     public const string SNEAK = "sneak";
     public const string INTERACT = "interact";
+    public const string USE_MEMORY_1 = "use_memory_1";
+    public const string USE_MEMORY_2 = "use_memory_2";
+    public const string USE_MEMORY_3 = "use_memory_3";
 
 }

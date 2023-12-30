@@ -2,6 +2,7 @@
 using NeuroBdayJam.Game.Utils;
 using NeuroBdayJam.Game.World.Generation;
 using Raylib_CsLo;
+using System.Diagnostics;
 
 namespace NeuroBdayJam.Game.Scenes;
 /// <summary>
@@ -57,7 +58,7 @@ R 13
         WorldGenerator.CollapseCell(0, 0, 12);
         WorldGenerator.Store(true);
         WorldGenerator.GenerateEverything(true);
-        
+
         CurrentX = CurrentY = 0;
 
         Input.RegisterHotkey("reset_generation", KeyboardKey.KEY_R, new KeyboardKey[0]);
@@ -66,6 +67,7 @@ R 13
         Input.RegisterHotkey(GameHotkeys.MOVE_LEFT, KeyboardKey.KEY_A);
         Input.RegisterHotkey(GameHotkeys.MOVE_DOWN, KeyboardKey.KEY_S);
         Input.RegisterHotkey(GameHotkeys.MOVE_RIGHT, KeyboardKey.KEY_D);
+
     }
 
     /// <summary>
@@ -73,22 +75,23 @@ R 13
     /// </summary>
     /// <param name="dT">The delta time since the last frame, typically used for frame-rate independent updates.</param>
     internal override void Update(float dT) {
+        Stopwatch watch = new Stopwatch();
 
-        if (Input.IsHotkeyDown(GameHotkeys.MOVE_UP)){
+        if (Input.IsHotkeyDown(GameHotkeys.MOVE_UP)) {
             WorldGenerator.GenerateTileRow(CurrentY + WorldGenerator.Height);
             CurrentY++;
         }
-        if (Input.IsHotkeyDown(GameHotkeys.MOVE_DOWN)){
-            WorldGenerator.GenerateTileRow(CurrentY-1);
+        if (Input.IsHotkeyDown(GameHotkeys.MOVE_DOWN)) {
+            WorldGenerator.GenerateTileRow(CurrentY - 1);
             CurrentY--;
         }
 
-        if (Input.IsHotkeyDown(GameHotkeys.MOVE_LEFT)){
+        if (Input.IsHotkeyDown(GameHotkeys.MOVE_LEFT)) {
             WorldGenerator.GenerateTileColumn(CurrentX + WorldGenerator.Width);
             CurrentX++;
         }
-        if (Input.IsHotkeyDown(GameHotkeys.MOVE_RIGHT)){
-            WorldGenerator.GenerateTileColumn(CurrentX-1);
+        if (Input.IsHotkeyDown(GameHotkeys.MOVE_RIGHT)) {
+            WorldGenerator.GenerateTileColumn(CurrentX - 1);
             CurrentX--;
         }
 
@@ -128,7 +131,6 @@ R 13
         }
 
         Console.WriteLine($"Execution Time: {watch.ElapsedMilliseconds} ms");
-
     }
 
     /// <summary>

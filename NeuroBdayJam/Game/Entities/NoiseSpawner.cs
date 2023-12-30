@@ -5,10 +5,15 @@ namespace NeuroBdayJam.Game.Entities;
 internal sealed class NoiseSpawner : Entity {
     private const float RADIUS_GROWTH_SPEED = 2.5f;
 
+    public override Vector2 Facing => Vector2.Zero;
+
+    public override float CollisionRadius => 0;
+
     private float NoiseStrength { get; }
     private float CurrentRadius { get; set; }
 
     private HashSet<WorldTile> AffectedTiles { get; }
+
 
     public NoiseSpawner(Vector2 position, float noiseStrength)
         : base("Noise Spawner", position) {

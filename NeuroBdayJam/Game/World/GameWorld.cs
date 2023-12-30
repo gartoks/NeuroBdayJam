@@ -1,4 +1,6 @@
 ﻿using NeuroBdayJam.Game.Entities;
+using NeuroBdayJam.Game.Entities.Enemies;
+using NeuroBdayJam.Game.Entities.Memories;
 using NeuroBdayJam.Game.Memories;
 using NeuroBdayJam.ResourceHandling;
 using NeuroBdayJam.ResourceHandling.Resources;
@@ -14,7 +16,7 @@ internal class GameWorld {
 
     public Neuro Player { get; set; }
     private HashSet<Entity> Entities { get; }
-    public Memory? Memory { get; set; }
+    public Memory? ActiveMemory { get; set; }
     private VedalTerminal VedalTerminal { get; set; }
 
     public TextureAtlas MiscAtatlas { get; private set; }
@@ -31,20 +33,21 @@ internal class GameWorld {
         TextureAtlasResource miscAtlasResource = ResourceManager.TextureAtlasLoader.Get("misc_atlas");
         ResourceManager.TextureAtlasLoader.Load("player_animations");
 
-
         tilesetResource.WaitForLoad();
         miscAtlasResource.WaitForLoad();
-
 
         Tileset = tilesetResource.Resource;
         MiscAtatlas = miscAtlasResource.Resource;
 
         Player = new Neuro(new Vector2(1.5f, 1.5f));
         AddEntity(Player);
-        AddEntity(new Worm(new Vector2(5.5f, 5.5f)));
+        ActiveMemory = new Memory(new Vector2(5.5f, 5.5f), MemoryTracker.GetRandomUncollectedMemory());
+        AddEntity(ActiveMemory);
+        VedalTerminal = new VedalTerminal(new Vector2(1.5f, 7.5f));
+        AddEntity(VedalTerminal);
 
-        Memory = new Memory(this, new Vector2(5.5f, 5.5f), MemoryTracker.GetRandomUncollectedMemory());
-        VedalTerminal = new VedalTerminal(this, new Vector2(1.5f, 7.5f));
+        // TODO TESTING
+        AddEntity(new Worm(new Vector2(5.5f, 5.5f)));
     }
 
     internal void Update(float dT) {
@@ -67,7 +70,7 @@ internal class GameWorld {
 
         Player.Update(dT);
         VedalTerminal.Update(dT);
-        Memory?.Update(dT);
+        ActiveMemory?.Update(dT);
     }
 
     internal void Render(float dT) {
@@ -82,7 +85,7 @@ internal class GameWorld {
                 entity.Render(dT);
         }
 
-        Memory?.Render(dT);
+        ActiveMemory?.Render(dT);
         VedalTerminal.Render(dT);
         Player.Render(dT);
     }

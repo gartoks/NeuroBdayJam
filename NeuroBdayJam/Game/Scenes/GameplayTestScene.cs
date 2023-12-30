@@ -1,11 +1,11 @@
-﻿using System.Numerics;
-using NeuroBdayJam.App;
+﻿using NeuroBdayJam.App;
 using NeuroBdayJam.Game.Gui;
 using NeuroBdayJam.Game.Memories;
 using NeuroBdayJam.Game.Utils;
 using NeuroBdayJam.Game.World;
 using NeuroBdayJam.Game.World.Generation;
 using Raylib_CsLo;
+using System.Numerics;
 
 namespace NeuroBdayJam.Game.Scenes;
 /// <summary>
@@ -30,6 +30,9 @@ internal class GameplayTestScene : Scene {
         Input.RegisterHotkey(GameHotkeys.SNEAK, KeyboardKey.KEY_LEFT_CONTROL);
         Input.RegisterHotkey(GameHotkeys.SPRINT, KeyboardKey.KEY_LEFT_SHIFT);
         Input.RegisterHotkey(GameHotkeys.INTERACT, KeyboardKey.KEY_E);
+        Input.RegisterHotkey(GameHotkeys.USE_MEMORY_1, KeyboardKey.KEY_ONE);
+        Input.RegisterHotkey(GameHotkeys.USE_MEMORY_2, KeyboardKey.KEY_TWO);
+        Input.RegisterHotkey(GameHotkeys.USE_MEMORY_3, KeyboardKey.KEY_THREE);
 
         WorldGenerator = new WorldGenerator(15, 10);
         RuleParser parser = new();
@@ -58,39 +61,39 @@ R 7
 
         int id = 0;
         ExportSettings = new Dictionary<ulong, ulong>{
-            {(ulong)1 << id++, (ulong)1},
-            {(ulong)1 << id++, (ulong)1},
-            {(ulong)1 << id++, (ulong)1},
-            {(ulong)1 << id++, (ulong)1},
+            {(ulong)1 << id++, 1},
+            {(ulong)1 << id++, 1},
+            {(ulong)1 << id++, 1},
+            {(ulong)1 << id++, 1},
 
-            {(ulong)1 << id++, (ulong)1},
-            {(ulong)1 << id++, (ulong)1},
-            {(ulong)1 << id++, (ulong)1},
-            {(ulong)1 << id++, (ulong)1},
+            {(ulong)1 << id++, 1},
+            {(ulong)1 << id++, 1},
+            {(ulong)1 << id++, 1},
+            {(ulong)1 << id++, 1},
 
-            {(ulong)1 << id++, (ulong)2},
-            {(ulong)1 << id++, (ulong)2},
-            {(ulong)1 << id++, (ulong)2},
-            {(ulong)1 << id++, (ulong)2},
-            {(ulong)1 << id++, (ulong)2},
-            {(ulong)1 << id++, (ulong)2},
-            {(ulong)1 << id++, (ulong)2},
-            {(ulong)1 << id++, (ulong)2},
-            {(ulong)1 << id++, (ulong)2},
-            {(ulong)1 << id++, (ulong)2},
-            {(ulong)1 << id++, (ulong)2},
-            {(ulong)1 << id++, (ulong)2},
-            {(ulong)1 << id++, (ulong)2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
+            {(ulong)1 << id++, 2},
 
-            {(ulong)1 << id++, (ulong)1},
-            {(ulong)1 << id++, (ulong)1},
-            {(ulong)1 << id++, (ulong)1},
-            {(ulong)1 << id++, (ulong)1},
+            {(ulong)1 << id++, 1},
+            {(ulong)1 << id++, 1},
+            {(ulong)1 << id++, 1},
+            {(ulong)1 << id++, 1},
 
-            {(ulong)1 << id++, (ulong)1},
-            {(ulong)1 << id++, (ulong)1},
-            {(ulong)1 << id++, (ulong)1},
-            {(ulong)1 << id++, (ulong)1},
+            {(ulong)1 << id++, 1},
+            {(ulong)1 << id++, 1},
+            {(ulong)1 << id++, 1},
+            {(ulong)1 << id++, 1},
         };
 
         World = new GameWorld(WorldGenerator.ExportToUlongs(ExportSettings));

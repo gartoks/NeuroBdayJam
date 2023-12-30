@@ -3,20 +3,20 @@ using NeuroBdayJam.Game.World;
 using Raylib_CsLo;
 using System.Numerics;
 
-namespace NeuroBdayJam.Game.Entities;
+namespace NeuroBdayJam.Game.Entities.Memories;
 internal sealed class Memory : Entity {
-    public float CollisionRadius { get; }
-
-    public int memoryIndex { get; private set; }
-
     private const float MEMORY_RADIUS = 0.2f;
     private static Color Color { get; } = new Color(0, 128, 160, 255);
 
-    public Memory(GameWorld world, Vector2 position, int memoryIndex)
-        : base(world, "Memory", position) {
+    public override float CollisionRadius => MEMORY_RADIUS;
+    public int MemoryIndex { get; private set; }
 
-        CollisionRadius = 0.2f;
-        this.memoryIndex = memoryIndex;
+    public override Vector2 Facing => Vector2.Zero;
+
+    public Memory(Vector2 position, int memoryIndex)
+        : base("Memory", position) {
+
+        MemoryIndex = memoryIndex;
     }
 
     public override void Render(float dT) {
@@ -27,10 +27,13 @@ internal sealed class Memory : Entity {
     }
 
     public override void Update(float dT) {
-        float minDistance = World.Player.CollisionRadius + CollisionRadius;            
-        if ((World.Player.Position - Position).LengthSquared() <= minDistance * minDistance){
-            MemoryTracker.CollectMemory(memoryIndex);
-            World.Memory = null;
-        }
+        float minDistance = World!.Player.CollisionRadius + CollisionRadius;
+        if ((World.Player.Position - Position).LengthSquared() > minDistance * minDistance)
+            return;
+
+        MemoryTracker.CollectMemory(MemoryIndex);
+
+        World.ActiveMemory = null;
+        IsDead = true;
     }
 }

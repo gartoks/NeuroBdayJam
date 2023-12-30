@@ -33,7 +33,6 @@ internal sealed class WorldTile : IEquatable<WorldTile?> {
     internal void Update(float dT) {
         float currentNoise = NoiseValue;
         NoiseValue -= dT * 0.25f;
-        float dNoise = currentNoise - NoiseValue;
     }
 
     internal void Render(float dT) {
