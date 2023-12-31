@@ -395,10 +395,14 @@ internal class GameWorld {
     }
 
     public Vector2 ScreenToWorldSpace(Vector2 vec) {
-        return vec / TILE_SIZE + TopLeftCorner;
+        Vector2 visibleTileSize = GetVisibleTileSize();
+        Vector2 offset = (new Vector2(Width, Height) - visibleTileSize) / 2;
+        return vec / TILE_SIZE + TopLeftCorner - offset;
     }
     public Vector2 WorldToScreenSpace(Vector2 vec) {
-        return (vec - TopLeftCorner) * TILE_SIZE;
+        Vector2 visibleTileSize = GetVisibleTileSize();
+        Vector2 offset = (new Vector2(Width, Height) - visibleTileSize) / 2;
+        return (vec - TopLeftCorner + offset) * TILE_SIZE;
     }
 
     public static Vector2 GetVisibleTileSize() {
