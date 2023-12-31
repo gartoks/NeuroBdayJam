@@ -1,3 +1,4 @@
+using NeuroBdayJam.App;
 using NeuroBdayJam.Audio;
 using NeuroBdayJam.Game.World;
 
@@ -18,7 +19,10 @@ internal class MemoryTracker {
     private List<int> TemporaryMemories;
     private List<int> UncollectedMemories;
 
+    private int MusicVolumeBeforeChange = 0;
+
     private int CurrentlyPlayingMemoryIndex = -1;
+    private bool WaitingForMemoryPlay = false;
 
     static MemoryTracker() {
         AllMemories = new(){
@@ -58,6 +62,9 @@ internal class MemoryTracker {
 
         AudioManager.PlaySound(AllMemories[index].ClipFilename);
         CurrentlyPlayingMemoryIndex = index;
+        MusicVolumeBeforeChange = Application.Settings.MusicVolume;
+        Application.Settings.MusicVolume = (int)((float)Application.Settings.MusicVolume * 0.3);
+        WaitingForMemoryPlay = true;
     }
 
     public void InternalizeMemories() {
@@ -75,8 +82,11 @@ internal class MemoryTracker {
         if (CurrentlyPlayingMemoryIndex >= 0) {
             if (AudioManager.IsSoundPlaying(AllMemories[CurrentlyPlayingMemoryIndex].ClipFilename)) {
                 world.TimeScale = 0;
-            } else {
+                WaitingForMemoryPlay = false;
+            } else if (!WaitingForMemoryPlay){
                 world.TimeScale = 1;
+                Application.Settings.MusicVolume = MusicVolumeBeforeChange;
+                CurrentlyPlayingMemoryIndex = -1;
             }
         }
     }

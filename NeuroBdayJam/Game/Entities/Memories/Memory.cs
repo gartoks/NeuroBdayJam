@@ -48,6 +48,12 @@ internal sealed class Memory : Entity {
         MemoryIndex = World.MemoryTracker.GetNextUncollectedMemory();
     }
 
+    public override void UnloadInternal(){
+        base.UnloadInternal();
+
+        World.ActiveMemory = null;
+    }
+
     public override void Render(float dT) {
         Time += dT;
 
