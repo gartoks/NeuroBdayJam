@@ -6,6 +6,7 @@ using NeuroBdayJam.Game.World;
 using NeuroBdayJam.Graphics;
 using NeuroBdayJam.ResourceHandling;
 using NeuroBdayJam.ResourceHandling.Resources;
+using NeuroBdayJam.Util.Extensions;
 using Raylib_CsLo;
 using System.Numerics;
 
@@ -240,17 +241,20 @@ internal class GameScene : Scene {
         }
     }
 
-    private void DrawCompass(){
+    private void DrawCompass() {
         Vector2 compassTarget = World.PlayerSpawn + new Vector2(0, -1.5f);
-        
-        float compassRadius = 50;
-        Vector2 compassPosition = new Vector2(40 + compassRadius/2);
-        Vector2 compassDirection = Vector2.Normalize(compassTarget - World.Player.Position);
+        Vector2 compassVector = compassTarget - World.Player.Position;
 
-        Raylib.DrawCircleV(compassPosition, compassRadius + 3, new Color(70, 70, 70, 255));
-        Raylib.DrawCircleV(compassPosition, compassRadius, new Color(150, 150, 150, 255));
+        if (compassVector.LengthSquared() < 10 * 10)
+            return;
 
-        Raylib.DrawLineEx(compassPosition, compassPosition + compassDirection * compassRadius * 0.9f, 5, Raylib.RED);
+        float compassRadius = 40;
+        Vector2 compassPosition = new Vector2(Application.BASE_WIDTH / 2f, Application.BASE_HEIGHT / 2f);
+        Vector2 compassDirection = Vector2.Normalize(compassVector);
+
+        SubTexture? texture = GameManager.MiscAtlas.GetSubTexture("tutel_talk");
+
+        texture?.Draw(compassPosition + compassDirection * Application.BASE_HEIGHT * 0.4f, new Vector2(compassRadius), new Vector2(0.5f), 0, Raylib.WHITE.ChangeAlpha(128));
     }
 
     internal override void RenderPostProcessed(ShaderResource shader, float dT) {
