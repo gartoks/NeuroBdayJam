@@ -84,7 +84,7 @@ internal class GameScene : Scene {
             AbilityPanels = new(){
                 new("Memory 1", World.Player.Camouflage, new GuiTexturePanel("0.08 0.95 90px 90px", GameManager.MiscAtlas.GetSubTexture("ability_camouflage")!, new Vector2(0.5f, 0.5f))),
                 new("Memory 2", World.Player.Dash, new GuiTexturePanel("0.14 0.95 90px 90px", GameManager.MiscAtlas.GetSubTexture("ability_dash")!, new Vector2(0.5f, 0.5f))),
-                //new("Memory 3", World.Player.Stun, new GuiTexturePanel("0.20 0.95 90px 90px", GameManager.MiscAtlas.GetSubTexture("ability_stun")!, new Vector2(0.5f, 0.5f))),
+                new("Memory 3", World.Player.Stun, new GuiTexturePanel("0.20 0.95 90px 90px", GameManager.MiscAtlas.GetSubTexture("ability_stun")!, new Vector2(0.5f, 0.5f))),
             };
 
             foreach ((string _, Ability ability, GuiTexturePanel panel) in AbilityPanels) {
@@ -94,6 +94,13 @@ internal class GameScene : Scene {
         });
 
         MemoryTrackerLabel = new(0, Application.BASE_HEIGHT - 50, "0/3", 50, new Vector2(0, 1));
+
+        ResourceManager.TextLoader.Load("dialogue_intro");
+        ResourceManager.TextLoader.Load("dialogue_memory_1");
+        ResourceManager.TextLoader.Load("dialogue_memory_2");
+        ResourceManager.TextLoader.Load("dialogue_memory_3");
+        ResourceManager.TextLoader.Load("dialogue_memory_4");
+        ResourceManager.TextLoader.Load("dialogue_memory_5");
 
         AnimationsTextureAtlas = ResourceManager.TextureAtlasLoader.Get("player_animations");
         LoadingIndicatorAnimator = new FrameAnimator(1f / 12f);
@@ -183,8 +190,8 @@ internal class GameScene : Scene {
         }
 
         if (IsPaused && PauseMenuQuitButton.IsClicked) {
-            if (World.MemoryTracker.NumTemproaryMemories > 0) {
-                ConfirmMenuText.Text = $"You'll loose {World.MemoryTracker.NumTemproaryMemories} memor{(World.MemoryTracker.NumTemproaryMemories > 1 ? "ies" : "y")}. Continue?";
+            if (World.MemoryTracker.HoldsMemory) {
+                ConfirmMenuText.Text = $"You'll loose the collected memory. Continue?";
                 IsQuitting = true;
             } else {
                 GameManager.SetScene(new MainMenuScene());

@@ -48,7 +48,7 @@ internal sealed class Memory : Entity {
         MemoryIndex = World.MemoryTracker.GetNextUncollectedMemory();
     }
 
-    public override void UnloadInternal(){
+    public override void UnloadInternal() {
         base.UnloadInternal();
 
         World.ActiveMemory = null;
@@ -86,11 +86,12 @@ internal sealed class Memory : Entity {
         if ((World.Player.Position - Position).LengthSquared() > minDistance * minDistance)
             return;
 
-        World.MemoryTracker.CollectMemory(MemoryIndex);
-        AudioManager.PlaySound("get_memory");
+        if (World.MemoryTracker.TryCollectMemory(MemoryIndex)) {
+            AudioManager.PlaySound("get_memory");
 
-        World.ActiveMemory = null;
-        IsDead = true;
+            World.ActiveMemory = null;
+            IsDead = true;
+        }
     }
 
     private static float AnimWrap(float t) => (MathF.Cos(t * MathF.Tau + MathF.PI) / 2f + 0.5f) % 1f;

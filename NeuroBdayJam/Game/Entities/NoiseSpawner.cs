@@ -39,8 +39,7 @@ internal sealed class NoiseSpawner : Entity {
                         if (offset.LengthSquared() > CurrentRadius * CurrentRadius)
                             continue;
 
-                        Vector2 p = World!.WorldToTileIndexSpace(new Vector2(Position.X + xi, Position.Y + yi));
-                        WorldTile? tile = World!.GetTile(p);
+                        WorldTile? tile = World!.GetTile(new Vector2(Position.X + xi, Position.Y + yi));
 
                         if (tile != null && tile.Id == 1 && !AffectedTiles.Contains(tile)) {
                             tiles.Add(tile);

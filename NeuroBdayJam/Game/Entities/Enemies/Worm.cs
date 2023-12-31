@@ -1,4 +1,5 @@
-﻿using NeuroBdayJam.Game.World;
+﻿using NeuroBdayJam.Game.Scenes;
+using NeuroBdayJam.Game.World;
 using NeuroBdayJam.Graphics;
 using NeuroBdayJam.Util;
 using NeuroBdayJam.Util.Extensions;
@@ -12,9 +13,10 @@ internal class Worm : Enemy {
     private const float MAX_SEGMENT_DISTANCE = 0.6f;
     private const float MAX_LEG_DISTANCE = 0.01f;
     private const float SEGMENT_SIZE = 0.8f;
-    private static Color IdleColor { get; } = new Color(16, 64, 16, 255);
+    private static Color IdleColor { get; } = new Color(0, 64, 0, 192);
     private static Color SearchColor { get; } = new Color(128, 128, 16, 255);
     private static Color ChaseColor { get; } = new Color(255, 16, 16, 255);
+    private const float CHASE_DISTANCE = 9f;
 
     public override float CollisionRadius => SEGMENT_SIZE / 2f;
     public float Speed { get; }
@@ -28,7 +30,7 @@ internal class Worm : Enemy {
     public Worm(Vector2 position)
         : base("Worm", position) {
 
-        Speed = 1f;
+        Speed = 1.25f;
 
         Segments = new WormSegment[SEGMENT_COUNT];
 
@@ -57,10 +59,19 @@ internal class Worm : Enemy {
 
         WorldTile? currenTile = World?.GetTile(Position);
 
-        if (vectorToPlayer.LengthSquared() > 10 * 10 || (World!.Player.Position - World.PlayerSpawn).LengthSquared() < 10 * 10) {
+        float distanceToPlayer = vectorToPlayer.Length();
+        if (distanceToPlayer > CHASE_DISTANCE || (World!.Player.Position - World.PlayerSpawn).LengthSquared() < 10 * 10) {
             vectorToPlayer = Vector2.Zero;
-        } else if (vectorToPlayer.LengthSquared() < 3 * 3 || (currenTile != null && currenTile?.NoiseValue > 0)) {
+        }
+        if (distanceToPlayer < CHASE_DISTANCE || (currenTile != null && currenTile?.NoiseValue > 0)) {
             ThreatLevel = 1;
+        }
+        if (distanceToPlayer < 3 || (currenTile != null && currenTile?.NoiseValue > 0.3f)) {
+            ThreatLevel = 2;
+        }
+
+        if (distanceToPlayer < CollisionRadius && ((GameScene)GameManager.Scene).Cutscene == null) {
+            ((GameScene)GameManager.Scene).Cutscene = new Cutscene("death", () => GameManager.SetScene(new MainMenuScene()));
         }
 
         Vector2 directionToPlayer = Vector2.Normalize(vectorToPlayer);
@@ -152,6 +163,9 @@ internal class Worm : Enemy {
                 2 => ChaseColor,
                 _ => IdleColor,
             };
+
+            if (State.HasFlag(eEntityStates.Stunned))
+                color = Raylib.GRAY.ChangeAlpha(128);
 
             RaylibUtil.DrawRectLines((segment.Position) * GameWorld.TILE_SIZE, new Vector2(SEGMENT_SIZE) * scale0 * GameWorld.TILE_SIZE, -rotation, 4, color);
             RaylibUtil.DrawRectLines((segment.Position) * GameWorld.TILE_SIZE, new Vector2(SEGMENT_SIZE) * scale1 * GameWorld.TILE_SIZE, rotation + MathF.PI / 4f, 4, color);

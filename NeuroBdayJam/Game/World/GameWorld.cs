@@ -1,4 +1,5 @@
-﻿using NeuroBdayJam.Game.Entities;
+﻿using NeuroBdayJam.Audio;
+using NeuroBdayJam.Game.Entities;
 using NeuroBdayJam.Game.Entities.Enemies;
 using NeuroBdayJam.Game.Entities.Memories;
 using NeuroBdayJam.Game.Memories;
@@ -25,6 +26,7 @@ internal class GameWorld {
     public Vector2 PlayerSpawn { get; set; }
 
     private HashSet<Entity> Entities { get; }
+    public IEnumerable<Entity> AllEntities => Entities;
     public Memory? ActiveMemory { get; set; }
 
     public MemoryTracker MemoryTracker { get; }
@@ -47,7 +49,7 @@ internal class GameWorld {
         int tileWidth = (int)Math.Ceiling(visibleTileSize.X + 6);
         int tileHeight = (int)Math.Ceiling(visibleTileSize.Y + 6);
         WorldGenerator = new DefaultWorldGenerator(tileWidth, tileHeight);
-        MemoryTracker = new MemoryTracker();
+        MemoryTracker = new MemoryTracker(this);
 
         Tiles = new WorldTile[tileWidth, tileHeight];
         Entities = new HashSet<Entity>();
@@ -57,8 +59,8 @@ internal class GameWorld {
         PlayerSpawn = new Vector2(tileWidth / 2 + 0.5f, tileHeight / 2 + 0.5f);
 
         Spawnables = new(){
-            new(typeof(Memory), 0.0015f, tile => tile.Position.Length() > 25 && MemoryTracker.NumUncollectedMemories > 0 && ActiveMemory == null),
-            new(typeof(Worm), 0.005f, _ => true),
+            new(typeof(Memory), 0.0015f, tile => tile.Position.Length() > 7.5f * (1 + MemoryTracker.NumMemoriesCollected) && MemoryTracker.NumUncollectedMemories > 0 && ActiveMemory == null && !MemoryTracker.HoldsMemory),
+            new(typeof(Worm), 0.01f, _ => true),
         };
 
         TimeScale = 1;
@@ -75,6 +77,7 @@ internal class GameWorld {
         ResourceManager.SoundLoader.Load("Clips/intro_speech");
         TilesetResource tilesetResource = ResourceManager.TilesetLoader.Get("dark");
         ResourceManager.TextureAtlasLoader.Load("player_animations");
+        ResourceManager.TextureAtlasLoader.Load("player2_animations");
         ScanlinesShader = ResourceManager.ShaderLoader.Get("scanlines");
         BloomShader = ResourceManager.ShaderLoader.Get("bloom");
 
@@ -97,7 +100,8 @@ internal class GameWorld {
         // TODO TESTING
         //AddEntity(new Worm(new Vector2(5.5f, 5.5f)));
 
-        ((GameScene)GameManager.Scene).Cutscene = new Cutscene("dialogue_intro", "Clips/intro_speech");
+        AudioManager.PlaySound("Clips/spawn");
+        ((GameScene)GameManager.Scene).Cutscene = new Cutscene("dialogue_intro", () => AudioManager.PlaySound("Clips/intro_speech"));
     }
 
     public void Unload() {
@@ -158,7 +162,6 @@ internal class GameWorld {
             } else
                 entity.Update(dT);
         }
-        MemoryTracker.Update(this, dT);
 
         //Player.Update(dT);
     }

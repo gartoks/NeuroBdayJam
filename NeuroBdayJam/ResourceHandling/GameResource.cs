@@ -1,11 +1,11 @@
 ﻿namespace NeuroBdayJam.ResourceHandling;
 
-internal delegate object? ResourceRetrieverDelegate(string key);    // sadly this has to be object? and cannot be T? because delegates dont work properly when T is a struct
+public delegate object? ResourceRetrieverDelegate(string key);    // sadly this has to be object? and cannot be T? because delegates dont work properly when T is a struct
 
 /// <summary>
 /// Base class for Game resources.
 /// </summary>
-internal abstract class GameResource<T> {
+public abstract class GameResource<T> {
     /// <summary>
     /// The key of the resource.
     /// </summary>

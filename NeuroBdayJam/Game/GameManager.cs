@@ -24,7 +24,7 @@ public static class GameManager {
 
     public static TextureAtlas MiscAtlas { get; private set; }
 
-    private static IReadOnlyList<MusicResource> Music { get; set; }
+    public static List<MusicResource> Music { get; private set; }
     private static bool WasMusicQueued { get; set; }
 
     static GameManager() {
@@ -48,7 +48,7 @@ public static class GameManager {
 
         Music = new MusicResource[] {
             ResourceManager.MusicLoader.Get("music_1"),
-        };
+        }.ToList();
 
         Scene = new MainMenuScene();
     }

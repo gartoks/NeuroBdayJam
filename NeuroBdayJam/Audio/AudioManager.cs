@@ -78,7 +78,7 @@ internal static class AudioManager {
     /// Starts playing the sound with the given name. If the sound was playing already, it is restarted.
     /// </summary>
     /// <param name="name">The resource key of the sound to play.</param>
-    internal static void PlaySound(string name) {
+    internal static void PlaySound(string name, float volume = 1) {
         if (PlayingSounds.ContainsKey(name))
             StopSound(name);
 
@@ -91,7 +91,7 @@ internal static class AudioManager {
 
         SoundActionQueue.Add(() => {
             PlayingSounds[name] = sound;
-            Raylib.SetSoundVolume(sound.Resource, Application.Settings.SoundVolume / 100f);
+            Raylib.SetSoundVolume(sound.Resource, volume * Application.Settings.SoundVolume / 100f);
             Raylib.PlaySound(sound.Resource);
         });
     }

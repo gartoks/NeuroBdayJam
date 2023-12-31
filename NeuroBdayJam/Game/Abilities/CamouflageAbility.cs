@@ -5,7 +5,7 @@ namespace NeuroBdayJam.Game.Abilities;
 internal sealed class CamouflageAbility : Ability {
 
     public CamouflageAbility()
-        : base("Camouflage", 30, 4) {
+        : base("Camouflage", 20, 4) {
     }
 
     protected override void OnUse(Entity user) {
@@ -18,6 +18,6 @@ internal sealed class CamouflageAbility : Ability {
     }
 
     protected override bool ShouldCancel(Entity user) {
-        return user.HasMoved;
+        return false;
     }
 }
