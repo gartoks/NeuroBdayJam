@@ -12,5 +12,6 @@ internal static class GameHotkeys {
     public const string USE_MEMORY_2 = "use_memory_2";
     public const string USE_MEMORY_3 = "use_memory_3";
     public const string PAUSE = "pause";
+    public const string ADVANCE_DIALOGUE = "advance_dialogue";
 
 }

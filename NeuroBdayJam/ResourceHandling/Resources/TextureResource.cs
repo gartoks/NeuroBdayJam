@@ -5,6 +5,9 @@ using System.Numerics;
 namespace NeuroBdayJam.ResourceHandling.Resources;
 
 public interface IDrawableResource {
+    public float Width { get; }
+    public float Height { get; }
+
     void Draw(Rectangle bounds, Vector2? pivot = null, float rotation = 0, Color? tint = null);
 }
 
@@ -12,6 +15,9 @@ public interface IDrawableResource {
 /// Game resource for textures.
 /// </summary>
 internal sealed class TextureResource : GameResource<Texture>, IDrawableResource {
+    public float Width => Resource.width;
+    public float Height => Resource.height;
+
     /// <summary>
     /// Constructor for a new texture resource.
     /// </summary>

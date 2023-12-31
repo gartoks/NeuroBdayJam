@@ -12,7 +12,7 @@ public static class GameManager {
     /// <summary>
     /// The currently active scene.
     /// </summary>
-    private static Scene Scene { get; set; }
+    public static Scene Scene { get; private set; }
     /// <summary>
     /// Flag indicating if the scene was loaded after setting a new scene.
     /// </summary>
@@ -21,6 +21,8 @@ public static class GameManager {
     /// Lock to prevent trying to change scene while rendering.
     /// </summary>
     private static object SceneLock = new();
+
+    public static TextureAtlas MiscAtlas { get; private set; }
 
     private static IReadOnlyList<MusicResource> Music { get; set; }
     private static bool WasMusicQueued { get; set; }
@@ -56,6 +58,9 @@ public static class GameManager {
     /// </summary>
     /// <param name="dT"></param>
     internal static void Update(float dT) {
+        if (MiscAtlas == null)
+            MiscAtlas = ResourceManager.TextureAtlasLoader.Get("misc_atlas").WaitForLoad();
+
         if (Music.Count > 0 && Music.All(m => !AudioManager.IsMusicPlaying(m.Key))) {
             if (WasMusicQueued)
                 return;

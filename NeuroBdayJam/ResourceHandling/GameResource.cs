@@ -67,10 +67,12 @@ internal abstract class GameResource<T> {
         _Resource = default;
     }
 
-    public void WaitForLoad() {
+    public T WaitForLoad() {
         while (!IsLoaded) {
             T? r = Resource;
             Thread.Sleep(1);
         }
+
+        return Resource;
     }
 }

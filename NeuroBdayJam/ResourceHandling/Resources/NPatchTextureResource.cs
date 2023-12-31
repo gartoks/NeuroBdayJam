@@ -10,6 +10,10 @@ internal record NPatchTexture(Texture Texture, int left, int right, int top, int
 /// Game resource for npatch textures.
 /// </summary>
 internal sealed class NPatchTextureResource : GameResource<NPatchTexture>, IDrawableResource {
+    public float Width => Resource.Texture.width;
+
+    public float Height => Resource.Texture.height;
+
     /// <summary>
     /// Constructor for a new npatch texture resource.
     /// </summary>

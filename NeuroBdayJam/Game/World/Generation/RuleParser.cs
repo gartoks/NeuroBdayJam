@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace NeuroBdayJam.Game.World.Generation;
 
 internal class RuleParser {
@@ -88,7 +90,7 @@ internal class RuleParser {
             string[] lineParts = line.Split(" ");
 
             if (lineParts[0] == "R") {
-                RotateTile(int.Parse(lineParts[1]));
+                RotateTile(int.Parse(lineParts[1], CultureInfo.InvariantCulture));
             } else {
                 ParseTile(line);
             }

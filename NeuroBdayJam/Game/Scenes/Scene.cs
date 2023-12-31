@@ -6,7 +6,7 @@ namespace NeuroBdayJam.Game.Scenes;
 /// <summary>
 /// Represents a base class for game scenes. Provides methods for scene lifecycle including loading, updating, drawing, and unloading.
 /// </summary>
-internal abstract class Scene {
+public abstract class Scene {
     /// <summary>
     /// Called when the scene is loaded. Override this method to provide custom scene initialization logic and to load resources.
     /// </summary>

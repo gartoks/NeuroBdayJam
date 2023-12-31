@@ -5,9 +5,7 @@ using NeuroBdayJam.Game.World;
 using NeuroBdayJam.Graphics;
 using NeuroBdayJam.ResourceHandling;
 using NeuroBdayJam.ResourceHandling.Resources;
-using NeuroBdayJam.Util;
 using Raylib_CsLo;
-using System.ComponentModel;
 using System.Numerics;
 
 namespace NeuroBdayJam.Game.Scenes;
@@ -18,6 +16,8 @@ internal class GameScene : Scene {
     private FrameAnimator LoadingIndicatorAnimator { get; set; }
     private TextureAtlasResource AnimationsTextureAtlas { get; set; }
     private GuiDynamicLabel MemoryTrackerLabel { get; set; }
+
+    private GuiTextButton MainMenuButton { get; set; }
 
     private GuiLabel PauseMenuText { get; set; }
     private GuiPanel PauseMenuPanel { get; set; }
@@ -32,9 +32,26 @@ internal class GameScene : Scene {
     private GameWorld World { get; set; }
     private bool IsWorldLoaded { get; set; }
     private bool IsLoadingTextureLoaded { get; set; }
-    private bool IsPaused { get; set; }
     private bool IsQuitting { get; set; }
-    private float StoredTimeScale { get; set; }
+
+    private bool _IsPaused { get; set; }
+    private bool IsPaused {
+        get => _IsPaused;
+        set {
+            _IsPaused = value;
+            UpdateWorldTimeScale();
+        }
+    }
+
+    private bool IsInCutscene => Cutscene != null;
+    private Cutscene? _Cutscene { get; set; }
+    public Cutscene? Cutscene {
+        get => _Cutscene;
+        set {
+            _Cutscene = value;
+            UpdateWorldTimeScale();
+        }
+    }
 
     /// <summary>
     /// Called when the scene is loaded. Override this method to provide custom scene initialization logic and to load resources.
@@ -67,6 +84,8 @@ internal class GameScene : Scene {
         LoadingIndicatorAnimator = new FrameAnimator(1f / 12f);
         IsLoadingTextureLoaded = false;
 
+        MainMenuButton = new GuiTextButton("0.99 0.99 0.05 0.05", "Menu", new Vector2(1, 1));
+
         PauseMenuPanel = new GuiPanel("0.5 0.7 0.3 0.3", "panel", new Vector2(0.25f, 0.5f));
         PauseMenuText = new GuiLabel("0.5 0.48 0.27 0.125", "Paused", new Vector2(0.5f, 0.5f));
         PauseMenuContinueButton = new GuiTextButton("0.5 0.56 0.27 0.0625", "Continue", new Vector2(0.5f, 0.5f));
@@ -77,8 +96,6 @@ internal class GameScene : Scene {
         ConfirmMenuQuitButton = new GuiTextButton("0.5 0.64 0.27 0.0625", "Quit", new Vector2(0.5f, 0.5f));
         ConfirmMenuCancelButton = new GuiTextButton("0.5 0.56 0.27 0.0625", "Cancel", new Vector2(0.5f, 0.5f));
     }
-
-
 
     /// <summary>
     /// Called every frame to update the scene's state. 
@@ -99,6 +116,8 @@ internal class GameScene : Scene {
         if (IsWorldLoaded) {
             World.Update(dT);
             MemoryTrackerLabel.Text = $"Memories: {World.MemoryTracker.NumMemoriesCollected}/{World.MemoryTracker.NumMemories}";
+
+            Cutscene?.Update(dT);
         }
     }
 
@@ -108,10 +127,14 @@ internal class GameScene : Scene {
     internal override void Render(float dT) {
         if (IsWorldLoaded) {
             World.Render(dT);
-            MemoryTrackerLabel.Draw();
 
-            DrawPauseMenu();
-            DrawConfirmMenu();
+            if (!IsInCutscene) {
+                MemoryTrackerLabel.Draw();
+                DrawPauseMenu();
+                DrawConfirmMenu();
+            } else {
+                DrawCutscene(dT);
+            }
 
         } else if (IsLoadingTextureLoaded) {
             if (LoadingIndicatorAnimator.IsReady) {
@@ -121,48 +144,50 @@ internal class GameScene : Scene {
         }
     }
 
-    internal void DrawPauseMenu(){
-        if (IsPaused && !IsQuitting){
+    private void DrawCutscene(float dT) {
+        Cutscene?.Render(dT);
+
+        if (Cutscene?.IsFinished ?? true) {
+            Cutscene = null;
+        }
+    }
+
+    private void DrawPauseMenu() {
+        if (IsPaused && !IsQuitting) {
             PauseMenuPanel.Draw();
             PauseMenuText.Draw();
             PauseMenuContinueButton.Draw();
             PauseMenuQuitButton.Draw();
+        } else if (!IsPaused) {
+            MainMenuButton.Draw();
         }
 
-        if (Input.IsHotkeyActive(GameHotkeys.PAUSE) || (IsPaused && PauseMenuContinueButton.IsClicked)){
-            if (IsPaused){
-                World.TimeScale = StoredTimeScale;
-            }
-            else{
-                StoredTimeScale = World.TimeScale;
-                World.TimeScale = 0;
-            }
+        if (Input.IsHotkeyActive(GameHotkeys.PAUSE) || (MainMenuButton.IsClicked && !IsPaused) || (IsPaused && PauseMenuContinueButton.IsClicked)) {
             IsPaused = !IsPaused;
         }
 
-        if (IsPaused && PauseMenuQuitButton.IsClicked){
-            if (World.MemoryTracker.NumTemproaryMemories > 0){
+        if (IsPaused && PauseMenuQuitButton.IsClicked) {
+            if (World.MemoryTracker.NumTemproaryMemories > 0) {
                 ConfirmMenuText.Text = $"You'll loose {World.MemoryTracker.NumTemproaryMemories} memor{(World.MemoryTracker.NumTemproaryMemories > 1 ? "ies" : "y")}. Continue?";
                 IsQuitting = true;
-            }
-            else{
+            } else {
                 GameManager.SetScene(new MainMenuScene());
             }
         }
     }
 
-    internal void DrawConfirmMenu(){
-        if (IsQuitting){
+    private void DrawConfirmMenu() {
+        if (IsQuitting) {
             ConfirmMenuPanel.Draw();
             ConfirmMenuText.Draw();
             ConfirmMenuCancelButton.Draw();
             ConfirmMenuQuitButton.Draw();
 
-            if (ConfirmMenuQuitButton.IsClicked){
+            if (ConfirmMenuQuitButton.IsClicked) {
                 IsQuitting = false;
                 GameManager.SetScene(new MainMenuScene());
             }
-            if (ConfirmMenuCancelButton.IsClicked){
+            if (ConfirmMenuCancelButton.IsClicked) {
                 IsQuitting = false;
             }
         }
@@ -195,34 +220,7 @@ internal class GameScene : Scene {
         World.Unload();
     }
 
-    private static GameWorld CreateTestWorld(string fileName) {
-        string path = Path.Combine("Resources", "TestStuff", "Maps", $"{fileName}.txt");
-        string[] lines = File.ReadAllLines(path);
-
-        int width = lines[0].Length;
-        int height = lines.Length;
-
-        ulong[,] tiles = new ulong[width, height];
-        for (int y = 0; y < lines.Length; y++) {
-            string line = lines[y].Trim();
-
-            for (int x = 0; x < line.Length; x++) {
-                char tileChar = line[x];
-
-                switch (tileChar) {
-                    case ' ':
-                        tiles[x, y] = 1;
-                        break;
-                    case 'x':
-                        tiles[x, y] = 2;
-                        break;
-                    default:
-                        break;
-                }
-
-            }
-        }
-
-        return new GameWorld(tiles);
+    private void UpdateWorldTimeScale() {
+        World.TimeScale = IsPaused || IsInCutscene ? 0 : 1;
     }
 }

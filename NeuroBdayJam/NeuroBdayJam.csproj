@@ -10,7 +10,7 @@
     <IsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">true</IsWindows>
     <IsLinux Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">true</IsLinux>
     <ApplicationIcon>Resources\icon_0.ico</ApplicationIcon>
-    <AssemblyName>NeuroBdayJam</AssemblyName>
+    <AssemblyName>NeuroRecallReverie</AssemblyName>
     <TrimMode>partial</TrimMode>
     <PublishTrimmed>true</PublishTrimmed>
   </PropertyGroup>
