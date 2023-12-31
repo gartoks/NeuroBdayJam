@@ -55,7 +55,7 @@ internal class Worm : Enemy {
 
         Vector2 vectorToPlayer = World.Player.Position - Position;
 
-        WorldTile? currenTile = World?.GetTile(World.WorldToTileIndexSpace(Position));
+        WorldTile? currenTile = World?.GetTile(Position);
 
         if (vectorToPlayer.LengthSquared() > 10 * 10 || (World.Player.Position - World.PlayerSpawn).LengthSquared() < 10 * 10) {
             vectorToPlayer = Vector2.Zero;

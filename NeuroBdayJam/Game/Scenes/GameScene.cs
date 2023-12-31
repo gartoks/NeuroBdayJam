@@ -36,6 +36,8 @@ internal class GameScene : Scene {
     private bool IsQuitting { get; set; }
     private float StoredTimeScale { get; set; }
 
+    private List<(string memoryName, GuiTexturePanel panel)> AbilityPanels;
+
     /// <summary>
     /// Called when the scene is loaded. Override this method to provide custom scene initialization logic and to load resources.
     /// </summary>
@@ -76,6 +78,17 @@ internal class GameScene : Scene {
         ConfirmMenuText = new GuiLabel("0.5 0.48 0.27 0.0625", "Loss of X memories. Continue?", new Vector2(0.5f, 0.5f));
         ConfirmMenuQuitButton = new GuiTextButton("0.5 0.64 0.27 0.0625", "Quit", new Vector2(0.5f, 0.5f));
         ConfirmMenuCancelButton = new GuiTextButton("0.5 0.56 0.27 0.0625", "Cancel", new Vector2(0.5f, 0.5f));
+
+        AbilityPanels = new(){
+            new("Memory 1", new GuiTexturePanel("0.08 0.95 90px 90px", "camoflauge", new Vector2(0.5f, 0.5f))),
+            new("Memory 2", new GuiTexturePanel("0.14 0.95 90px 90px", "dash", new Vector2(0.5f, 0.5f))),
+            new("Memory 3", new GuiTexturePanel("0.20 0.95 90px 90px", "dash", new Vector2(0.5f, 0.5f)))
+        };
+
+        foreach((string _, GuiTexturePanel panel) in AbilityPanels){
+            panel.TextureScale = new Vector2(0.8f);
+            panel.Load();
+        }
     }
 
 
@@ -109,6 +122,8 @@ internal class GameScene : Scene {
         if (IsWorldLoaded) {
             World.Render(dT);
             MemoryTrackerLabel.Draw();
+
+            DrawAbilityPanels();
 
             DrawPauseMenu();
             DrawConfirmMenu();
@@ -167,6 +182,13 @@ internal class GameScene : Scene {
             }
         }
 
+    }
+
+    internal void DrawAbilityPanels(){
+        foreach((string name, GuiTexturePanel panel) in AbilityPanels){
+            if (World.MemoryTracker.IsMemoryCollected(name))
+                panel.Draw();
+        }
     }
 
     internal override void RenderPostProcessed(ShaderResource shader, float dT) {

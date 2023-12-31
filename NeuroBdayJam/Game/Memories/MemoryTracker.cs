@@ -49,7 +49,7 @@ internal class MemoryTracker {
 
     public bool IsMemoryCollected(string name) {
         return true;    // TODO for testing
-        return CollectedMemories.Contains(AllMemories.FindIndex(m => m.Name == name));
+        return CollectedMemories.Contains(AllMemories.FindIndex(m => m.Name == name)) || TemporaryMemories.Contains(AllMemories.FindIndex(m => m.Name == name));
     }
 
     public int GetNextUncollectedMemory() {

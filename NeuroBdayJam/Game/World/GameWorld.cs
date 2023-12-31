@@ -232,6 +232,8 @@ internal class GameWorld {
     }
 
     public WorldTile? GetTile(Vector2 position) {
+        position = WorldToTileIndexSpace(position);
+
         int x = (int)position.X;
         int y = (int)position.Y;
 
