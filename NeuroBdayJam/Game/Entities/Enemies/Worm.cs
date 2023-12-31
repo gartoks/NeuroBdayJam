@@ -57,7 +57,7 @@ internal class Worm : Enemy {
 
         WorldTile? currenTile = World?.GetTile(Position);
 
-        if (vectorToPlayer.LengthSquared() > 10 * 10 || (World.Player.Position - World.PlayerSpawn).LengthSquared() < 10 * 10) {
+        if (vectorToPlayer.LengthSquared() > 10 * 10 || (World!.Player.Position - World.PlayerSpawn).LengthSquared() < 10 * 10) {
             vectorToPlayer = Vector2.Zero;
         } else if (vectorToPlayer.LengthSquared() < 3 * 3 || (currenTile != null && currenTile?.NoiseValue > 0)) {
             ThreatLevel = 1;
