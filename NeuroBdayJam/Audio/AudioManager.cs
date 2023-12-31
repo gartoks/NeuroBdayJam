@@ -9,7 +9,7 @@ namespace NeuroBdayJam.Audio;
 /// Class for managing sounds and music.
 /// </summary>
 internal static class AudioManager {
-    private const float MUSIC_VOLUME_MODIFIER = 0.3f;
+    private const float MUSIC_VOLUME_MODIFIER = 0.2f;
 
     private static BlockingCollection<Action> SoundActionQueue { get; }
 

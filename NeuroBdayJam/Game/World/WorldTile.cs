@@ -57,7 +57,7 @@ internal sealed class WorldTile : IEquatable<WorldTile?> {
         if (NoiseValue > 0) {
             string noiseTextureName = Time % 1f > 0.5f ? "sound_marker_0" : "sound_marker_1";
 
-            SubTexture noiseTexture = World.MiscAtlas.GetSubTexture(noiseTextureName)!;
+            SubTexture noiseTexture = GameManager.MiscAtlas.GetSubTexture(noiseTextureName)!;
             noiseTexture.Draw(drawBounds, Vector2.Zero, 0, Raylib.WHITE.ChangeAlpha((int)((0.015f + 0.049f * NoiseValue) * 255)));
         }
         if (Application.DRAW_DEBUG && tileType.Collider != null) {

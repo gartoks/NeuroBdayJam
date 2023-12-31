@@ -2,6 +2,7 @@
 using NeuroBdayJam.Game.Entities.Enemies;
 using NeuroBdayJam.Game.Entities.Memories;
 using NeuroBdayJam.Game.Memories;
+using NeuroBdayJam.Game.Scenes;
 using NeuroBdayJam.Game.World.Generation;
 using NeuroBdayJam.Graphics;
 using NeuroBdayJam.ResourceHandling;
@@ -29,7 +30,6 @@ internal class GameWorld {
     public MemoryTracker MemoryTracker { get; }
 
     public Tileset Tileset { get; private set; }
-    public TextureAtlas MiscAtlas { get; private set; }
     private ShaderResource ScanlinesShader { get; set; }
     private ShaderResource BloomShader { get; set; }
 
@@ -38,7 +38,7 @@ internal class GameWorld {
     private Vector2 LastWorldgenTLCorner { get; set; }
     private Vector2 WorldgenDelta => LastWorldgenTLCorner - TopLeftCorner;
     private List<(Type entity, float spawnRate, SpawnCondition condition)> Spawnables { get; }
-    public float TimeScale { get; set; } = 1;
+    public float TimeScale { get; set; }
 
     public delegate bool SpawnCondition(WorldTile tile);
 
@@ -60,15 +60,8 @@ internal class GameWorld {
             new(typeof(Memory), 0.0015f, tile => tile.Position.Length() > 25 && MemoryTracker.NumUncollectedMemories > 0 && ActiveMemory == null),
             new(typeof(Worm), 0.005f, _ => true),
         };
-    }
-    public GameWorld(ulong[,] tiles) {
-        Tiles = new WorldTile[tiles.GetLength(0), tiles.GetLength(1)];
-        SetFromIds(Tiles, tiles, 0, 0);
 
-        Entities = new HashSet<Entity>();
-        TopLeftCorner = new Vector2(0, 0);
-        LastWorldgenTLCorner = TopLeftCorner;
-        MemoryTracker = new MemoryTracker();
+        TimeScale = 1;
     }
 
     public void Load() {
@@ -79,21 +72,19 @@ internal class GameWorld {
         ResourceManager.SoundLoader.Load("get_memory");
         ResourceManager.SoundLoader.Load("ability_1");
         ResourceManager.SoundLoader.Load("ability_2");
+        ResourceManager.SoundLoader.Load("Clips/intro_speech");
         TilesetResource tilesetResource = ResourceManager.TilesetLoader.Get("dark");
-        TextureAtlasResource miscAtlasResource = ResourceManager.TextureAtlasLoader.Get("misc_atlas");
         ResourceManager.TextureAtlasLoader.Load("player_animations");
         ScanlinesShader = ResourceManager.ShaderLoader.Get("scanlines");
         BloomShader = ResourceManager.ShaderLoader.Get("bloom");
 
         tilesetResource.WaitForLoad();
-        miscAtlasResource.WaitForLoad();
         ScanlinesShader.WaitForLoad();
         BloomShader.WaitForLoad();
 
         Renderer.PostProcessShaders.Add(BloomShader);
         Renderer.PostProcessShaders.Add(ScanlinesShader);
         Tileset = tilesetResource.Resource;
-        MiscAtlas = miscAtlasResource.Resource;
 
         Player = new Neuro(PlayerSpawn);
         AddEntity(Player);
@@ -105,9 +96,11 @@ internal class GameWorld {
 
         // TODO TESTING
         //AddEntity(new Worm(new Vector2(5.5f, 5.5f)));
+
+        ((GameScene)GameManager.Scene).Cutscene = new Cutscene("dialogue_intro", "Clips/intro_speech");
     }
 
-    public void Unload(){
+    public void Unload() {
         Renderer.PostProcessShaders.Remove(BloomShader);
         Renderer.PostProcessShaders.Remove(ScanlinesShader);
 

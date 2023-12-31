@@ -4,7 +4,7 @@ using System.Numerics;
 
 namespace NeuroBdayJam.ResourceHandling.Resources;
 
-internal record TextureAtlas(Texture Texture, IReadOnlyDictionary<string, SubTexture> SubTextures) {
+public record TextureAtlas(Texture Texture, IReadOnlyDictionary<string, SubTexture> SubTextures) {
     internal SubTexture? GetSubTexture(string key) {
         if (!SubTextures.TryGetValue(key, out SubTexture? subTexture))
             return null;
@@ -60,6 +60,9 @@ internal record TextureAtlas(Texture Texture, IReadOnlyDictionary<string, SubTex
 }
 
 public record SubTexture(string key, (int x, int y, int w, int h) Bounds, Texture AtlasTexture) : IDrawableResource {
+    public float Width => Bounds.w;
+    public float Height => Bounds.h;
+
     public void Draw(Rectangle bounds, Vector2? pivot = null, float rotation = 0, Color? tint = null) {
         if (pivot == null)
             pivot = Vector2.Zero;

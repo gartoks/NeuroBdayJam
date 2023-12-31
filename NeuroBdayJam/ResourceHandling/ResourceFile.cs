@@ -551,7 +551,7 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
     }
 
     private TileType? ParseTileType(IReadOnlyDictionary<string, string> dict) {
-        if (!dict.TryGetValue("id", out string? idStr) || !ulong.TryParse(idStr, out ulong id))
+        if (!dict.TryGetValue("id", out string? idStr) || !ulong.TryParse(idStr, CultureInfo.InvariantCulture, out ulong id))
             return null;
 
         if (!dict.TryGetValue("name", out string? name))

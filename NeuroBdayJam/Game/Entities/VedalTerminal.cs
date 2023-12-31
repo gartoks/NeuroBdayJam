@@ -33,9 +33,9 @@ internal sealed class VedalTerminal : Entity {
     public override void Render(float dT) {
         SubTexture texture;
         if (IsPlayerNear)
-            texture = World!.MiscAtlas.GetSubTexture("tutel_brain_on")!;
+            texture = GameManager.MiscAtlas.GetSubTexture("tutel_brain_on")!;
         else
-            texture = World!.MiscAtlas.GetSubTexture("tutel_brain_off")!;
+            texture = GameManager.MiscAtlas.GetSubTexture("tutel_brain_off")!;
 
         texture.Draw(Position * GameWorld.TILE_SIZE, new Vector2(3 * GameWorld.TILE_SIZE, 3 * GameWorld.TILE_SIZE), new Vector2(0, 0), 0);
 
