@@ -19,7 +19,7 @@ internal static class Application {
     /// <summary>
     /// The name of the application. Used for the window title.
     /// </summary>
-    private const string NAME = "NeuroBdayJam";
+    private const string NAME = "Neuro: Recall Reverie";
     /// <summary>
     /// The frames per second the game is targeting.
     /// </summary>
