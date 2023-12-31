@@ -4,6 +4,8 @@ using System.Numerics;
 namespace NeuroBdayJam.Util.Extensions;
 public static class VectorExtensions {
 
+    public static float Length(this (int x, int y) p) => MathF.Sqrt(p.x * p.x + p.y * p.y);
+
     public static Vector2 ToVector2(this (float x, float y) v) => new Vector2(v.x, v.y);
     public static (float x, float y) ToTuple(this Vector2 v) => (v.X, v.Y);
 

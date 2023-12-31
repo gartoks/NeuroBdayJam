@@ -1,4 +1,4 @@
-﻿using NeuroBdayJam.Game.Memories;
+﻿using NeuroBdayJam.Audio;
 using NeuroBdayJam.Game.World;
 using NeuroBdayJam.Graphics;
 using NeuroBdayJam.Graphics.Gradients;
@@ -42,8 +42,7 @@ internal sealed class Memory : Entity {
         MemoryBlocks = memoryBlocks;
     }
 
-    public override void LoadInternal()
-    {
+    public override void LoadInternal() {
         base.LoadInternal();
 
         MemoryIndex = World.MemoryTracker.GetNextUncollectedMemory();
@@ -82,6 +81,7 @@ internal sealed class Memory : Entity {
             return;
 
         World.MemoryTracker.CollectMemory(MemoryIndex);
+        AudioManager.PlaySound("get_memory");
 
         World.ActiveMemory = null;
         IsDead = true;

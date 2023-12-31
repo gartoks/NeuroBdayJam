@@ -1,8 +1,5 @@
-using System.Resources;
 using NeuroBdayJam.Audio;
 using NeuroBdayJam.Game.World;
-using NeuroBdayJam.ResourceHandling;
-using NeuroBdayJam.ResourceHandling.Resources;
 
 namespace NeuroBdayJam.Game.Memories;
 internal class MemoryTracker {
@@ -40,7 +37,7 @@ internal class MemoryTracker {
         };
     }
 
-    public MemoryTracker(){
+    public MemoryTracker() {
         CollectedMemories = new();
         UncollectedMemories = AllMemories.Select((m, i) => i).ToList();
         TemporaryMemories = new();
@@ -74,12 +71,11 @@ internal class MemoryTracker {
         TemporaryMemories.Clear();
     }
 
-    public void Update(GameWorld world, float dT){
-        if (CurrentlyPlayingMemoryIndex >= 0){
-            if (AudioManager.IsSoundPlaying(AllMemories[CurrentlyPlayingMemoryIndex].ClipFilename)){
+    public void Update(GameWorld world, float dT) {
+        if (CurrentlyPlayingMemoryIndex >= 0) {
+            if (AudioManager.IsSoundPlaying(AllMemories[CurrentlyPlayingMemoryIndex].ClipFilename)) {
                 world.TimeScale = 0;
-            }
-            else{
+            } else {
                 world.TimeScale = 1;
             }
         }

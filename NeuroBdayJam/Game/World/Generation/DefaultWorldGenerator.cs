@@ -1,4 +1,6 @@
-﻿namespace NeuroBdayJam.Game.World.Generation;
+﻿using System.Numerics;
+
+namespace NeuroBdayJam.Game.World.Generation;
 internal sealed class DefaultWorldGenerator : WorldGenerator {
     public DefaultWorldGenerator(int width, int height)
         : base(width, height, GetSettings()) {
@@ -18,5 +20,18 @@ R 5
 6 -> WFW WFW WFW WWW
 R 6
 ");
+    }
+
+    protected override ulong ReplaceTile(ulong tile, int x, int y) {
+        if (x >= Width / 2 - 1 && x <= Width / 2 + 1 && y >= Height / 2 - 3 && y <= Height / 2 - 1)
+            return 2;
+
+        Vector2 center = new Vector2(Width / 2f, Height / 2f);
+        float distance = Vector2.Distance(center, new Vector2(x, y));
+
+        if (distance < 10)
+            return 1;
+
+        return tile;
     }
 }

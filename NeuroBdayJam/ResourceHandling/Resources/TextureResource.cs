@@ -29,6 +29,8 @@ internal sealed class TextureResource : GameResource<Texture>, IDrawableResource
         if (pivot == null)
             pivot = Vector2.Zero;
 
+        rotation *= RayMath.RAD2DEG;
+
         float w = Resource.width * scale.Value.X;
         float h = Resource.height * scale.Value.Y;
 

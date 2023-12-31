@@ -1,35 +1,43 @@
 ﻿using NeuroBdayJam.App;
-using NeuroBdayJam.Game.Memories;
 using NeuroBdayJam.Game.Utils;
 using NeuroBdayJam.Game.World;
+using NeuroBdayJam.ResourceHandling.Resources;
 using Raylib_CsLo;
 using System.Numerics;
 
 namespace NeuroBdayJam.Game.Entities;
 internal sealed class VedalTerminal : Entity {
-    private const float INTERACTION_RADIUS = 0.7f;
-    private const float SIZE = 0.5f;
+    private const float INTERACTION_RADIUS = 2.5f;
     private const float INTERACTION_TIME = 1.0f;
     private const float COOLDOWN_TIME = 10.0f;
-    private static Color Color { get; } = new Color(43, 199, 4, 255);
-    private static Color ProgressColor { get; } = new Color(77, 77, 77, 255);
+    private static Color ProgressColor { get; } = new Color(0, 255, 0, 255);
+
+    public override Vector2 Facing => Vector2.Zero;
 
     public override float CollisionRadius => INTERACTION_RADIUS;
+
+    private bool IsPlayerNear => (World!.Player.Position - Position).LengthSquared() <= (INTERACTION_RADIUS + World.Player.CollisionRadius) * (INTERACTION_RADIUS + World.Player.CollisionRadius);
 
     private float SecondsHeld { get; set; }
     private float CooldownTimeLeft { get; set; }
 
-    public override Vector2 Facing => Vector2.Zero;
-
     public VedalTerminal(Vector2 position)
         : base("VedalTerminal", position) {
+
+        ZIndex = 10;
 
         SecondsHeld = 0;
         CooldownTimeLeft = 0;
     }
 
     public override void Render(float dT) {
-        Raylib.DrawRectangleV((Position - new Vector2(SIZE / 2)) * GameWorld.TILE_SIZE, new Vector2(SIZE) * GameWorld.TILE_SIZE, Color);
+        SubTexture texture;
+        if (IsPlayerNear)
+            texture = World!.MiscAtlas.GetSubTexture("tutel_brain_on")!;
+        else
+            texture = World!.MiscAtlas.GetSubTexture("tutel_brain_off")!;
+
+        texture.Draw(Position * GameWorld.TILE_SIZE, new Vector2(3 * GameWorld.TILE_SIZE, 3 * GameWorld.TILE_SIZE), new Vector2(0, 0), 0);
 
         if (Application.DRAW_DEBUG)
             Raylib.DrawCircleLines((int)(Position.X * GameWorld.TILE_SIZE), (int)(Position.Y * GameWorld.TILE_SIZE), INTERACTION_RADIUS * GameWorld.TILE_SIZE, Raylib.ORANGE);
@@ -43,7 +51,7 @@ internal sealed class VedalTerminal : Entity {
     }
 
     public override void Update(float dT) {
-        if ((World!.Player.Position - Position).LengthSquared() <= (INTERACTION_RADIUS + World.Player.CollisionRadius) * (INTERACTION_RADIUS + World.Player.CollisionRadius)) {
+        if (IsPlayerNear) {
             if (Input.IsHotkeyDown(GameHotkeys.INTERACT)) {
                 SecondsHeld += dT;
             } else {
@@ -58,6 +66,7 @@ internal sealed class VedalTerminal : Entity {
         } else {
             SecondsHeld = 0;
         }
+
         if (CooldownTimeLeft > 0) {
             CooldownTimeLeft -= dT;
         }

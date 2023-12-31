@@ -3,6 +3,7 @@ using NeuroBdayJam.Game.Entities.Enemies;
 using NeuroBdayJam.Game.Entities.Memories;
 using NeuroBdayJam.Game.Memories;
 using NeuroBdayJam.Game.World.Generation;
+using NeuroBdayJam.Graphics;
 using NeuroBdayJam.ResourceHandling;
 using NeuroBdayJam.ResourceHandling.Resources;
 using NeuroBdayJam.Util.Extensions;
@@ -20,6 +21,8 @@ internal class GameWorld {
     private WorldTile[,] Tiles { get; }
 
     public Neuro Player { get; set; }
+    public Vector2 PlayerSpawn { get; set; }
+
     private HashSet<Entity> Entities { get; }
     public Memory? ActiveMemory { get; set; }
 
@@ -27,15 +30,17 @@ internal class GameWorld {
 
     public Tileset Tileset { get; private set; }
     public TextureAtlas MiscAtlas { get; private set; }
+    private ShaderResource ScanlinesShader { get; set; }
+    private ShaderResource BloomShader { get; set; }
 
     private Vector2 TopLeftCorner { get; set; }
     private Vector2 CenterOfScreen => TopLeftCorner + new Vector2(Width, Height) / 2.0f;
     private Vector2 LastWorldgenTLCorner { get; set; }
     private Vector2 WorldgenDelta => LastWorldgenTLCorner - TopLeftCorner;
+    private List<(Type entity, float spawnRate, SpawnCondition condition)> Spawnables { get; }
+    public float TimeScale { get; set; } = 1;
 
     public delegate bool SpawnCondition(WorldTile tile);
-    private List<(Type entity, float spawnRate, SpawnCondition condition)> Spawnables { get; }
-    public float TimeScale { get; set;} = 1;
 
     public GameWorld() {
         Vector2 visibleTileSize = GetVisibleTileSize();
@@ -49,10 +54,11 @@ internal class GameWorld {
         TopLeftCorner = new Vector2(0, 0);
         LastWorldgenTLCorner = TopLeftCorner;
 
+        PlayerSpawn = new Vector2(tileWidth / 2 + 0.5f, tileHeight / 2 + 0.5f);
+
         Spawnables = new(){
-            new(typeof(Memory), 0.0015f, (tile) => MemoryTracker.NumUncollectedMemories > 0 && ActiveMemory == null),
-            new(typeof(VedalTerminal), 0.003f, (_) => true),
-            new(typeof(Worm), 0.005f, (_) => true),
+            new(typeof(Memory), 0.0015f, tile => tile.Position.Length() > 25 && MemoryTracker.NumUncollectedMemories > 0 && ActiveMemory == null),
+            new(typeof(Worm), 0.005f, _ => true),
         };
     }
     public GameWorld(ulong[,] tiles) {
@@ -69,26 +75,36 @@ internal class GameWorld {
         if (WorldGenerator != null)
             SetFromIds(Tiles, WorldGenerator.ExportToUlongs(), 0, 0);
 
+        ResourceManager.SoundLoader.Load("step");
+        ResourceManager.SoundLoader.Load("get_memory");
+        ResourceManager.SoundLoader.Load("ability_1");
+        ResourceManager.SoundLoader.Load("ability_2");
         TilesetResource tilesetResource = ResourceManager.TilesetLoader.Get("dark");
         TextureAtlasResource miscAtlasResource = ResourceManager.TextureAtlasLoader.Get("misc_atlas");
         ResourceManager.TextureAtlasLoader.Load("player_animations");
+        ScanlinesShader = ResourceManager.ShaderLoader.Get("scanlines");
+        BloomShader = ResourceManager.ShaderLoader.Get("bloom");
 
         tilesetResource.WaitForLoad();
         miscAtlasResource.WaitForLoad();
+        ScanlinesShader.WaitForLoad();
+        BloomShader.WaitForLoad();
 
+        Renderer.PostProcessShaders.Add(BloomShader);
+        Renderer.PostProcessShaders.Add(ScanlinesShader);
         Tileset = tilesetResource.Resource;
         MiscAtlas = miscAtlasResource.Resource;
 
-        Player = new Neuro(new Vector2(Width / 2, Height / 2));
+        Player = new Neuro(PlayerSpawn);
         AddEntity(Player);
 
-        ActiveMemory = new Memory(new Vector2(5.5f, 5.5f));
-        AddEntity(ActiveMemory);
+        //ActiveMemory = new Memory(new Vector2(5.5f, 5.5f));
+        //AddEntity(ActiveMemory);
 
-        AddEntity(new VedalTerminal(new Vector2(1.5f, 7.5f)));
+        AddEntity(new VedalTerminal(new Vector2(Width / 2 + 0.5f, Height / 2 + 0.5f - 2)));
 
         // TODO TESTING
-        AddEntity(new Worm(new Vector2(5.5f, 5.5f)));
+        //AddEntity(new Worm(new Vector2(5.5f, 5.5f)));
     }
 
     internal void Update(float dT) {
@@ -132,7 +148,7 @@ internal class GameWorld {
                 entity.Unload();
                 Entities.Remove(entity);
             } else if (entity.Position.X < TopLeftCorner.X || entity.Position.X > TopLeftCorner.X + Width || entity.Position.Y < TopLeftCorner.Y || entity.Position.Y > TopLeftCorner.Y + Height) {
-                if (entity is not Neuro) {
+                if (entity is not Neuro and not VedalTerminal) {
                     entity.Unload();
                     Entities.Remove(entity);
                 }
@@ -146,37 +162,58 @@ internal class GameWorld {
 
     internal void Render(float dT) {
         RlGl.rlPushMatrix();
-
         Vector2 visibleTileSize = GetVisibleTileSize();
         int xOffset = ((int)(Width - visibleTileSize.X) / 2);
         int yOffset = ((int)(Height - visibleTileSize.Y) / 2);
 
         RlGl.rlTranslatef(-(TopLeftCorner.X + xOffset) * TILE_SIZE, -(TopLeftCorner.Y + yOffset) * TILE_SIZE, 0);
-        //RlGl.rlTranslatef(-TopLeftCorner.X * TILE_SIZE, -TopLeftCorner.Y * TILE_SIZE, 0);
 
+        if (Application.DRAW_DEBUG) {
+            Raylib.DrawCircleV(CenterOfScreen * TILE_SIZE, 10, Raylib.RED);
+            Raylib.DrawCircleLines((int)(CenterOfScreen.X * TILE_SIZE), (int)(CenterOfScreen.Y * TILE_SIZE), Math.Min(Width, Height) / 5 * TILE_SIZE, Raylib.RED);
+        }
+
+        RlGl.rlPopMatrix();
+
+        if (Application.DRAW_DEBUG) {
+            Raylib.DrawCircleV(-TopLeftCorner * TILE_SIZE, 10, Raylib.RED);
+            Raylib.DrawCircleV(-LastWorldgenTLCorner * TILE_SIZE, 10, Raylib.YELLOW);
+
+        }
+    }
+
+    internal void RenderPostProcessed(ShaderResource shader, float dT) {
+        RlGl.rlPushMatrix();
+        Vector2 visibleTileSize = GetVisibleTileSize();
+        int xOffset = ((int)(Width - visibleTileSize.X) / 2);
+        int yOffset = ((int)(Height - visibleTileSize.Y) / 2);
+        RlGl.rlTranslatef(-(TopLeftCorner.X + xOffset) * TILE_SIZE, -(TopLeftCorner.Y + yOffset) * TILE_SIZE, 0);
+
+        if (shader.Key == "scanlines")
+            RenderScanlinesObjects(dT);
+        else if (shader.Key == "bloom")
+            RenderBloomObjects(dT);
+
+        RlGl.rlPopMatrix();
+    }
+
+    private void RenderBloomObjects(float dT) {
+        foreach (Entity entity in Entities.Where(e => e is Enemy || e is Memory).OrderByDescending(e => e.ZIndex).ToList()) {
+            if (!entity.IsDead && entity.World != null)
+                entity.Render(dT);
+        }
+    }
+
+    private void RenderScanlinesObjects(float dT) {
         for (int x = 0; x < Width; x++) {
             for (int y = 0; y < Height; y++) {
                 Tiles[x, y].Render(dT);
             }
         }
 
-        foreach (Entity entity in Entities.ToList()) {
+        foreach (Entity entity in Entities.Where(e => !(e is Enemy || e is Memory)).OrderByDescending(e => e.ZIndex).ToList()) {
             if (!entity.IsDead && entity.World != null)
                 entity.Render(dT);
-        }
-
-        //ActiveMemory?.Render(dT);
-        //Player.Render(dT);
-
-        if (Application.DRAW_DEBUG) {
-            Raylib.DrawCircleV(CenterOfScreen * TILE_SIZE, 10, Raylib.RED);
-            Raylib.DrawCircleLines((int)(CenterOfScreen.X * TILE_SIZE), (int)(CenterOfScreen.Y * TILE_SIZE), Math.Min(Width, Height) / 5 * TILE_SIZE, Raylib.RED);
-        }
-        RlGl.rlPopMatrix();
-        if (Application.DRAW_DEBUG) {
-            Raylib.DrawCircleV(-TopLeftCorner * TILE_SIZE, 10, Raylib.RED);
-            Raylib.DrawCircleV(-LastWorldgenTLCorner * TILE_SIZE, 10, Raylib.YELLOW);
-
         }
     }
 
@@ -194,7 +231,6 @@ internal class GameWorld {
     public WorldTile? GetTile(int x, int y) {
         if (x < 0 || x >= Width || y < 0 || y >= Height)
             return null;
-
         return Tiles[x, y];
     }
 
@@ -236,7 +272,6 @@ internal class GameWorld {
 
         bool isPositive = dx > 0;
         int absDX = Math.Abs(dx);
-
         {
             int startX = isPositive ? 0 : Width - 1;
             int endX = isPositive ? Width - absDX : absDX - 1;
@@ -317,9 +352,9 @@ internal class GameWorld {
                     Entity? newEntity = (Entity)Activator.CreateInstance(entityType, new Vector2(tile.Position.x + 0.5f, tile.Position.y + 0.5f));
                     AddEntity(newEntity);
 
-                    if (entityType == typeof(Memory)) {
+                    if (entityType == typeof(Memory))
                         ActiveMemory = (Memory)newEntity;
-                    }
+
                     break;
                 }
             }

@@ -1,4 +1,5 @@
-﻿using NeuroBdayJam.Game.Entities;
+﻿using NeuroBdayJam.Audio;
+using NeuroBdayJam.Game.Entities;
 
 namespace NeuroBdayJam.Game.Abilities;
 internal sealed class CamouflageAbility : Ability {
@@ -9,6 +10,7 @@ internal sealed class CamouflageAbility : Ability {
 
     protected override void OnUse(Entity user) {
         user.SetState(eEntityStates.Hidden);
+        AudioManager.PlaySound("ability_1");
     }
 
     protected override void OnExpire(Entity user) {

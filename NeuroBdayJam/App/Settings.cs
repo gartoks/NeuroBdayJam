@@ -228,7 +228,7 @@ internal sealed class Settings {
     /// </summary>
     public void Load() {
         int monitor = Raylib.GetCurrentMonitor();
-        (int w, int h) resolution = AVAILABLE_RESOLUTIONS[0];
+        (int w, int h) resolution = AVAILABLE_RESOLUTIONS[3];
         eScreenMode screenMode = eScreenMode.Windowed;
         int musicVolume = 100;
         int soundVolume = 100;

@@ -505,12 +505,12 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
     }
 
     internal bool DoesShaderExist(string key) {
-        string fragmentShaderPath = $"Shaders/{key}.frag";
+        string fragmentShaderPath = $"Shaders/{key}.fs";
         return ResourceFileArchive!.GetEntry(fragmentShaderPath) != null;
     }
 
     internal IReadOnlyList<string> GetShaderResources() {
-        List<string> fragmentShaderData = ResourceFileArchive!.Entries.Where(e => e.FullName.StartsWith("Shaders/") && Path.GetExtension(e.FullName) == ".frag").Select(e => Path.GetFileNameWithoutExtension(e.FullName)).ToList();
+        List<string> fragmentShaderData = ResourceFileArchive!.Entries.Where(e => e.FullName.StartsWith("Shaders/") && Path.GetExtension(e.FullName) == ".fs").Select(e => Path.GetFileNameWithoutExtension(e.FullName)).ToList();
 
         return fragmentShaderData.ToList();
     }
@@ -519,10 +519,10 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
         if (!WasLoaded)
             throw new InvalidOperationException("Resource file was not loaded.");
 
-        string vertexShaderPath = $"Shaders/{key}.vert";
+        string vertexShaderPath = $"Shaders/{key}.vs";
         ZipArchiveEntry? vertexShaderEntry = ResourceFileArchive!.GetEntry(vertexShaderPath);
 
-        string fragmentShaderPath = $"Shaders/{key}.frag";
+        string fragmentShaderPath = $"Shaders/{key}.fs";
         ZipArchiveEntry? fragmentShaderEntry = ResourceFileArchive!.GetEntry(fragmentShaderPath);
 
         if (fragmentShaderEntry == null) {
@@ -535,15 +535,13 @@ internal sealed class ResourceFile : IDisposable, IEquatable<ResourceFile?> {
             using Stream vertexShaderStream = vertexShaderEntry.Open();
             StreamReader vsr = new StreamReader(vertexShaderStream);
             vertexShaderSource = vsr.ReadToEnd();
-            vertexShaderSource = Raylib.TextFormat(vertexShaderSource, 330 /* GLSL version*/);
         }
 
         using Stream fragmentShaderStream = fragmentShaderEntry.Open();
         StreamReader fsr = new StreamReader(fragmentShaderStream);
         string fragmentShaderSource = fsr.ReadToEnd();
-        fragmentShaderSource = Raylib.TextFormat(fragmentShaderSource, 330 /* GLSL version*/);
 
-        Shader shader = Raylib.LoadShader(vertexShaderSource, fragmentShaderSource);
+        Shader shader = Raylib.LoadShaderFromMemory(vertexShaderSource, fragmentShaderSource);
 
         if (shader.id == 0) {
             Log.WriteLine($"Failed to load shader {key} from {key}");
