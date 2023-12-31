@@ -7,6 +7,7 @@ internal abstract class Ability {
     public float Cooldown { get; }
     public float CooldownRemaining { get; private set; }
     public bool IsReady => CooldownRemaining <= 0;
+    public float RechargePercentage => CooldownRemaining / Cooldown;
 
     public float Duration { get; }
     public float DurationRemaining { get; private set; }

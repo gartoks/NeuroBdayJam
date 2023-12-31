@@ -7,7 +7,7 @@ using System.Numerics;
 namespace NeuroBdayJam.Game.Gui;
 internal sealed class GuiTexturePanel : GuiElement {
 
-    private GuiPanel Panel;
+    public GuiPanel Panel;
     private string _TextureKey { get; set; }
     public string TextureKey {
         get => _TextureKey;

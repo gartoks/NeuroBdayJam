@@ -1,13 +1,12 @@
 ﻿using NeuroBdayJam.App;
+using NeuroBdayJam.Game.Abilities;
 using NeuroBdayJam.Game.Gui;
 using NeuroBdayJam.Game.Utils;
 using NeuroBdayJam.Game.World;
 using NeuroBdayJam.Graphics;
 using NeuroBdayJam.ResourceHandling;
 using NeuroBdayJam.ResourceHandling.Resources;
-using NeuroBdayJam.Util;
 using Raylib_CsLo;
-using System.ComponentModel;
 using System.Numerics;
 
 namespace NeuroBdayJam.Game.Scenes;
@@ -36,7 +35,7 @@ internal class GameScene : Scene {
     private bool IsQuitting { get; set; }
     private float StoredTimeScale { get; set; }
 
-    private List<(string memoryName, GuiTexturePanel panel)> AbilityPanels;
+    private List<(string memoryName, Ability ability, GuiTexturePanel panel)> AbilityPanels;
 
     /// <summary>
     /// Called when the scene is loaded. Override this method to provide custom scene initialization logic and to load resources.
@@ -61,6 +60,18 @@ internal class GameScene : Scene {
             World = new GameWorld();
             World.Load();
             IsWorldLoaded = true;
+
+
+            AbilityPanels = new(){
+                new("Memory 1", World.Player.Camouflage, new GuiTexturePanel("0.08 0.95 90px 90px", "camoflauge", new Vector2(0.5f, 0.5f))),
+                new("Memory 2", World.Player.Dash, new GuiTexturePanel("0.14 0.95 90px 90px", "dash", new Vector2(0.5f, 0.5f))),
+                // new("Memory 3",World.Player.Stun,  new GuiTexturePanel("0.20 0.95 90px 90px", "stun", new Vector2(0.5f, 0.5f)))
+            };
+
+            foreach((string _, Ability ability, GuiTexturePanel panel) in AbilityPanels){
+                panel.TextureScale = new Vector2(0.8f);
+                panel.Load();
+            }
         });
 
         MemoryTrackerLabel = new(0, Application.BASE_HEIGHT - 50, "0/3", 50, new Vector2(0, 1));
@@ -78,17 +89,6 @@ internal class GameScene : Scene {
         ConfirmMenuText = new GuiLabel("0.5 0.48 0.27 0.0625", "Loss of X memories. Continue?", new Vector2(0.5f, 0.5f));
         ConfirmMenuQuitButton = new GuiTextButton("0.5 0.64 0.27 0.0625", "Quit", new Vector2(0.5f, 0.5f));
         ConfirmMenuCancelButton = new GuiTextButton("0.5 0.56 0.27 0.0625", "Cancel", new Vector2(0.5f, 0.5f));
-
-        AbilityPanels = new(){
-            new("Memory 1", new GuiTexturePanel("0.08 0.95 90px 90px", "camoflauge", new Vector2(0.5f, 0.5f))),
-            new("Memory 2", new GuiTexturePanel("0.14 0.95 90px 90px", "dash", new Vector2(0.5f, 0.5f))),
-            new("Memory 3", new GuiTexturePanel("0.20 0.95 90px 90px", "dash", new Vector2(0.5f, 0.5f)))
-        };
-
-        foreach((string _, GuiTexturePanel panel) in AbilityPanels){
-            panel.TextureScale = new Vector2(0.8f);
-            panel.Load();
-        }
     }
 
 
@@ -185,9 +185,24 @@ internal class GameScene : Scene {
     }
 
     internal void DrawAbilityPanels(){
-        foreach((string name, GuiTexturePanel panel) in AbilityPanels){
-            if (World.MemoryTracker.IsMemoryCollected(name))
+        foreach((string name, Ability ability, GuiTexturePanel panel) in AbilityPanels){
+            if (World.MemoryTracker.IsMemoryCollected(name)){
+                panel.Panel.Tint = new ColorResource("ability_reload_faded", Raylib.WHITE, (_) => {
+                    Color color = ResourceManager.ColorLoader.Get("ability_reloading").Resource;
+                    
+                    color.r = (byte)(color.r * ability.RechargePercentage + (1 - ability.RechargePercentage) * 255);
+                    color.g = (byte)(color.g * ability.RechargePercentage + (1 - ability.RechargePercentage) * 255);
+                    color.b = (byte)(color.b * ability.RechargePercentage + (1 - ability.RechargePercentage) * 255);
+
+                    if (ability.CooldownRemaining > 0.3)
+                        return color;
+                    else if (ability.RechargePercentage == 0)
+                        return Raylib.WHITE;
+                    else
+                        return ResourceManager.ColorLoader.Get("ability_reloaded").Resource;
+                });
                 panel.Draw();
+            }
         }
     }
 
