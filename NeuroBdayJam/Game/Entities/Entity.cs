@@ -11,6 +11,7 @@ internal abstract class Entity {
     public Vector2 Position { get; set; }
     public float Rotation { get; set; }
 
+    public int ZIndex { get; protected set; }
     public abstract float CollisionRadius { get; }
     public abstract Vector2 Facing { get; }
 
@@ -24,6 +25,7 @@ internal abstract class Entity {
         Name = name;
         Position = position;
         Rotation = 0;
+        ZIndex = 0;
 
         HasMoved = false;
     }

@@ -1,4 +1,5 @@
-﻿using NeuroBdayJam.Game.Entities;
+﻿using NeuroBdayJam.Audio;
+using NeuroBdayJam.Game.Entities;
 using NeuroBdayJam.Game.Entities.Effects;
 using NeuroBdayJam.Game.World;
 using NeuroBdayJam.Util;
@@ -45,6 +46,8 @@ internal sealed class DashAbility : Ability {
         user.Position = dashTargetPosition;
         user.SetState(eEntityStates.Hidden);
         user.SetState(eEntityStates.Stunned);
+
+        AudioManager.PlaySound("ability_2");
     }
 
     protected override void OnExpire(Entity user) {

@@ -1,6 +1,6 @@
 ﻿using NeuroBdayJam.App;
+using NeuroBdayJam.Audio;
 using NeuroBdayJam.Game.Abilities;
-using NeuroBdayJam.Game.Memories;
 using NeuroBdayJam.Game.Utils;
 using NeuroBdayJam.Game.World;
 using NeuroBdayJam.Graphics;
@@ -31,7 +31,7 @@ internal sealed class Neuro : Entity {
     private Ability Dash { get; }
     private Ability Stun { get; }
 
-    private bool SpawnedStep { get; set; }
+    private bool StoodStill { get; set; }
     private (int x, int y) MovementDirection { get; set; }
     private FrameAnimator LastAnimator { get; set; }
     private bool HasMovedToNewTile { get; set; }
@@ -39,7 +39,7 @@ internal sealed class Neuro : Entity {
     public Neuro(Vector2 position)
         : base("Neuro", position) {
 
-        Speed = 3.0f;
+        Speed = 3.5f;
 
         Camouflage = new CamouflageAbility();
         Dash = new DashAbility();
@@ -175,14 +175,15 @@ internal sealed class Neuro : Entity {
         int newTileY = (int)newPosition.Y;
 
         if (currentTileX != newTileX || currentTileY != newTileY)
-            SpawnedStep = false;
+            StoodStill = false;
 
         if (mtv.LengthSquared() == 0) {
             //AudioManager.PlaySound("player_step");
 
-            if (!SpawnedStep) {
+            if (!StoodStill) {
                 World.AddEntity(new NoiseSpawner(newPosition, NOISE_STEP * speed / Speed));
-                SpawnedStep = true;
+                AudioManager.PlaySound("step");
+                StoodStill = true;
             }
         }
 

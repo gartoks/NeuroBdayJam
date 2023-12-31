@@ -1,4 +1,5 @@
 ﻿using NeuroBdayJam.Game.Gui;
+using NeuroBdayJam.ResourceHandling.Resources;
 using System.Reflection;
 
 namespace NeuroBdayJam.Game.Scenes;
@@ -20,7 +21,9 @@ internal abstract class Scene {
     /// <summary>
     /// Called every frame to draw the scene. Override this method to provide custom scene rendering logic.
     /// </summary>
-    internal virtual void Draw(float dT) { }
+    internal virtual void Render(float dT) { }
+
+    internal virtual void RenderPostProcessed(ShaderResource shader, float dT) { }
 
     /// <summary>
     /// Called when the scene is about to be unloaded or replaced by another scene. Override this method to provide custom cleanup or deinitialization logic and to unload resources.

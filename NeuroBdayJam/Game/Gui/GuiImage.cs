@@ -6,6 +6,7 @@ internal sealed class GUIImage : GuiElement {
     public TextureResource Texture { get; set; }
     public ColorResource Tint { get; set; }
 
+    public float Rotation { get; set; }
     public float Scale { get; set; }
 
     public GUIImage(float x, float y, float scale, TextureResource texture, Vector2? pivot = null)
@@ -17,7 +18,7 @@ internal sealed class GUIImage : GuiElement {
     }
 
     protected override void DrawInternal() {
-        Texture.Draw(new Vector2(Bounds.x, Bounds.y), Pivot, new Vector2(Scale, Scale), 0, Tint.Resource);
+        Texture.Draw(new Vector2(Bounds.x, Bounds.y), Pivot, new Vector2(Scale, Scale), Rotation, Tint.Resource);
 
         //Raylib.DrawTexturePro(
         //    Texture.Resource,

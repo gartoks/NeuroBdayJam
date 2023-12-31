@@ -68,11 +68,16 @@ public record SubTexture(string key, (int x, int y, int w, int h) Bounds, Textur
 
         Raylib.DrawTexturePro(
                     AtlasTexture,
-                    new Rectangle(Bounds.x, Bounds.y, Bounds.w, Bounds.h),
+                    new Rectangle(Bounds.x + 0.05f, Bounds.y + 0.05f, Bounds.w - 0.1f, Bounds.h - 0.1f),
                     new Rectangle(bounds.x - bounds.width * (pivot.Value.X - 0.5f), bounds.y - bounds.height * (pivot.Value.Y - 0.5f), bounds.width, bounds.height),
                     new Vector2(bounds.width / 2f, bounds.height / 2f),
                     rotation,
                     tint != null ? tint.Value : Raylib.WHITE);
+    }
+
+    public void Draw(Vector2 position, Vector2 size, Vector2? pivot = null, float rotation = 0, Color? tint = null) {
+        Rectangle r = new Rectangle(position.X - size.X * 0.5f, position.Y - size.Y * 0.5f, size.X, size.Y);
+        Draw(r, pivot, rotation, tint);
     }
 }
 

@@ -1,6 +1,7 @@
 ﻿using NeuroBdayJam.Audio;
 using NeuroBdayJam.Game.Gui;
 using NeuroBdayJam.Game.Scenes;
+using NeuroBdayJam.ResourceHandling;
 using NeuroBdayJam.ResourceHandling.Resources;
 
 namespace NeuroBdayJam.Game;
@@ -43,7 +44,9 @@ public static class GameManager {
     internal static void Load() {
         GuiManager.Load();
 
-        Music = new MusicResource[0];
+        Music = new MusicResource[] {
+            ResourceManager.MusicLoader.Get("music_1"),
+        };
 
         Scene = new MainMenuScene();
     }
@@ -76,17 +79,23 @@ public static class GameManager {
         }
     }
 
-    /// <summary>
-    /// Draws the game. Is executed every frame.
-    /// </summary>
-    internal static void Render(float dT) {
-        DrawBackground();
-
+    internal static void RenderPostProcessed(ShaderResource shader, float dT) {
         if (!WasSceneLoaded)
             return;
 
         lock (SceneLock)
-            Scene.Draw(dT);
+            Scene.RenderPostProcessed(shader, dT);
+    }
+
+    /// <summary>
+    /// Draws the game. Is executed every frame.
+    /// </summary>
+    internal static void Render(float dT) {
+        if (!WasSceneLoaded)
+            return;
+
+        lock (SceneLock)
+            Scene.Render(dT);
     }
 
     /// <summary>
@@ -104,9 +113,5 @@ public static class GameManager {
             WasSceneLoaded = false;
             Scene = scene;
         }
-    }
-
-    private static void DrawBackground() {
-        // TODO
     }
 }

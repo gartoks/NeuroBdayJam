@@ -22,20 +22,25 @@ internal sealed class WorldTile : IEquatable<WorldTile?> {
     private SubTexture? Texture { get; set; }
     private float Rotation { get; set; }
 
+    private float Time { get; set; }
+
     public WorldTile(GameWorld world, ulong tileId, (int x, int y) position, byte configuration) {
         World = world;
         Id = tileId;
         Position = position;
         Configuration = configuration;
         NoiseValue = 0;
+
+        Time = Random.Shared.NextSingle(0, 1);
     }
 
     internal void Update(float dT) {
-        float currentNoise = NoiseValue;
         NoiseValue -= dT * 0.25f;
     }
 
     internal void Render(float dT) {
+        Time += dT;
+
         if (Texture == null) {
             World.Tileset.GetTileTexture(Id, Configuration, out SubTexture texture, out float rotation);
             Texture = texture;
@@ -50,11 +55,15 @@ internal sealed class WorldTile : IEquatable<WorldTile?> {
         Texture.Draw(drawBounds, Vector2.Zero, Rotation, tileColor);
 
         if (NoiseValue > 0) {
-            SubTexture noiseTexture = World.MiscAtlas.GetSubTexture("sound_marker")!;
-            noiseTexture.Draw(drawBounds, Vector2.Zero, 0, Raylib.WHITE.ChangeAlpha((int)((0.5f * NoiseValue) * 255)));
-        }
+            string noiseTextureName = Time % 1f > 0.5f ? "sound_marker_0" : "sound_marker_1";
 
+            SubTexture noiseTexture = World.MiscAtlas.GetSubTexture(noiseTextureName)!;
+            noiseTexture.Draw(drawBounds, Vector2.Zero, 0, Raylib.WHITE.ChangeAlpha((int)((0.015f + 0.049f * NoiseValue) * 255)));
+        }
         if (Application.DRAW_DEBUG && tileType.Collider != null) {
+            Rectangle boundsRect2 = new Rectangle(Position.x * GameWorld.TILE_SIZE, Position.y * GameWorld.TILE_SIZE, GameWorld.TILE_SIZE, GameWorld.TILE_SIZE);
+            Raylib.DrawRectangleLinesEx(boundsRect2, 1, Raylib.GRAY);
+
             Rectangle boundsRect = new Rectangle((Position.x + tileType.Collider.Value.x) * GameWorld.TILE_SIZE, (Position.y + tileType.Collider.Value.y) * GameWorld.TILE_SIZE, tileType.Collider.Value.width * GameWorld.TILE_SIZE, tileType.Collider.Value.height * GameWorld.TILE_SIZE);
             Raylib.DrawRectangleLinesEx(boundsRect, 1, Raylib.LIME);
         }

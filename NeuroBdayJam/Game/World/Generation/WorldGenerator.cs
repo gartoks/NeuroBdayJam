@@ -15,8 +15,6 @@ internal abstract class WorldGenerator {
     private Dictionary<ulong, ulong> ExportSettings { get; }
     private Dictionary<(int, eSide), ulong> IdAndSideToPossibleNeighbours { get; }
 
-    private TextureResource[] DEBUG_Textures { get; set; }
-
     private int CurrentX { get; set; }
     private int CurrentY { get; set; }
 
@@ -44,9 +42,6 @@ internal abstract class WorldGenerator {
         }
 
         Store();
-
-        if (Application.DRAW_DEBUG)
-            LoadDEBUGTextures();
 
         RuleParser parser = new();
         parser.Parse(settings.Ruleset);
@@ -162,7 +157,7 @@ internal abstract class WorldGenerator {
             while (Step()) {
                 if (i++ % 100 == 0 && doSpeedup) {
                     Store();
-                    Console.WriteLine($"Store at {i}");
+                    //Log.WriteLine($"Store at {i}");
                 }
             };
             i++;
@@ -206,10 +201,19 @@ internal abstract class WorldGenerator {
         ulong[,] ulongTiles = new ulong[Width, Height];
         for (int y = 0; y < Height; y++) {
             for (int x = 0; x < Width; x++) {
-                ulongTiles[x, y] = ExportSettings[Tiles[x, y].PossibleValues];
+                int wX = -CurrentX + x;
+                int wY = -CurrentY + y;
+
+                ulong value = ExportSettings[Tiles[x, y].PossibleValues];
+                value = ReplaceTile(value, wX, wY);
+                ulongTiles[x, y] = value;
             }
         }
         return ulongTiles;
+    }
+
+    protected virtual ulong ReplaceTile(ulong tile, int x, int y) {
+        return tile;
     }
 
     public IReadOnlyList<(int x, int y, ulong id)> Translate(int dx, int dy) {
@@ -265,16 +269,6 @@ internal abstract class WorldGenerator {
             throw new ArgumentException($"Only x-values {CurrentX - 1} and {CurrentX + Width} are valid in the current state.");
     }
 
-
-    internal void DEBUG_Draw() {
-        if (!Application.DRAW_DEBUG)
-            return;
-
-        foreach (Tile tile in Tiles) {
-            tile.DEBUG_Draw(DEBUG_Textures);
-        }
-    }
-
     private struct Tile {
         public int Id;
         public Vector2 Size;
@@ -301,31 +295,6 @@ internal abstract class WorldGenerator {
 
             // Raylib.DrawTextEx(Renderer.GuiFont.Resource, "N: " + Pos.ToString(), Pos * Size, 40, 10, new Color(255, 255, 255, 255));
             // Raylib.DrawTextEx(Renderer.GuiFont.Resource, "ID: " + Id.ToString(), Pos * Size + new Vector2(0, 50), 40, 10, new Color(255, 255, 255, 255));
-        }
-    }
-
-    private void LoadDEBUGTextures() {
-        if (!Application.DRAW_DEBUG)
-            return;
-
-        DEBUG_Textures = new TextureResource[13]{
-            ResourceHandling.ResourceManager.TextureLoader.Get("0"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("1"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("2"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("3"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("4"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("5"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("6"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("7"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("8"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("9"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("10"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("11"),
-            ResourceHandling.ResourceManager.TextureLoader.Get("12"),
-        };
-
-        for (int i = 0; i < DEBUG_Textures.Length; i++) {
-            DEBUG_Textures[i].WaitForLoad();
         }
     }
 
