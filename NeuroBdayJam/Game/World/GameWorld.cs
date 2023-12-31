@@ -107,6 +107,16 @@ internal class GameWorld {
         //AddEntity(new Worm(new Vector2(5.5f, 5.5f)));
     }
 
+    public void Unload(){
+        Renderer.PostProcessShaders.Remove(BloomShader);
+        Renderer.PostProcessShaders.Remove(ScanlinesShader);
+
+        foreach (Entity entity in Entities.ToList()) {
+            if (entity.World != null)
+                entity.Unload();
+        }
+    }
+
     internal void Update(float dT) {
         dT *= TimeScale;
 

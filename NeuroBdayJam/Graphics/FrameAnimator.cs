@@ -66,7 +66,6 @@ internal sealed class FrameAnimator {
     public void Render(float dT, Rectangle bounds, float rotation, Vector2 pivot, Color color) {
         if (FrameIndex >= FrameSequences[ActiveSequence!][ActiveSequenceIndex].frames.Count) {
             ActiveSequence = null;
-            return;
         }
 
         if (ActiveSequence == null) {

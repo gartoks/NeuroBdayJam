@@ -5,7 +5,9 @@ using NeuroBdayJam.Game.World;
 using NeuroBdayJam.Graphics;
 using NeuroBdayJam.ResourceHandling;
 using NeuroBdayJam.ResourceHandling.Resources;
+using NeuroBdayJam.Util;
 using Raylib_CsLo;
+using System.ComponentModel;
 using System.Numerics;
 
 namespace NeuroBdayJam.Game.Scenes;
@@ -17,9 +19,22 @@ internal class GameScene : Scene {
     private TextureAtlasResource AnimationsTextureAtlas { get; set; }
     private GuiDynamicLabel MemoryTrackerLabel { get; set; }
 
+    private GuiLabel PauseMenuText { get; set; }
+    private GuiPanel PauseMenuPanel { get; set; }
+    private GuiTextButton PauseMenuContinueButton { get; set; }
+    private GuiTextButton PauseMenuQuitButton { get; set; }
+
+    private GuiLabel ConfirmMenuText { get; set; }
+    private GuiPanel ConfirmMenuPanel { get; set; }
+    private GuiTextButton ConfirmMenuQuitButton { get; set; }
+    private GuiTextButton ConfirmMenuCancelButton { get; set; }
+
     private GameWorld World { get; set; }
     private bool IsWorldLoaded { get; set; }
     private bool IsLoadingTextureLoaded { get; set; }
+    private bool IsPaused { get; set; }
+    private bool IsQuitting { get; set; }
+    private float StoredTimeScale { get; set; }
 
     /// <summary>
     /// Called when the scene is loaded. Override this method to provide custom scene initialization logic and to load resources.
@@ -35,6 +50,7 @@ internal class GameScene : Scene {
         Input.RegisterHotkey(GameHotkeys.USE_MEMORY_1, KeyboardKey.KEY_ONE);
         Input.RegisterHotkey(GameHotkeys.USE_MEMORY_2, KeyboardKey.KEY_TWO);
         Input.RegisterHotkey(GameHotkeys.USE_MEMORY_3, KeyboardKey.KEY_THREE);
+        Input.RegisterHotkey(GameHotkeys.PAUSE, KeyboardKey.KEY_ESCAPE);
 
 
         // World = CreateTestWorld("Map_Test_1");
@@ -50,6 +66,16 @@ internal class GameScene : Scene {
         AnimationsTextureAtlas = ResourceManager.TextureAtlasLoader.Get("player_animations");
         LoadingIndicatorAnimator = new FrameAnimator(1f / 12f);
         IsLoadingTextureLoaded = false;
+
+        PauseMenuPanel = new GuiPanel("0.5 0.7 0.3 0.3", "panel", new Vector2(0.25f, 0.5f));
+        PauseMenuText = new GuiLabel("0.5 0.48 0.27 0.125", "Paused", new Vector2(0.5f, 0.5f));
+        PauseMenuContinueButton = new GuiTextButton("0.5 0.56 0.27 0.0625", "Continue", new Vector2(0.5f, 0.5f));
+        PauseMenuQuitButton = new GuiTextButton("0.5 0.64 0.27 0.0625", "Quit", new Vector2(0.5f, 0.5f));
+
+        ConfirmMenuPanel = new GuiPanel("0.5 0.7 0.3 0.3", "panel", new Vector2(0.25f, 0.5f));
+        ConfirmMenuText = new GuiLabel("0.5 0.48 0.27 0.0625", "Loss of X memories. Continue?", new Vector2(0.5f, 0.5f));
+        ConfirmMenuQuitButton = new GuiTextButton("0.5 0.64 0.27 0.0625", "Quit", new Vector2(0.5f, 0.5f));
+        ConfirmMenuCancelButton = new GuiTextButton("0.5 0.56 0.27 0.0625", "Cancel", new Vector2(0.5f, 0.5f));
     }
 
 
@@ -83,12 +109,64 @@ internal class GameScene : Scene {
         if (IsWorldLoaded) {
             World.Render(dT);
             MemoryTrackerLabel.Draw();
+
+            DrawPauseMenu();
+            DrawConfirmMenu();
+
         } else if (IsLoadingTextureLoaded) {
             if (LoadingIndicatorAnimator.IsReady) {
                 LoadingIndicatorAnimator.StartSequence("walk");
             }
             LoadingIndicatorAnimator.Render(dT, new Rectangle(Application.BASE_WIDTH / 2, Application.BASE_HEIGHT / 2, Application.BASE_HEIGHT * 0.2f, Application.BASE_HEIGHT * 0.2f), 0, new Vector2(0.5f, 0.5f), Raylib.WHITE);
         }
+    }
+
+    internal void DrawPauseMenu(){
+        if (IsPaused && !IsQuitting){
+            PauseMenuPanel.Draw();
+            PauseMenuText.Draw();
+            PauseMenuContinueButton.Draw();
+            PauseMenuQuitButton.Draw();
+        }
+
+        if (Input.IsHotkeyActive(GameHotkeys.PAUSE) || (IsPaused && PauseMenuContinueButton.IsClicked)){
+            if (IsPaused){
+                World.TimeScale = StoredTimeScale;
+            }
+            else{
+                StoredTimeScale = World.TimeScale;
+                World.TimeScale = 0;
+            }
+            IsPaused = !IsPaused;
+        }
+
+        if (IsPaused && PauseMenuQuitButton.IsClicked){
+            if (World.MemoryTracker.NumTemproaryMemories > 0){
+                ConfirmMenuText.Text = $"You'll loose {World.MemoryTracker.NumTemproaryMemories} memor{(World.MemoryTracker.NumTemproaryMemories > 1 ? "ies" : "y")}. Continue?";
+                IsQuitting = true;
+            }
+            else{
+                GameManager.SetScene(new MainMenuScene());
+            }
+        }
+    }
+
+    internal void DrawConfirmMenu(){
+        if (IsQuitting){
+            ConfirmMenuPanel.Draw();
+            ConfirmMenuText.Draw();
+            ConfirmMenuCancelButton.Draw();
+            ConfirmMenuQuitButton.Draw();
+
+            if (ConfirmMenuQuitButton.IsClicked){
+                IsQuitting = false;
+                GameManager.SetScene(new MainMenuScene());
+            }
+            if (ConfirmMenuCancelButton.IsClicked){
+                IsQuitting = false;
+            }
+        }
+
     }
 
     internal override void RenderPostProcessed(ShaderResource shader, float dT) {
@@ -101,7 +179,21 @@ internal class GameScene : Scene {
     /// <summary>
     /// Called when the scene is about to be unloaded or replaced by another scene. Override this method to provide custom cleanup or deinitialization logic and to unload resources.
     /// </summary>
-    internal override void Unload() { }
+    internal override void Unload() {
+        Input.UnregisterHotkey(GameHotkeys.MOVE_UP);
+        Input.UnregisterHotkey(GameHotkeys.MOVE_LEFT);
+        Input.UnregisterHotkey(GameHotkeys.MOVE_DOWN);
+        Input.UnregisterHotkey(GameHotkeys.MOVE_RIGHT);
+        Input.UnregisterHotkey(GameHotkeys.SNEAK);
+        Input.UnregisterHotkey(GameHotkeys.SPRINT);
+        Input.UnregisterHotkey(GameHotkeys.INTERACT);
+        Input.UnregisterHotkey(GameHotkeys.USE_MEMORY_1);
+        Input.UnregisterHotkey(GameHotkeys.USE_MEMORY_2);
+        Input.UnregisterHotkey(GameHotkeys.USE_MEMORY_3);
+        Input.UnregisterHotkey(GameHotkeys.PAUSE);
+
+        World.Unload();
+    }
 
     private static GameWorld CreateTestWorld(string fileName) {
         string path = Path.Combine("Resources", "TestStuff", "Maps", $"{fileName}.txt");
