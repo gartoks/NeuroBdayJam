@@ -3,14 +3,14 @@ using Raylib_CsLo;
 using System.Numerics;
 
 namespace NeuroBdayJam.Game.Gui;
-internal sealed class GUIImage : GuiElement {
+internal sealed class GuiImage : GuiElement {
     public IDrawableResource Texture { get; set; }
     public ColorResource Tint { get; set; }
 
     public float Rotation { get; set; }
     public float Scale { get; set; }
 
-    public GUIImage(float x, float y, float scale, IDrawableResource texture, Vector2? pivot = null)
+    public GuiImage(float x, float y, float scale, IDrawableResource texture, Vector2? pivot = null)
         : base(x, y, scale * texture.Width, scale * texture.Height, pivot) {
 
         Scale = scale;

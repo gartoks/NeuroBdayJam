@@ -5,7 +5,7 @@ using System.Numerics;
 
 namespace NeuroBdayJam.Game.Scenes;
 internal sealed class MainMenuScene : Scene {
-    private GUIImage TitleImage { get; }
+    private GuiImage TitleImage { get; }
     private GuiTextButton PlayButton { get; }
     private GuiTextButton SettingsButton { get; }
     private GuiTextButton QuitButton { get; }
@@ -22,7 +22,7 @@ internal sealed class MainMenuScene : Scene {
         QuitButton = new GuiTextButton($"{xOffset} {yOffset} 0.25 0.1", "Quit", new Vector2(0.5f, 0.5f));
         yOffset += 0.125f;
 
-        TitleImage = new GUIImage(
+        TitleImage = new GuiImage(
             Application.BASE_WIDTH * 0.3f, Application.BASE_HEIGHT * 0.4f,
             1.5f,
             ResourceManager.TextureLoader.Fallback,

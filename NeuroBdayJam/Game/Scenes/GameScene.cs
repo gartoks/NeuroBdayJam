@@ -29,6 +29,7 @@ internal class GameScene : Scene {
     private GuiPanel ConfirmMenuPanel { get; set; }
     private GuiTextButton ConfirmMenuQuitButton { get; set; }
     private GuiTextButton ConfirmMenuCancelButton { get; set; }
+    private List<(string memoryName, Ability ability, GuiTexturePanel panel)> AbilityPanels { get; set; }
 
     private GameWorld World { get; set; }
     private bool IsWorldLoaded { get; set; }
@@ -54,7 +55,6 @@ internal class GameScene : Scene {
         }
     }
 
-    private List<(string memoryName, Ability ability, GuiTexturePanel panel)> AbilityPanels;
 
     /// <summary>
     /// Called when the scene is loaded. Override this method to provide custom scene initialization logic and to load resources.
@@ -82,12 +82,12 @@ internal class GameScene : Scene {
 
 
             AbilityPanels = new(){
-                new("Memory 1", World.Player.Camouflage, new GuiTexturePanel("0.08 0.95 90px 90px", "camoflauge", new Vector2(0.5f, 0.5f))),
-                new("Memory 2", World.Player.Dash, new GuiTexturePanel("0.14 0.95 90px 90px", "dash", new Vector2(0.5f, 0.5f))),
-                // new("Memory 3",World.Player.Stun,  new GuiTexturePanel("0.20 0.95 90px 90px", "stun", new Vector2(0.5f, 0.5f)))
+                new("Memory 1", World.Player.Camouflage, new GuiTexturePanel("0.08 0.95 90px 90px", GameManager.MiscAtlas.GetSubTexture("ability_camouflage")!, new Vector2(0.5f, 0.5f))),
+                new("Memory 2", World.Player.Dash, new GuiTexturePanel("0.14 0.95 90px 90px", GameManager.MiscAtlas.GetSubTexture("ability_dash")!, new Vector2(0.5f, 0.5f))),
+                //new("Memory 3", World.Player.Stun, new GuiTexturePanel("0.20 0.95 90px 90px", GameManager.MiscAtlas.GetSubTexture("ability_stun")!, new Vector2(0.5f, 0.5f))),
             };
 
-            foreach((string _, Ability ability, GuiTexturePanel panel) in AbilityPanels){
+            foreach ((string _, Ability ability, GuiTexturePanel panel) in AbilityPanels) {
                 panel.TextureScale = new Vector2(0.8f);
                 panel.Load();
             }
@@ -210,12 +210,12 @@ internal class GameScene : Scene {
 
     }
 
-    internal void DrawAbilityPanels(){
-        foreach((string name, Ability ability, GuiTexturePanel panel) in AbilityPanels){
-            if (World.MemoryTracker.IsMemoryCollected(name)){
+    internal void DrawAbilityPanels() {
+        foreach ((string name, Ability ability, GuiTexturePanel panel) in AbilityPanels) {
+            if (World.MemoryTracker.IsMemoryCollected(name)) {
                 panel.Panel.Tint = new ColorResource("ability_reload_faded", Raylib.WHITE, (_) => {
                     Color color = ResourceManager.ColorLoader.Get("ability_reloading").Resource;
-                    
+
                     color.r = (byte)(color.r * ability.RechargePercentage + (1 - ability.RechargePercentage) * 255);
                     color.g = (byte)(color.g * ability.RechargePercentage + (1 - ability.RechargePercentage) * 255);
                     color.b = (byte)(color.b * ability.RechargePercentage + (1 - ability.RechargePercentage) * 255);

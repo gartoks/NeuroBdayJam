@@ -22,7 +22,7 @@ internal class Cutscene {
     private float TimeSinceAdvanceDialogue { get; set; }
     private int ShownCharacters => (int)(TimeSinceAdvanceDialogue * 20);
 
-    private GUIImage TutelTalkingImage { get; set; }
+    private GuiImage TutelTalkingImage { get; set; }
     private GuiPanel DialoguePanel { get; set; }
     private GuiDynamicLabel DialogueLabel { get; set; }
 
@@ -36,7 +36,7 @@ internal class Cutscene {
         TimeSinceAdvanceDialogue = 0;
         ContinueCooldown = 0;
 
-        TutelTalkingImage = new GUIImage(0.05f * Application.BASE_WIDTH, 0.425f * Application.BASE_HEIGHT, 8, GameManager.MiscAtlas.GetSubTexture("tutel_talk")!);
+        TutelTalkingImage = new GuiImage(0.05f * Application.BASE_WIDTH, 0.425f * Application.BASE_HEIGHT, 8, GameManager.MiscAtlas.GetSubTexture("tutel_talk")!);
 
         DialoguePanel = new GuiPanel("0.025 0.55 0.95 0.4", "panel", Vector2.Zero);
         DialogueLabel = new GuiDynamicLabel(0.2f * Application.BASE_WIDTH, 0.625f * Application.BASE_HEIGHT, string.Empty, 100, Vector2.Zero);
