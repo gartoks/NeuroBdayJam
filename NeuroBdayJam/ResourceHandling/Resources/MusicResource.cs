@@ -6,7 +6,7 @@ namespace NeuroBdayJam.ResourceHandling.Resources;
 /// <summary>
 /// Game resource for music.
 /// </summary>
-internal sealed class MusicResource : GameResource<Music> {
+public sealed class MusicResource : GameResource<Music> {
     /// <summary>
     /// Constructor for a new music resource.
     /// </summary>

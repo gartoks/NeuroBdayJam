@@ -114,6 +114,9 @@ public static class Input {
     /// <param name="primaryKey">The primary key of the hotkey. This controls the state.</param>
     /// <param name="modifiers">List of key modifiers that are required to be held down in addition to the primary key. Such as Ctrl, Shift, Alt.</param>
     public static void RegisterHotkey(string key, KeyboardKey primaryKey, params KeyboardKey[] modifiers) {
+        if (Hotkeys.ContainsKey(key))
+            return;
+
         Hotkeys.Add(key, new Hotkey(key, primaryKey, modifiers));
     }
 

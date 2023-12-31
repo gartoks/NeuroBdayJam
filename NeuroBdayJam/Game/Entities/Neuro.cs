@@ -16,6 +16,7 @@ internal sealed class Neuro : Entity {
     private const float NOISE_STEP = 0.1f;
 
     private TextureAtlas AnimationsTextureAtlas { get; set; }
+    private TextureAtlas OtherAnimationsTextureAtlas { get; set; }
     private FrameAnimator FaceUpAnimator { get; set; }
     private FrameAnimator FaceDownAnimator { get; set; }
     private FrameAnimator FaceLeftAnimator { get; set; }
@@ -43,7 +44,7 @@ internal sealed class Neuro : Entity {
 
         Camouflage = new CamouflageAbility();
         Dash = new DashAbility();
-        //Stun = ;
+        Stun = new StunAbility();
 
         MovementDirection = (0, 0);
         HasMovedToNewTile = false;
@@ -51,21 +52,31 @@ internal sealed class Neuro : Entity {
 
     public override void LoadInternal() {
         AnimationsTextureAtlas = ResourceManager.TextureAtlasLoader.Get("player_animations").Resource;
+        OtherAnimationsTextureAtlas = ResourceManager.TextureAtlasLoader.Get("player2_animations").Resource;
 
         FaceUpAnimator = new FrameAnimator(1f / 12f);
-        LoadFrameAnimator(FaceUpAnimator, "up");
-
         FaceDownAnimator = new FrameAnimator(1f / 12f);
-        LoadFrameAnimator(FaceDownAnimator, "down");
-
         FaceLeftAnimator = new FrameAnimator(1f / 12f);
-        LoadFrameAnimator(FaceLeftAnimator, "left");
-
         FaceRightAnimator = new FrameAnimator(1f / 12f);
+
+        LoadFrameAnimator(FaceUpAnimator, "up");
+        LoadFrameAnimator(FaceDownAnimator, "down");
+        LoadFrameAnimator(FaceLeftAnimator, "left");
         LoadFrameAnimator(FaceRightAnimator, "right");
 
         LastAnimator = FaceDownAnimator;
         LastAnimator.StartSequence("idle");
+    }
+
+    public void SwitchCharacter() {
+        TextureAtlas tmp = AnimationsTextureAtlas;
+        AnimationsTextureAtlas = OtherAnimationsTextureAtlas;
+        OtherAnimationsTextureAtlas = tmp;
+
+        LoadFrameAnimator(FaceUpAnimator, "up");
+        LoadFrameAnimator(FaceDownAnimator, "down");
+        LoadFrameAnimator(FaceLeftAnimator, "left");
+        LoadFrameAnimator(FaceRightAnimator, "right");
     }
 
     public override void Render(float dT) {
@@ -112,17 +123,17 @@ internal sealed class Neuro : Entity {
 
     private void UpdateAbilities(float dT) {
         Camouflage.Update(dT);
-        if (World.MemoryTracker.IsMemoryCollected("Memory 1") && Input.IsHotkeyActive(GameHotkeys.USE_MEMORY_1) && Camouflage.IsReady)
+        if (World!.MemoryTracker.IsMemoryCollected("Memory 1") && Input.IsHotkeyActive(GameHotkeys.USE_MEMORY_1) && Camouflage.IsReady)
             Camouflage.Use(this);
 
         Dash.Update(dT);
         if (World.MemoryTracker.IsMemoryCollected("Memory 2") && Input.IsHotkeyActive(GameHotkeys.USE_MEMORY_2) && Dash.IsReady)
             Dash.Use(this);
 
-        /*Stun.Update(dT);
+        Stun.Update(dT);
         if (World.MemoryTracker.IsMemoryCollected("Memory 3") && Input.IsHotkeyActive(GameHotkeys.USE_MEMORY_3) && Stun.IsReady) {
-
-        }*/
+            Stun.Use(this);
+        }
     }
 
     private void UpdateMovement(float dT) {
@@ -226,13 +237,17 @@ internal sealed class Neuro : Entity {
     }
 
     private void LoadFrameAnimator(FrameAnimator animator, string direction) {
-        for (int i = 0; i < 4; i++)
-            animator.AddFrameKey($"idle_{i}", AnimationsTextureAtlas.GetSubTexture($"idle_{direction}_{i}")!);
-        for (int i = 0; i < 8; i++)
-            animator.AddFrameKey($"walk_{i}", AnimationsTextureAtlas.GetSubTexture($"walk_{direction}_{i}")!);
+        LoadFrameKeys(animator, direction);
 
         animator.AddFrameSequence("idle", 1, "idle_0", "idle_0", "idle_0", "idle_0", "idle_0", "idle_1", "idle_1", "idle_1", "idle_2", "idle_2", "idle_2", "idle_2", "idle_2", "idle_3", "idle_3", "idle_3");
         animator.AddFrameSequence("walk", 1, "walk_0", "walk_0", "walk_1", "walk_1", "walk_2", "walk_2", "walk_3", "walk_3", "walk_4", "walk_4", "walk_5", "walk_5", "walk_6", "walk_6", "walk_7", "walk_7");
         animator.SetDefaultSequence("idle");
+    }
+
+    private void LoadFrameKeys(FrameAnimator animator, string direction) {
+        for (int i = 0; i < 4; i++)
+            animator.AddFrameKey($"idle_{i}", AnimationsTextureAtlas.GetSubTexture($"idle_{direction}_{i}")!);
+        for (int i = 0; i < 8; i++)
+            animator.AddFrameKey($"walk_{i}", AnimationsTextureAtlas.GetSubTexture($"walk_{direction}_{i}")!);
     }
 }

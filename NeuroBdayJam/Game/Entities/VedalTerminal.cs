@@ -59,7 +59,7 @@ internal sealed class VedalTerminal : Entity {
             }
 
             if (SecondsHeld >= INTERACTION_TIME && CooldownTimeLeft <= 0) {
-                World.MemoryTracker.InternalizeMemories();
+                World.MemoryTracker.InternalizeMemory();
                 SecondsHeld = 0;
                 CooldownTimeLeft = COOLDOWN_TIME;
             }

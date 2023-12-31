@@ -1,6 +1,7 @@
-using NeuroBdayJam.App;
 using NeuroBdayJam.Audio;
+using NeuroBdayJam.Game.Scenes;
 using NeuroBdayJam.Game.World;
+using NeuroBdayJam.ResourceHandling;
 
 namespace NeuroBdayJam.Game.Memories;
 internal class MemoryTracker {
@@ -9,85 +10,96 @@ internal class MemoryTracker {
         public string ClipFilename;
     }
 
+    private GameWorld World { get; }
+
     public int NumMemories => AllMemories.Count;
     public int NumMemoriesCollected => CollectedMemories.Count;
-    public int NumTemproaryMemories => TemporaryMemories.Count;
+    public bool HoldsMemory => TemporaryMemory >= 0;
     public int NumUncollectedMemories => UncollectedMemories.Count;
 
     public static List<MemoryData> AllMemories { get; }
     private List<int> CollectedMemories;
-    private List<int> TemporaryMemories;
     private List<int> UncollectedMemories;
-
-    private int MusicVolumeBeforeChange = 0;
-
-    private int CurrentlyPlayingMemoryIndex = -1;
-    private bool WaitingForMemoryPlay = false;
+    private int TemporaryMemory;
 
     static MemoryTracker() {
         AllMemories = new(){
             new() {
                 Name = "Memory 1",
-                ClipFilename = "Clips/Never_call_Neuro_a_Bro"
+                ClipFilename = "Clips/memory_1"
             },
             new() {
                 Name = "Memory 2",
-                ClipFilename = "Clips/Never_call_Neuro_a_Bro"
+                ClipFilename = "Clips/memory_2"
             },
             new() {
                 Name = "Memory 3",
-                ClipFilename = "Clips/Never_call_Neuro_a_Bro"
+                ClipFilename = "Clips/memory_3"
+            },
+            new() {
+                Name = "Memory 4",
+                ClipFilename = "Clips/memory_4"
+            },
+            new() {
+                Name = "Memory 5",
+                ClipFilename = ""
             }
         };
     }
 
-    public MemoryTracker() {
+    public MemoryTracker(GameWorld world) {
+        World = world;
         CollectedMemories = new();
         UncollectedMemories = AllMemories.Select((m, i) => i).ToList();
-        TemporaryMemories = new();
+        TemporaryMemory = -1;
     }
 
     public bool IsMemoryCollected(string name) {
-        return true;    // TODO for testing
-        return CollectedMemories.Contains(AllMemories.FindIndex(m => m.Name == name)) || TemporaryMemories.Contains(AllMemories.FindIndex(m => m.Name == name));
+        return CollectedMemories.Contains(AllMemories.FindIndex(m => m.Name == name)) || TemporaryMemory == AllMemories.FindIndex(m => m.Name == name);
     }
 
     public int GetNextUncollectedMemory() {
         return UncollectedMemories.First();
     }
 
-    public void CollectMemory(int index) {
-        UncollectedMemories.Remove(index);
-        TemporaryMemories.Add(index);
+    public bool TryCollectMemory(int index) {
+        if (HoldsMemory)
+            return false;
 
-        AudioManager.PlaySound(AllMemories[index].ClipFilename);
-        CurrentlyPlayingMemoryIndex = index;
-        MusicVolumeBeforeChange = Application.Settings.MusicVolume;
-        Application.Settings.MusicVolume = (int)((float)Application.Settings.MusicVolume * 0.3);
-        WaitingForMemoryPlay = true;
+        UncollectedMemories.Remove(index);
+        TemporaryMemory = index;
+
+        if (index == 3) {
+            AudioManager.ClearMusic();
+            GameManager.Music.Clear();
+            GameManager.Music.Add(ResourceManager.MusicLoader.Get("music_2"));
+        }
+
+        return true;
     }
 
-    public void InternalizeMemories() {
-        CollectedMemories.InsertRange(CollectedMemories.Count, TemporaryMemories);
-        TemporaryMemories.Clear();
+    public void InternalizeMemory() {
+        int tempMemIdx = TemporaryMemory;
+        CollectedMemories.Add(tempMemIdx);
+
+        string memClipFile = AllMemories[tempMemIdx].ClipFilename;
+        ((GameScene)GameManager.Scene).Cutscene = new Cutscene($"dialogue_memory_{tempMemIdx + 1}", () => {
+            if (tempMemIdx == 3)
+                World.Player.SwitchCharacter();
+
+            if (tempMemIdx == 4)
+                GameManager.SetScene(new MainMenuScene());
+
+            if (!string.IsNullOrEmpty(memClipFile))
+                AudioManager.PlaySound(memClipFile, 1f);
+        });
+
+        TemporaryMemory = -1;
     }
 
     public void LooseTemporaryMemories() {
-        UncollectedMemories.InsertRange(UncollectedMemories.Count, TemporaryMemories);
+        UncollectedMemories.Add(TemporaryMemory);
         UncollectedMemories.Sort();
-        TemporaryMemories.Clear();
-    }
-
-    public void Update(GameWorld world, float dT) {
-        if (CurrentlyPlayingMemoryIndex >= 0) {
-            if (AudioManager.IsSoundPlaying(AllMemories[CurrentlyPlayingMemoryIndex].ClipFilename)) {
-                world.TimeScale = 0;
-                WaitingForMemoryPlay = false;
-            } else if (!WaitingForMemoryPlay){
-                world.TimeScale = 1;
-                Application.Settings.MusicVolume = MusicVolumeBeforeChange;
-                CurrentlyPlayingMemoryIndex = -1;
-            }
-        }
+        TemporaryMemory = -1;
     }
 }

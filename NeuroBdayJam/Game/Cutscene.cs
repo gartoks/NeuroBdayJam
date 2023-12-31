@@ -1,5 +1,4 @@
 ﻿using NeuroBdayJam.App;
-using NeuroBdayJam.Audio;
 using NeuroBdayJam.Game.Gui;
 using NeuroBdayJam.Game.Utils;
 using NeuroBdayJam.ResourceHandling;
@@ -10,7 +9,7 @@ using System.Numerics;
 namespace NeuroBdayJam.Game;
 internal class Cutscene {
     private string Key { get; }
-    private string? SoundWhenFinished { get; set; }
+    private Action? ActionWhenFinished { get; set; }
 
     private IReadOnlyDictionary<int, string> Dialogue { get; set; }
 
@@ -26,17 +25,17 @@ internal class Cutscene {
     private GuiPanel DialoguePanel { get; set; }
     private GuiDynamicLabel DialogueLabel { get; set; }
 
-    public Cutscene(string resourceKey, string soundWhenFinished) {
+    public Cutscene(string resourceKey, Action? actionWhenFinished) {
         Key = resourceKey;
-        SoundWhenFinished = soundWhenFinished;
+        ActionWhenFinished = actionWhenFinished;
 
-        Dialogue = ResourceManager.TextLoader.Get(resourceKey).WaitForLoad().ToDictionary(kvp => int.Parse(kvp.Key, CultureInfo.InvariantCulture), kvp => kvp.Value);
+        Dialogue = ResourceManager.TextLoader.Get(resourceKey).Resource.ToDictionary(kvp => int.Parse(kvp.Key, CultureInfo.InvariantCulture), kvp => kvp.Value);
 
         CurrentDialogueIndex = 0;
         TimeSinceAdvanceDialogue = 0;
         ContinueCooldown = 0;
 
-        TutelTalkingImage = new GuiImage(0.05f * Application.BASE_WIDTH, 0.425f * Application.BASE_HEIGHT, 8, GameManager.MiscAtlas.GetSubTexture("tutel_talk")!);
+        TutelTalkingImage = new GuiImage(0.045f * Application.BASE_WIDTH, 0.425f * Application.BASE_HEIGHT, 8, GameManager.MiscAtlas.GetSubTexture("tutel_talk")!);
 
         DialoguePanel = new GuiPanel("0.025 0.55 0.95 0.4", "panel", Vector2.Zero);
         DialogueLabel = new GuiDynamicLabel(0.2f * Application.BASE_WIDTH, 0.625f * Application.BASE_HEIGHT, string.Empty, 100, Vector2.Zero);
@@ -62,8 +61,7 @@ internal class Cutscene {
                 if (IsFinished) {
                     Input.UnregisterHotkey(GameHotkeys.ADVANCE_DIALOGUE);
 
-                    if (SoundWhenFinished != null)
-                        AudioManager.PlaySound(SoundWhenFinished);
+                    ActionWhenFinished?.Invoke();
                 }
             } else if (ShownCharacters <= Dialogue[CurrentDialogueIndex].Length) {
                 TimeSinceAdvanceDialogue = 1000;
